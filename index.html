@@ -9,33 +9,33 @@
 
 <style>
 :root {
-  --bg: #faf9f6;
-  --fg: #000000;
-  --muted: #666666;
-  --border: #cccccc;
-  --border-light: #e8e8e4;
-  --card: #f2f0ec;
-  --hover: #eef2ff;
-  --playing: #fffde6;
-  --playing-title: #990000;
-  --link: #0000cc;
-  --link-vis: #551a8b;
-  --link-hov: #cc0000;
-  --btn-bg: #d4d0c8;
-  --btn-hi: #ffffff;
-  --btn-sh: #808080;
-  --btn-dk: #404040;
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #555555;
+  --border: #bbbbbb;
+  --border-light: #dddddd;
+  --card: #eeeeee;
+  --hover: #dde6ff;
+  --playing: #f5f5e0;
+  --playing-title: #880000;
+  --link: #0000aa;
+  --link-vis: #440088;
+  --link-hov: #aa0000;
+  --btn-bg: #d0d0d0;
+  --btn-hi: #f8f8f8;
+  --btn-sh: #888888;
+  --btn-dk: #444444;
   --scrub-bg: #c0c0c0;
-  --now-bg: #f2f0ec;
-  --tab-inactive: #d4d0c8;
-  --star-on: #990000;
-  --tag-bg: #000066;
+  --now-bg: #e8e8e8;
+  --tab-inactive: #cccccc;
+  --star-on: #880000;
+  --tag-bg: #222222;
   --tag-fg: #ffffff;
-  --sec-ga: #000066;
-  --sec-gb: #0000aa;
-  --logo-g1: #000055;
+  --sec-ga: #333333;
+  --sec-gb: #555555;
+  --logo-g1: #000044;
   --logo-g2: #003399;
-  --logo-g3: #000055;
+  --logo-g3: #000044;
   --logo-glo: #2255ee;
   --gold-bg: #c8a84b;
   --gold-hi: #f0d480;
@@ -178,8 +178,8 @@ body.hide-titles #now-title-show{visibility:hidden}
 #pb-scrub{width:100%;-webkit-appearance:none;height:10px;background:var(--scrub-bg);border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);outline:none;cursor:pointer}
 #pb-scrub::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:12px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);cursor:pointer}
 
-#now-video-wrap{display:none;width:100%;background:#000;position:relative}
-#now-video-wrap video{width:100%;max-height:380px;display:block}
+#now-video-wrap{display:none;width:100%;background:#000;position:relative;margin:0 -0px}
+#now-video-wrap video{width:100%;aspect-ratio:16/9;max-height:60vh;display:block;object-fit:contain;background:#000}
 #now-video-close{position:absolute;top:5px;right:8px;font-family:Arial,sans-serif;font-size:11px;background:rgba(0,0,0,.65);color:#fff;border:1px solid #666;padding:2px 8px;cursor:pointer}
 
 /* TABS */
@@ -208,9 +208,11 @@ body.hide-titles #now-title-show{visibility:hidden}
 
 .htag-section{border:1px solid var(--border);border-top:none}
 .htag-section:first-of-type{border-top:1px solid var(--border)}
+.htag-section.best-tag{border:2px solid #c8a84b;box-shadow:0 0 0 1px rgba(200,168,75,.25)}
+.htag-section.best-tag .htag-head{background:linear-gradient(90deg,#2a2000,#3a3000)}
 .htag-head{display:flex;align-items:center;justify-content:space-between;padding:4px 10px;background:linear-gradient(90deg,var(--sec-ga),var(--sec-gb));color:var(--tag-fg);cursor:pointer;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;user-select:none}
 .htag-head:hover{opacity:.9}
-.htag-meta{font-size:10px;opacity:.72;font-weight:normal;letter-spacing:0;text-transform:none}
+.htag-meta{font-size:11px;font-weight:normal;letter-spacing:0;text-transform:none}
 .htag-arrow{font-size:10px;margin-left:6px}
 .htag-body{display:none}
 .htag-body.open{display:block}
@@ -234,7 +236,7 @@ body.hide-titles #now-title-show{visibility:hidden}
 .t-title{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.hide-titles .t-title-name{display:none}
 body.hide-titles .t-title-file{display:inline !important}
-.t-title-file{display:none;color:var(--muted);font-weight:normal}
+.t-title-file{display:none;color:var(--fg);font-weight:normal;font-style:normal}
 .t-meta{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .t-right{display:table-cell;vertical-align:middle;padding:5px 8px 5px 4px;text-align:right;white-space:nowrap;width:90px}
 .t-right a,.t-right button{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px;cursor:pointer;display:inline-block;line-height:1.4}
@@ -245,7 +247,7 @@ body.hide-titles .t-title-file{display:inline !important}
 .extras-row{display:table;width:100%;box-sizing:border-box}
 .extras-cell{display:table-cell;padding:6px 8px;border-top:1px solid var(--border-light);background:var(--card)}
 .extras-cell img{width:60px;height:60px;object-fit:cover;border:1px solid var(--border);margin-right:4px;vertical-align:top}
-#empty-msg{display:none;padding:20px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted);text-align:center;font-style:italic;border:1px solid var(--border);border-top:none}
+#empty-msg{display:none;padding:20px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted);text-align:center;border:1px solid var(--border);border-top:none}
 
 @media(max-width:520px){
   #site-name{font-size:32px}
@@ -344,6 +346,7 @@ body.hide-titles .t-title-file{display:inline !important}
   <label for="search-input" style="font-family:Arial,sans-serif;font-size:12px">Search:</label>
   <input type="search" id="search-input" placeholder="title or #tag" autocomplete="off" spellcheck="false">
   <button class="tbtn" id="formats-btn">Show files</button>
+  <button class="tbtn" id="video-btn">Has video</button>
   <span id="track-count"></span>
 </div>
 
@@ -429,7 +432,7 @@ const state={
   favorites:new Set(JSON.parse(localStorage.getItem('vvip25:favs')||'[]')),
   favOrder:JSON.parse(localStorage.getItem('vvip25:favOrder')||'[]'),
   searchQuery:'',viewMode:'hashtags',sortMode:'date_desc',
-  extras:{},showFormats:false,hiddenIds:new Set(),titles:null,
+  extras:{},showFormats:false,filterVideo:false,hiddenIds:new Set(),titles:null,
 };
 
 const pf=$('#vvip-player-frame');
@@ -462,6 +465,11 @@ $('#formats-btn').addEventListener('click',()=>{
   $('#formats-btn').classList.toggle('pressed',state.showFormats);
   $('#formats-btn').textContent=state.showFormats?'Hide files':'Show files';
   renderList();
+});
+$('#video-btn').addEventListener('click',()=>{
+  state.filterVideo=!state.filterVideo;
+  $('#video-btn').classList.toggle('pressed',state.filterVideo);
+  applyFilterSort();
 });
 
 document.addEventListener('DOMContentLoaded',async()=>{
@@ -544,8 +552,14 @@ function openVideo(hq){
   const t=state.filtered[state.i];if(!t)return;
   const url=hq?getHqVid(t):getLoVid(t);
   if(!url){alert(hq?'HQ video not available (members only).':'No video available for this track.');return}
+  // Pause audio player first
+  pause();
   const vw=$('#now-video-wrap'),vid=$('#now-video');
-  vw.style.display='block';vid.src=url;vid.play().catch(()=>{});
+  vid.src=url;
+  vw.style.display='block';
+  vid.style.cssText='width:100%;max-height:none;aspect-ratio:16/9;display:block;background:#000';
+  vid.load();
+  vid.play().catch(()=>{});
 }
 function closeVideo(){
   const vw=$('#now-video-wrap'),vid=$('#now-video');
@@ -553,6 +567,7 @@ function closeVideo(){
 }
 
 function sortTracks(arr,mode){
+  if(mode==='shuffle'){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return}
   arr.sort((a,b)=>{
     if(mode==='date_asc')return(a.date-b.date)||a.name.localeCompare(b.name);
     if(mode==='bpm_desc')return(b.bpm||b.bpm_min||0)-(a.bpm||a.bpm_min||0);
@@ -565,6 +580,7 @@ function sortTracks(arr,mode){
 function applyFilterSort(){
   const toks=(state.searchQuery||'').split(/\s+/).filter(Boolean);
   let out=[...state.tracks].filter(t=>!t.varNum);
+  if(state.filterVideo) out=out.filter(t=>getLoVid(t)||getHqVid(t));
   if(state.searchQuery){
     out=out.filter(t=>matchToks(t,toks));
     sortTracks(out,state.sortMode);
@@ -578,7 +594,7 @@ function applyFilterSort(){
   sortTracks(out,state.sortMode);state.filtered=out;renderList();
 }
 
-const RSORTS=['date_desc','date_asc','bpm_desc','bpm_asc'];
+const RSORTS=['date_desc','date_asc','shuffle'];
 
 function renderHashtags(){
   const hv=$('#hashtag-view'),list=$('#list'),empty=$('#empty-msg');
@@ -592,9 +608,12 @@ function renderHashtags(){
     const used=t.tags.length?t.tags:['untagged'];
     for(const tag of used)(tagMap[tag]=tagMap[tag]||[]).push(t);
   }
+  // bestofvvip always first, untagged always last, rest by count desc then alpha
   const tags=Object.keys(tagMap).sort((a,b)=>{
+    if(a===PREFERRED_TAG)return -1;if(b===PREFERRED_TAG)return 1;
     if(a==='untagged')return 1;if(b==='untagged')return -1;
-    return tagMap[b].length-tagMap[a].length;
+    const diff=tagMap[b].length-tagMap[a].length;
+    return diff!==0?diff:a.localeCompare(b);
   });
 
   const counts=tags.map(t=>tagMap[t].length);
@@ -638,7 +657,7 @@ function renderHashtags(){
     const st=[...tracks];
     if(isDef)sortTracks(st,defSort);else sortTracks(st,'date_desc');
 
-    const sec=document.createElement('div');sec.className='htag-section';sec.dataset.tag=tag;
+    const sec=document.createElement('div');sec.className='htag-section'+(tag===PREFERRED_TAG?' best-tag':'');sec.dataset.tag=tag;
 
     const head=document.createElement('div');head.className='htag-head';
     head.innerHTML='<span>#'+tag+'</span><span class="htag-meta">['+tracks.length+' track'+(tracks.length!==1?'s':'')+']<span class="htag-arrow" style="margin-left:6px">'+(isDef?'\u25be':'\u25b8')+'</span></span>';
@@ -650,7 +669,7 @@ function renderHashtags(){
     const expBtn=document.createElement('a');expBtn.className='htag-export';expBtn.href='#';expBtn.textContent='\u2b07 .m3u';
     expBtn.addEventListener('click',ev=>{ev.preventDefault();downloadM3U(tag,st)});
     const sortSel=document.createElement('select');sortSel.className='htag-sort';
-    [['date_desc','Newest'],['date_asc','Oldest'],['bpm_desc','BPM \u2193'],['bpm_asc','BPM \u2191']].forEach(([v,l])=>{
+    [['date_desc','Newest'],['date_asc','Oldest'],['shuffle','Shuffle']].forEach(([v,l])=>{
       const o=document.createElement('option');o.value=v;o.textContent=l;
       if(isDef&&v===defSort)o.selected=true;
       else if(!isDef&&v==='date_desc')o.selected=true;
