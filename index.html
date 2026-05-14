@@ -1,1779 +1,703 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vvvvvvvvvvvvviiiip '26</title>
-  <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" href="/favicon.ico?v=3">
-  <link rel="preconnect" href="https://cdn.vvipmedia.net" crossorigin>
-  <meta name="theme-color" content="#0b0b0c"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VVIP Media</title>
+<link rel="icon" href="/favicon.ico?v=3">
+<link rel="preconnect" href="https://cdn.vvipmedia.net" crossorigin>
 
 <style>
-  :root {
-    --bg:#0b0b0c;
-    --fg:#eceff4;
-    --muted:#9aa0a6;
-    --card:#141416;
-    --border:#26272b;
-    --accent:#6ee7b7;
-  }
-
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--fg);
-    font:16px/1.5 -apple-system,BlinkMacSystemFont,"Helvetica Neue",Helvetica,Arial,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
-  }
-  html{-webkit-text-size-adjust:100%}
-  input,select,button{font-size:16px}
-  .wrap{max-width:920px;margin:0 auto;padding:16px}
-
-  header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    position:relative;
-  }
-
-  /* --- Site Title --- */
-  #site-title{
-    margin:0;
-    font-size:80px;
-    letter-spacing:.06em;
-    font-weight:800;
-    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    color:transparent;
-    -webkit-text-fill-color:transparent;
-    -webkit-text-stroke:2.25px #fdf6d0;
-  }
-
-  /* --- Player Core --- */
-.player {
-  position: relative;
-  z-index: 10;
-  background: var(--bg);
-  border-bottom: none;
+body {
+  margin: 0;
+  background: #ffffff;
+  color: #000000;
+  font-family: Times New Roman, Times, serif;
+  font-size: 15px;
+  line-height: 1.4;
 }
-  /* --- Now Playing --- */
-  .now{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:14px;
-    padding:20px 0 28px;
-    border-bottom: none !important;
-  }
+a { color: #0000cc; text-decoration: underline; }
+a:visited { color: #551a8b; }
+a:hover { color: #cc0000; }
 
-.cover {
-  width: 520px;
-  height: 520px;
-  border-radius: 18px;
-  position: relative;
-  display: grid;
-  place-items: center;
-  overflow: visible;             /* stop Safari’s halo-causing mask blend */
-  background: #000;
-  border: none;
-  box-shadow: none;
-  outline: none;
-  isolation: isolate;
-  backface-visibility: hidden;
-  -webkit-transform: translateZ(0);
-  mask-image: radial-gradient(circle at center, #000 99.8%, transparent 100%);
-  -webkit-mask-image: radial-gradient(circle at center, #000 99.8%, transparent 100%);
+#page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 12px 120px;
 }
 
-.now .cover img {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100.5%;
-  height: 100.5%;
-  border-radius: 18px;           /* reapply the curve directly to the image */
-  object-fit: cover;
-  background: #000;
-  border: none;
-  outline: none;
-  transform: scale(1.001);
-  backface-visibility: hidden;
+/* HEADER */
+#site-header {
+  border-bottom: 2px solid #000000;
+  padding: 18px 0 10px;
 }
-  /* --- Desktop Now Playing Title --- */
-  #now-title{
-    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-size:68px;
-    font-weight:800;
-    letter-spacing:.06em;
-    color:#fdf6d0;
-    text-align:center;
-    line-height:1.1;
-    margin:0;
-  }
-
-  /* --- Sub Info: clean, no dots --- */
-  #now-sub{
-    color:var(--muted);
-    font-size:14px;
-    letter-spacing:.03em;
-  }
-
-  /* --- Controls --- */
-  .controls{
-    display:flex;
-    justify-content:center;
-    gap:18px;
-    padding:10px 0 0;
-  }
-  .controls button svg{
-    width:32px;
-    height:32px;
-    fill:#fdf6d0;
-  }
-  .range,[title="Volume"]{
-    display:none!important;
-  }
-
-  /* --- Buttons --- */
-  button{
-    appearance:none;
-    background:var(--card);
-    color:var(--fg);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:8px 12px;
-    cursor:pointer;
-  }
-  button:disabled{opacity:.55;cursor:not-allowed}
-
-  /* Hide times + subtext under title */
-#now-sub { display:none !important; }
-.range, [title="Volume"], #tcur, #tdur { display:none !important; }
-
-  /* --- List + Rows --- */
-  .list{
-    margin:0;
-    border:none;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  box-shadow: 0 -12px 20px rgba(0,0,0,0.3);
-    border-radius:0;
-    background:var(--bg);
-  }
-
-  .row{
-    display:grid;
-    grid-template-columns:80px 1fr auto;
-    gap:14px;
-    align-items:center;
-    padding:12px 14px;
-    border-top:1px solid var(--border);
-    background:var(--card);
-    min-height:90px;
-  }
-  .row:first-child{border-top:0}
-  .row:hover{background:#17171b}
-  .row img{
-    width:80px;
-    height:80px;
-    border-radius:10px;
-    object-fit:cover;
-  }
-
-  .badge{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    font-size:12px;
-    justify-self:end;
-  }
-  .badge a{
-    color:var(--fg);
-    text-decoration:none;
-    border:1px solid var(--border);
-    padding:4px 8px;
-    border-radius:8px;
-  }
-  .badge .muted{color:var(--muted)}
-
-  /* Force uniform right-alignment for star button */
-.row .badge {
-  justify-content: flex-end;
-  min-width: 48px;
+#site-name {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0 0 6px;
+  font-family: Times New Roman, Times, serif;
 }
-
-/* Keep the star perfectly aligned at the same spot even when formats hidden */
-.row .badge .star {
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  margin-left: auto;
-}
-
-/* --- Title row with time beside track title --- */
-.title-row {
+#site-nav {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
+  flex-wrap: wrap;
+  gap: 0;
 }
-
-#now-time {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 32px;
-  font-weight: 700;
-  color: #fdf6d0;
-  opacity: 0.9;
-  min-width: 72px;
-  text-align: right;
-}
-
-/* --- Scrub / seek bar under track title --- */
-#scrub {
-  width: 100%;
-  margin-top: 8px;
-  -webkit-appearance: none;
-  height: 6px;
-  background: #1a1a1c;
-  border-radius: 3px;
-  outline: none;
-}
-#scrub::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fdf6d0;
-  cursor: pointer;
-}
-#scrub::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #fdf6d0;
-  cursor: pointer;
-}
-
-/* --- Responsive: on narrow screens, stack time below title --- */
-@media (max-width:560px){
-  .title-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-  #now-time {
-    font-size: 20px;
-    text-align: left;
-    opacity: 0.8;
-  }
-}
-
-  /* --- Toolbar / Menu --- */
-  .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  select{
-    background:var(--card);
-    color:var(--fg);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:8px 10px;
-  }
-
-  .tog,.btn{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    height:36px;
-    min-width:36px;
-    padding:0 10px;
-    border-radius:10px;
-    border:1px solid var(--border);
-    background:var(--card);
-    color:var(--fg);
-    text-decoration:none;
-    line-height:1;
-  }
-  .tog{opacity:.6;transition:opacity .15s,box-shadow .15s}
-  .tog.on{opacity:1;box-shadow:0 0 0 2px var(--accent) inset}
-.gearwrap {
-  position: relative;
-}
-
-#gearBtn.btn {
-  width: 40px;
-  height: 40px;
+#site-nav a, #site-nav button {
+  color: #000000;
+  text-decoration: none;
+  margin-right: 14px;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  background: none;
+  border: none;
   padding: 0;
-  border-radius: 10px;
-  display: inline-grid;
-  place-items: center;
+  cursor: pointer;
+  line-height: 1.8;
 }
+#site-nav a:hover, #site-nav button:hover { color: #cc0000; text-decoration: underline; }
+.nav-sep { margin-right: 14px; color: #999; line-height: 1.8; font-family: Arial, sans-serif; font-size: 12px; }
 
-#gearBtn svg path {
-  stroke: #fdf6d0;
-  stroke-width: 2.2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+/* NOW PLAYING */
+#now-bar {
+  border-bottom: 1px solid #cccccc;
+  padding: 7px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f4f4f4;
+  margin: 0 -12px;
+  padding-left: 12px;
+  padding-right: 12px;
 }
-
-/* --- Menu Sheet --- */
-.gearwrap .sheet {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  width: auto;
-  min-width: 260px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px 10px;
-  display: none;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-}
-
-.gearwrap.open .sheet {
+#now-thumb {
+  width: 40px; height: 40px;
+  object-fit: cover;
+  border: 1px solid #cccccc;
+  flex-shrink: 0;
   display: block;
 }
-
-/* --- Toolbar: packed flex grid (desktop default) --- */
-.toolbar {
-  display: flex !important;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 8px 24px; /* row, column */
-  padding: 6px 0;
-}
-
-/* --- Each icon --- */
-.toolbar .btn.icon {
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  transition: background 0.2s, transform 0.2s;
-}
-.toolbar .btn.icon:hover {
-  background: #1b1c20;
-  transform: translateY(-2px);
-}
-
-.toolbar .btn.icon svg,
-.toolbar .btn.icon {
-  font-size: 30px !important;
-  line-height: 1;
-}
-
-/* --- Responsive: fix mobile layout and spacing --- */
-@media (max-width:560px){
-  .gearwrap .sheet {
-    right: 0;
-    left: auto;
-    transform: none;
-    padding: 10px;
-    min-width: 200px;
-  }
-
-  .toolbar {
-    display: grid !important;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    justify-items: center;
-    align-items: center;
-    padding: 8px 0;
-  }
-
-  .toolbar .btn.icon {
-    width: 48px;
-    height: 48px;
-    font-size: 28px;
-    border-radius: 12px;
-  }
-}
-
-/* --- Hide sort select by default; show only when + toggled --- */
-.toolbar select#sort {
-  display: none;
-}
-.toolbar.show-sort select#sort {
-  display: inline-block;
-}
-
-/* --- Star buttons --- */
-.star {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  color: var(--muted);
-  background: transparent;
-  border: none;
-  border-radius: 10px;
-  filter: none !important;
-  box-shadow: none !important;
-  backface-visibility: hidden;
-  -webkit-transform: translateZ(0);
-  will-change: filter, color;
-  transition: filter 0.25s ease, color 0.25s ease, background 0.25s ease;
-}
-
-/* 1) Make sure containers don't clip the glow */
-.row, .row .right, .row .badge { overflow: visible; }
-
-/* 2) Star: base */
-.star{
-  position: relative;                 /* anchor pseudo-element */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px; height: 32px;
-  border: none; border-radius: 10px;
-  background: var(--card);
-  color: var(--muted);
-  transition: color .25s ease, opacity .25s ease;
-  /* no filter/box-shadow here to avoid GPU ghosting */
+#now-thumb-ph {
+  width: 40px; height: 40px;
+  border: 1px solid #cccccc;
+  background: #eeeeee;
   flex-shrink: 0;
-  text-align: center;
-}
-
-/* 3) Star glow rendered on a larger pseudo-element (no clipping) */
-.star.on::after{
-  content: "";
-  position: absolute;
-  /* expand beyond the button so the blur never hits the edge */
-  inset: -8px;                         /* <-- increase if you want a bigger halo */
-  border-radius: 14px;
-  pointer-events: none;
-  /* soft, stable halo using box-shadows (not filter) */
-  box-shadow:
-    0 0 10px rgba(110,231,183,.35),
-    0 0 18px rgba(110,231,183,.25);
-  opacity: 1;
-  transition: opacity .25s ease;
-}
-
-.star.on{
-  color: #fdf6d0;
-}
-
-/* cleanly fade the halo out on toggle-off */
-.star:not(.on)::after{ opacity: 0; }
-
-/* optional: during quick clicks, ensure no partial frames stick */
-.star:active::after{ opacity: 0; }
-
-
-/* --- Illuminated "+" button when toggled --- */
-.btn.on {
-  color: #fdf6d0;
-  border-color: var(--accent);
-  filter: drop-shadow(0 0 2px var(--accent)) brightness(1.2);
-  background: rgba(110, 231, 183, 0.08); /* faint glow backdrop */
-  transition: all 0.25s ease;
-  will-change: filter, background;
-}
-
-/* --- Reset glow after illumination turns off --- */
-.btn {
-  transition: all 0.25s ease;
-  filter: none !important;
-  box-shadow: none !important;
-  background: var(--card) !important;
-  backface-visibility: hidden;
-  -webkit-transform: translateZ(0); /* clears any GPU ghosting */
-}
-
-
-  /* --- Favbar (hidden by default) --- */
-  .favbar{display:none;}
-  body.show-search .favbar{
-    display:flex;
-    gap:8px;
-    align-items:center;
-    padding:12px 14px;
-    background:var(--bg);
-    border-bottom:1px solid var(--border);
-  }
-  .favbar input[type="search"]{
-    flex:1;
-    background:#141416;
-    border:1px solid var(--border);
-    border-radius:8px;
-    color:var(--fg);
-    padding:6px 10px;
-    font-size:15px;
-  }
-
-  /* --- Version Buttons --- */
-  .version-buttons{
-    display:inline-flex;
-    gap:.25em;
-    margin-right:.5em;
-    vertical-align:middle;
-  }
-  .version-button{
-    background:transparent;
-    border:1px solid #999;
-    border-radius:4px;
-    font-size:.75em;
-    padding:0 .3em;
-    cursor:pointer;
-    color:#555;
-    transition:all .2s;
-  }
-  .version-button:hover{
-    border-color:var(--accent,#000);
-    color:var(--accent,#000);
-  }
-  .version-button.active{
-    background:var(--accent,#000);
-    color:#fff;
-    border-color:var(--accent,#000);
-  }
-
-  /* === RESPONSIVE: MOBILE + DESKTOP COMBINED === */
-
-/* --- Mobile layout, title overlay, shimmer, stacked badges --- */
-@media (max-width:560px){
-  /* Core layout tweaks */
-  #site-title{
-    font-size:48px;
-    -webkit-text-stroke:1.8px #fdf6d0;
-    letter-spacing:.08em;
-  }
-  .wrap{padding:12px}
-  .now{
-    gap:12px;
-    padding:12px 0;
-  }
-  .cover{
-    width:84vw;
-    max-width:520px;
-    height:84vw;
-    max-height:520px;
-    margin:0 auto;
-    border-radius:12px;
-    position:relative;
-  }
-
-  /* Hide big desktop title, overlay small one on cover */
-  #now-title{display:none!important;}
-
-  .cover::after{
-    content:attr(data-title);
-    position:absolute;
-    bottom:12px;
-    left:0; right:0;
-    text-align:center;
-    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-    font-weight:800;
-    font-size:22px;
-    color:#fdf6d0;
-    text-shadow:0 0 6px rgba(0,0,0,0.4);
-    opacity:.9;
-    background:linear-gradient(90deg,#6ee7b7,#fdf6d0,#6ee7b7);
-    background-size:200% 100%;
-    -webkit-background-clip:text;
-    -webkit-text-fill-color:transparent;
-  }
-
-  /* Hide redundant small title & subtext */
-  #now-title-mobile,
-  #now-sub {display:none!important;}
-  .now .meta .title{display:block;}
-
-  /* Compact stacked badges */
-  .badge {
-    display:grid !important;
-    grid-template-columns:repeat(2,1fr);
-    gap:6px 8px;
-    justify-items:center;
-    align-items:center;
-    width:100%;
-    padding-top:4px;
-  }
-
-  .badge .pill,
-  .badge .star {
-    font-size:13px !important;
-    padding:4px 6px !important;
-    min-width:50px;
-    height:auto;
-    text-align:center;
-    border-radius:6px;
-  }
-
-  .badge .pill.gem {
-    font-size:15px !important;
-  }
-}
-
-/* --- Temporarily disable WAV buttons --- */
-a.pill[href$=".wav"],
-a.pill[href*=".wav"] {
-  pointer-events: none;
-  opacity: 0.35;
-  filter: grayscale(1) brightness(0.8);
-  border-color: rgba(255,255,255,0.1);
-  color: var(--muted);
-  background: transparent;
-}
-a.pill[href$=".wav"]:hover {
-  opacity: 0.35 !important;
-  transform: none !important;
-}
-
-/* --- Desktop layout: left-aligned, large cover, shimmer title --- */
-@media (min-width:561px){
-  .now{
-    align-items:flex-start;
-    text-align:left;
-  }
-  .cover{
-    margin:0;
-    width:520px;
-    height:520px;
-    border-radius:18px;
-  }
-  #now-title{
-    text-align:left;
-    font-size:84px;
-    margin-top:18px;
-  }
-  .controls{
-    justify-content:flex-start;
-  }
-
-  /* Shimmer on desktop title when playing */
-  body.playing #now-title {
-    animation:shimmerDesktop 4s ease-in-out infinite;
-  }
-  @keyframes shimmerDesktop {
-    0%   { text-shadow:0 0 6px rgba(253,246,208,0.2); opacity:.95; }
-    25%  { text-shadow:0 0 10px rgba(110,231,183,0.4); opacity:1; }
-    50%  { text-shadow:0 0 14px rgba(253,246,208,0.9); opacity:1; }
-    75%  { text-shadow:0 0 10px rgba(110,231,183,0.4); opacity:1; }
-    100% { text-shadow:0 0 6px rgba(253,246,208,0.2); opacity:.95; }
-  }
-}
-
-/* --- FIX: Hide all mobile-only overlays and small titles on desktop --- */
-@media (min-width:561px) {
-  #now-title-mobile,
-  .cover::after {
-    display: none !important;
-    content: none !important;
-  }
-}
-
-.drag-ghost {
-  opacity: 0.6;
-  background: var(--card);
-  border: 1px dashed var(--accent);
-  transform: scale(1.02);
-}
-
-.row.swiped-left {
-  animation: swipeLeft 0.25s forwards;
-  background: rgba(255,0,0,0.1);
-}
-/* RIGHT swipe = quick flash only (no collapse) */
-.row.swiped-right {
-  animation: swipeRight 0.25s;
-  background: rgba(110,231,183,0.15);
-}
-
-@keyframes swipeLeft {
-  to { transform: translateX(-120%); opacity: 0; }
-}
-
-/* --- Drag handle styling (final, mobile + desktop consistent) --- */
-.handle {
-  cursor: grab;
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  opacity: 0.45;
-  transition: opacity 0.2s ease, transform 0.1s ease;
-  margin-left: 2px; /* tiny visual spacing from star */
-}
-.handle:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
-}
-.handle::before {
-  content: "⋮⋮";
-  font-size: 14px;
-  line-height: 1;
-  color: var(--muted);
-  pointer-events: none;
-}
-
-@media (min-width: 561px) {
-  .handle {
-    width: 32px;
-    height: 32px;
-  }
-  .handle::before {
-    font-size: 16px;
-  }
-}
-
-/* --- Right-end alignment: keep star + handle tidy --- */
-.row .right {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  min-width: 64px;
+  justify-content: center;
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  color: #aaaaaa;
 }
-
-@media (max-width:560px){
-  .row .right {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 4px;
-    padding-right: 0;
-    margin-right: 0;
-    min-width: 72px;
-  }
-  .row .right .star {
-    order: 1;
-    margin: 0;
-  }
-  .row .right .handle {
-    order: 2;
-    margin: 0 2px 0 4px;
-  }
-}
-
-/* --- Swipe + Collapse Animation --- */
-.row.swiped-left,
-.row.swiped-right {
+#now-info { flex: 1; min-width: 0; }
+#now-title {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
   overflow: hidden;
-  transition:
-    transform 0.35s ease,
-    opacity 0.35s ease,
-    height 0.35s ease,
-    margin 0.35s ease,
-    padding 0.35s ease;
+  text-overflow: ellipsis;
 }
+#now-meta { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #666666; margin-top: 1px; }
+#now-controls { display: flex; gap: 3px; flex-shrink: 0; }
 
-.row.swiped-left {
-  transform: translateX(-90%);
-  background: rgba(255, 70, 70, 0.12);
-  opacity: 0;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+.cbtn {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  background: #dddddd;
+  border: 1px solid;
+  border-color: #ffffff #999999 #999999 #ffffff;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: #000000;
+  white-space: nowrap;
 }
+.cbtn:hover { background: #c8c8c8; }
+.cbtn:active { border-color: #999999 #ffffff #ffffff #999999; }
 
-.row.swiped-right {
-  transform: translateX(90%);
-  background: rgba(110, 231, 183, 0.15);
-  opacity: 0;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-@media (max-width:560px){
-  #now-title {
-    display:block !important;
-    font-size:20px;
-    text-align:center;
-    color:#fdf6d0;
-    margin-top:8px;
-  }
-  .cover::after { content:none !important; }
-}
-
-/* === Mobile star / handle alignment only === */
-@media (max-width:560px){
-  .row .right{
-    display:flex;
-    justify-content:flex-end;
-    align-items:center;
-    flex-direction:row;
-    gap:6px;
-    min-width:80px;
-    padding-right:6px;
-  }
-  .row .right .star{order:1;}
-  .row .right .handle{order:2;margin-left:2px;}
-}
-
-/* === PATCH: Make all thumbs and main cover square === */
-.cover,
-.cover img,
-.row img {
-  border-radius: 0 !important;
-  mask-image: none !important;
-  -webkit-mask-image: none !important;
-}
-
-.cover {
-  overflow: hidden; /* keep scaling tidy */
-  background: #000;
-}
-
-.row img {
-  object-fit: cover;
-}
-
-/* --- Unified right-aligned badge layout --- */
-.badge {
-  display: flex !important;
-  justify-content: flex-end;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 6px;
-  width: 100%;
-  overflow: visible;
-}
-
-.badge .pill,
-.badge .star,
-.badge .handle {
+#now-time {
+  font-family: Courier New, Courier, monospace;
+  font-size: 11px;
+  color: #666666;
+  white-space: nowrap;
   flex-shrink: 0;
 }
+#scrub-wrap { flex: 1; max-width: 110px; min-width: 50px; flex-shrink: 1; }
+#pb-scrub {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 10px;
+  background: #cccccc;
+  border: 1px inset #aaaaaa;
+  outline: none;
+  cursor: pointer;
+}
+#pb-scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px; height: 12px;
+  background: #dddddd;
+  border: 1px solid;
+  border-color: #ffffff #999999 #999999 #ffffff;
+  cursor: pointer;
+}
 
-/* exact visual order */
-.badge .gem       { order: 1; }
-.badge a[href$=".mov"],
-.badge a[href*=".mov"] { order: 2; }
-.badge a[href$=".wav"],
-.badge a[href*=".wav"] { order: 3; }
-.badge a[href$=".mp3"],
-.badge a[href*=".mp3"] { order: 4; }
-.badge .star      { order: 5; }
-.badge .handle    { order: 6; }
-
-/* keep them flush to the right */
-.row .right {
-  justify-content: flex-end;
-  align-items: center;
+/* VIEW TABS */
+.view-tabs {
   display: flex;
-  flex-wrap: nowrap;
+  margin-top: 12px;
+  border-bottom: 1px solid #cccccc;
+}
+.view-tab {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  padding: 4px 12px;
+  background: #eeeeee;
+  border: 1px solid #cccccc;
+  border-bottom: none;
+  cursor: pointer;
+  color: #000;
+  margin-right: 2px;
+  position: relative;
+  top: 1px;
+}
+.view-tab.active {
+  background: #ffffff;
+  border-bottom-color: #ffffff;
+  font-weight: bold;
+}
+.view-tab:hover:not(.active) { background: #e0e0e0; }
+
+/* TOOLBAR */
+#toolbar {
+  border: 1px solid #cccccc;
+  border-top: none;
+  border-bottom: 1px solid #cccccc;
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
   gap: 6px;
-  min-width: 96px;
-  padding-right: 4px;
+  flex-wrap: wrap;
+  background: #fafafa;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+#toolbar select {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  border: 1px inset #aaaaaa;
+  background: #ffffff;
+  padding: 1px 2px;
+  color: #000;
+}
+#search-input {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  border: 1px inset #aaaaaa;
+  padding: 1px 4px;
+  background: #ffffff;
+  color: #000;
+  width: 130px;
+}
+.tbtn {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  background: #dddddd;
+  border: 1px solid;
+  border-color: #ffffff #999999 #999999 #ffffff;
+  padding: 1px 7px;
+  cursor: pointer;
+  color: #000000;
+}
+.tbtn:hover { background: #cccccc; }
+.tbtn.pressed { border-color: #999999 #ffffff #ffffff #999999; background: #cccccc; }
+#track-count { color: #666666; font-size: 11px; margin-left: auto; }
+
+/* ABOUT */
+#about-section {
+  display: none;
+  border: 1px solid #cccccc;
+  border-top: none;
+  padding: 16px;
+  background: #fafafa;
+}
+#about-section.open { display: block; }
+#about-section h2 {
+  font-family: Times New Roman, Times, serif;
+  font-size: 18px;
+  margin: 0 0 10px;
+  border-bottom: 1px solid #cccccc;
+  padding-bottom: 6px;
+}
+#about-section p { font-size: 14px; margin: 0 0 8px; line-height: 1.5; }
+
+/* TRACK LIST */
+#list {
+  border: 1px solid #cccccc;
+  border-top: none;
+}
+.section-head {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  color: #ffffff;
+  background: #000066;
+  padding: 2px 8px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-top: 1px solid #cccccc;
+}
+.section-head:first-child { border-top: none; }
+
+.track-row {
+  display: table;
+  width: 100%;
+  box-sizing: border-box;
+  border-top: 1px solid #eeeeee;
+  cursor: pointer;
+  table-layout: fixed;
+}
+.track-row:first-child, .section-head + .track-row { border-top: none; }
+.track-row:hover { background: #eef2ff; }
+.track-row.is-playing { background: #fffde6; }
+.track-row.is-playing .t-title { color: #cc0000; }
+
+.t-num {
+  display: table-cell;
+  font-family: Courier New, Courier, monospace;
+  font-size: 10px;
+  color: #aaaaaa;
+  padding: 6px 4px 6px 8px;
+  vertical-align: middle;
+  width: 30px;
+  white-space: nowrap;
+}
+.t-thumb-cell {
+  display: table-cell;
+  width: 42px;
+  padding: 5px 5px;
+  vertical-align: middle;
+}
+.t-thumb {
+  width: 36px; height: 36px;
+  object-fit: cover;
+  border: 1px solid #cccccc;
+  display: block;
+}
+.t-mid {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 5px 6px;
+}
+.t-title {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  color: #000000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.t-meta {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  color: #666666;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.t-right {
+  display: table-cell;
+  vertical-align: middle;
+  padding: 5px 8px 5px 4px;
+  text-align: right;
+  white-space: nowrap;
+  width: 100px;
+}
+.t-right a, .t-right button {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  color: #000000;
+  text-decoration: none;
+  border: 1px solid #999999;
+  padding: 1px 5px;
+  background: #eeeeee;
+  margin-left: 3px;
+  cursor: pointer;
+  display: inline-block;
+  line-height: 1.4;
+}
+.t-right a:hover, .t-right button:hover { background: #dddddd; }
+.t-right a.wav-off { color: #bbbbbb; border-color: #cccccc; pointer-events: none; }
+.star-btn {
+  background: none !important;
+  border: none !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  color: #cccccc;
+  padding: 1px 3px !important;
+  margin-left: 2px !important;
+}
+.star-btn.on { color: #cc0000; }
+
+.extras-row {
+  display: table;
+  width: 100%;
+  box-sizing: border-box;
+}
+.extras-cell {
+  display: table-cell;
+  padding: 6px 8px;
+  border-top: 1px solid #eeeeee;
+  background: #f8f8f8;
+}
+.extras-cell img {
+  width: 56px; height: 56px;
+  object-fit: cover;
+  border: 1px solid #cccccc;
+  margin-right: 4px;
+  vertical-align: top;
 }
 
-@media (max-width:560px){
-  .badge { gap: 4px; }
-  .row .right { gap: 4px; padding-right: 0; }
+#empty-msg {
+  display: none;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  color: #666;
+  text-align: center;
+  font-style: italic;
+  border: 1px solid #cccccc;
+  border-top: none;
 }
 
-/* --- Title shimmer / crackle --- */
-@keyframes shimmerDesktop {
-  0%,100% { text-shadow:0 0 4px rgba(253,246,208,0.18); opacity:.95; }
-  25% { text-shadow:0 0 8px rgba(110,231,183,0.28); opacity:1; }
-  50% { text-shadow:0 0 10px rgba(253,246,208,0.5); opacity:1; }
-  75% { text-shadow:0 0 8px rgba(110,231,183,0.28); opacity:1; }
+@media (max-width: 480px) {
+  #site-name { font-size: 22px; }
+  .t-num { display: none; }
+  #scrub-wrap { display: none; }
+  #now-time { display: none; }
+  #search-input { width: 80px; }
+  .t-right { width: 60px; }
+  .t-right a:not(.star-btn) { display: none; }
 }
-body.playing #now-title {
-  animation: shimmerDesktop 6s ease-in-out infinite;
-}
-
-/* --- Cover shimmer (mobile) --- */
-@keyframes shimmerMobile {
-  0% { background-position:0% 50%; opacity:.82; }
-  50% { background-position:100% 50%; opacity:.92; }
-  100% { background-position:0% 50%; opacity:.82; }
-}
-body.playing .cover::after {
-  animation: shimmerMobile 4.5s linear infinite;
-  opacity:.85;
-}
-
 </style>
 </head>
 <body>
-  <iframe
-  id="vvip-player-frame"
-  src="./player.html?v=7"
-  allow="autoplay"
-  style="display:none;width:0;height:0;border:0"
-></iframe>
-  <div class="player">
-    <div class="wrap">
-  <header>
-  <h1 id="site-title">𝓥𝓥𝓘𝓟</h1>
-  <div id="gearwrap" class="gearwrap">
-    <button id="gearBtn" class="btn" aria-label="Menu">
-   <svg viewBox="0 0 24 24" width="28" height="28" xmlns="http://www.w3.org/2000/svg">
-  <path d="M3 6h18M3 12h18M3 18h18"
-        stroke="#fdf6d0" stroke-width="2.4" stroke-linecap="round"/>
-</svg>
-    </button>
-    <div class="sheet"><div class="toolbar" id="toolbar"></div></div>
+
+<iframe id="vvip-player-frame" src="./player.html?v=7" allow="autoplay" style="display:none;width:0;height:0;border:0"></iframe>
+
+<div id="page">
+
+  <div id="site-header">
+    <div id="site-name">VVIP Media</div>
+    <div id="site-nav">
+      <a href="/" onclick="return showHome()">Home</a>
+      <button onclick="toggleAbout()">About</button>
+      <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
+      <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
+      <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
+      <span class="nav-sep">|</span>
+      <button onclick="alert('Member login coming soon. WAV downloads available to registered members.')">Member login</button>
+    </div>
   </div>
-</header>
 
-      <div class="now">
-        <div class="cover" id="cover">Vv.26</div>
-  <div id="now-title-mobile"></div>
-        <div class="meta">
+  <div id="about-section">
+    <h2>About VVIP Media</h2>
+    <p>VVIP Media is an independent electronic music project. All music is original, recorded across years. Available to stream and license.</p>
+    <p>For licensing, WAV downloads, and collaboration: <a href="mailto:info@vvipmedia.net">info@vvipmedia.net</a></p>
+    <p><small>Registered members can access WAV downloads after logging in.</small></p>
+  </div>
 
-<div class="meta">
-  <div class="title-row">
-    <div class="title" id="now-title">—</div>
+  <div id="now-bar">
+    <div id="now-thumb-ph">—</div>
+    <img id="now-thumb" src="" alt="" style="display:none">
+    <div id="now-info">
+      <div id="now-title">Nothing playing</div>
+      <div id="now-meta"></div>
+    </div>
+    <div id="now-controls">
+      <button class="cbtn" id="btn-prev">◄◄</button>
+      <button class="cbtn" id="btn-toggle">► Play</button>
+      <button class="cbtn" id="btn-next">►►</button>
+    </div>
+    <div id="scrub-wrap"><input type="range" id="pb-scrub" min="0" max="100" value="0" step="0.1"></div>
     <div id="now-time">0:00</div>
   </div>
-  <input type="range" id="scrub" min="0" max="100" value="0" step="0.1" aria-label="Seek bar">
-  <div class="sub" id="now-sub">Ready</div>
-</div>
 
-        <div class="controls">
-        <button id="prev" aria-label="Previous"></button>
-<button id="toggle" aria-label="Play/Pause"></button>
-<button id="next" aria-label="Next"></button>
-          <div class="range">
-            <span id="tcur">0:00</span>
-            <input id="seek" type="range" min="0" max="100" value="0" step="1" aria-label="Seek" />
-            <span id="tdur">0:00</span>
-          </div>
-          <div class="range" title="Volume">
-            <span>🔊</span>
-            <input id="vol" type="range" min="0" max="1" step="0.01" />
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="view-tabs">
+    <button class="view-tab active" data-view="all">All songs</button>
+    <button class="view-tab" data-view="favorites">Favourites</button>
+    <button class="view-tab" data-view="playlists">Playlists</button>
   </div>
 
-  <main id="page-root" data-page="home">
-    <div class="wrap">
-      <div id="list" class="list" role="list"></div>
-    </div>
-  </main>
+  <div id="toolbar">
+    <label for="sort-sel" style="font-family:Arial,sans-serif;font-size:12px">Sort:</label>
+    <select id="sort-sel">
+      <option value="date_desc">Newest first</option>
+      <option value="date_asc">Oldest first</option>
+      <option value="bpm_desc">BPM (high–low)</option>
+      <option value="bpm_asc">BPM (low–high)</option>
+      <option value="len_desc">Longest first</option>
+      <option value="len_asc">Shortest first</option>
+      <option value="fav">Favourites first</option>
+    </select>
+    <label for="search-input" style="font-family:Arial,sans-serif;font-size:12px">Search:</label>
+    <input type="search" id="search-input" placeholder="title or #tag" autocomplete="off" spellcheck="false">
+    <button class="tbtn" id="formats-btn">Show files</button>
+    <span id="track-count"></span>
+  </div>
+
+  <div id="list"></div>
+  <div id="empty-msg">No tracks found.</div>
+
+</div>
 
 <script>
-/* ========= VVIPMEDIA — Core Player (Unified List) + Gear Menu ========= */
-
 const ASSET_VERSION = 18;
 const PREFERRED_TITLE = 'Lately';
-
-/* ---------- Config ---------- */
-const BASE_MP3   = 'https://cdn.vvipmedia.net/ACCESS/';
-const BASE_WAV   = 'https://cdn.vvipmedia.net/WAV/';
-
-// ✅ Local thumbs — hosted inside the repo
-const BASE_THUMB = 'assets/thumbs/';
+const BASE_MP3    = 'https://cdn.vvipmedia.net/ACCESS/';
+const BASE_WAV    = 'https://cdn.vvipmedia.net/WAV/';
+const BASE_THUMB  = 'assets/thumbs/';
 const DEFAULT_THUMB = BASE_THUMB + 'default_thumb.jpg';
+const BASE_EXTRAS = 'https://cdn.vvipmedia.net/MEDIA/extras/';
 
-const BASE_VIDEO = 'https://cdn.vvipmedia.net/VIDEOS/';
-const BASE_EXTRAS= 'https://cdn.vvipmedia.net/MEDIA/extras/';
-
-/* ---------- Helpers ---------- */
 const $ = s => document.querySelector(s);
-function fmtDur(sec){sec=Number(sec||0);const m=Math.floor(sec/60),s=Math.floor(sec%60);return `${m}:${String(s).padStart(2,'0')}`;}
-function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
-const stripExt=s=>String(s).replace(/\.[a-z0-9]+$/i,'');
-function deriveTitleFromFilename(name){const b=stripExt(name).replace(/^[\d._-]+/,'').replace(/[_-]+/g,' ').trim();return b||stripExt(name);}
-const DATE_RX_YY=/^\s*(\d{2})[.\-_](\d{2})[.\-_](\d{2})/;
-function fallbackDateFromName(n){const m=n.match(DATE_RX_YY);if(!m)return null;const y=+m[1];return new Date(Date.UTC(y>=70?1900+y:2000+y,+m[2]-1,+m[3]));}
-function bpmLabel(t){if(t.bpm!=null)return`${t.bpm} BPM`;if(t.bpm_min!=null&&t.bpm_max!=null)return`${t.bpm_min}–${t.bpm_max} BPM`;return'';}
-function matchesTokens(t,toks){if(!toks.length)return true;const n=(t.name||'').toLowerCase(),ttl=(t.title||'').toLowerCase(),det=(t.details||'').toLowerCase();return toks.every(tok=>tok.startsWith('#')?det.includes(tok):n.includes(tok)||ttl.includes(tok)||det.includes(tok));}
+const $$ = s => document.querySelectorAll(s);
+function fmtDur(s){ s=Number(s||0); return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
+function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
+const stripExt = s => String(s).replace(/\.[a-z0-9]+$/i,'');
+function deriveName(n){ const b=stripExt(n).replace(/^[\d._-]+/,'').replace(/[_-]+/g,' ').trim(); return b||stripExt(n); }
+const DATE_RX=/^\s*(\d{2})[.\-_](\d{2})[.\-_](\d{2})/;
+function dateFromName(n){ const m=n.match(DATE_RX); if(!m) return null; const y=+m[1]; return new Date(Date.UTC(y>=70?1900+y:2000+y,+m[2]-1,+m[3])); }
+function bpmLabel(t){ if(t.bpm!=null) return `${t.bpm} BPM`; if(t.bpm_min!=null&&t.bpm_max!=null) return `${t.bpm_min}–${t.bpm_max} BPM`; return ''; }
+function matchToks(t,toks){ if(!toks.length) return true; const n=(t.name||'').toLowerCase(),ti=(t.title||'').toLowerCase(),d=(t.details||'').toLowerCase(); return toks.every(k=>k.startsWith('#')?d.includes(k):n.includes(k)||ti.includes(k)||d.includes(k)); }
 
-/* ---------- Elements & State ---------- */
-const els={
-  list:$('#list'),toggle:$('#toggle'),
-  prev:$('#prev'),next:$('#next'),seek:$('#seek'),vol:$('#vol'),
-  nowTitle:$('#now-title'),nowSub:$('#now-sub'),cover:$('#cover'),
-  tcur:$('#tcur'),tdur:$('#tdur'),toolbar:$('#toolbar'),
-  favbar:null,favInput:null,favModeLabel:null
-};
-const state={
-  tracks:[],filtered:[],i:-1,playing:false,pageSize:60,renderCount:0,
-  thumbBases:new Set(),resolvedThumb:new Map(),
+const state = {
+  tracks:[], filtered:[], i:-1, playing:false, duration:0,
+  thumbBases:new Set(), resolvedThumb:new Map(),
   favorites:new Set(JSON.parse(localStorage.getItem('vvip25:favs')||'[]')),
   favOrder:JSON.parse(localStorage.getItem('vvip25:favOrder')||'[]'),
-  searchQuery:'',viewMode:'all',
-  extras:{},showFormats:false,showWavButtons:false,showMovButtons:false
+  searchQuery:'', viewMode:'all', sortMode:'date_desc',
+  extras:{}, showFormats:false, hiddenIds:new Set(), titles:null
 };
 
-/* ---------- Titles ---------- */
-async function fetchTitles() {
+const pf = $('#vvip-player-frame');
+function send(d){ pf?.contentWindow?.postMessage(d,'*'); }
+
+function showHome(){ $('#about-section').classList.remove('open'); return false; }
+function toggleAbout(){ $('#about-section').classList.toggle('open'); }
+
+$$('.view-tab').forEach(btn => btn.addEventListener('click', () => {
+  $$('.view-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  state.viewMode=btn.dataset.view; state.searchQuery=''; $('#search-input').value='';
+  applyFilterSort();
+}));
+
+$('#sort-sel').addEventListener('change', e=>{ state.sortMode=e.target.value; applyFilterSort(); });
+$('#search-input').addEventListener('input', debounce(e=>{ state.searchQuery=e.target.value.trim().toLowerCase(); applyFilterSort(); },140));
+$('#formats-btn').addEventListener('click', ()=>{
+  state.showFormats=!state.showFormats;
+  $('#formats-btn').classList.toggle('pressed',state.showFormats);
+  $('#formats-btn').textContent=state.showFormats?'Hide files':'Show files';
+  renderList();
+});
+
+document.addEventListener('DOMContentLoaded', async ()=>{
+  $('#btn-toggle').addEventListener('click',()=>{ if(state.i<0&&state.filtered.length){select(0);play();return;} state.playing?pause():play(); });
+  $('#btn-prev').addEventListener('click',()=>{ if(!state.filtered.length)return; select((state.i-1+state.filtered.length)%state.filtered.length); play(); });
+  $('#btn-next').addEventListener('click',()=>{ if(!state.filtered.length)return; select((state.i+1)%state.filtered.length); play(); });
+
   try {
-    const r = await fetch('https://vvipmedia.net/titles.json', { cache: 'no-store' });
-    if (!r.ok) throw new Error(`titles.json ${r.status}`);
+    const res=await fetch('https://vvipmedia.net/manifest.json',{cache:'no-store'});
+    if(!res.ok) throw Error(res.status);
+    const data=JSON.parse(await res.text());
+    const tracks=Array.isArray(data)?data:(data.tracks||[]);
+    state.tracks=tracks.map((t,idx)=>{
+      const name=t.name||'', base=stripExt(name), baseLower=base.toLowerCase();
+      const date=t.date?new Date(t.date):dateFromName(name);
+      return {id:idx,name,base,baseLower,title:t.title||deriveName(name),details:t.details||'',
+        bpm:t.bpm,bpm_min:t.bpm_min,bpm_max:t.bpm_max,length:t.length||0,
+        src:`${BASE_MP3}${encodeURIComponent(name)}`,video:t.video,date};
+    });
+    await fetchThumbs(); computeThumbCascade();
+    await fetchTitles(); applyTitles();
+    applyFilterSort(); preselectPreferred(PREFERRED_TITLE.toLowerCase()); updateNow();
+    try{ const er=await fetch(`/extras.json?v=${ASSET_VERSION}`,{cache:'no-store'}); state.extras=await er.json(); }catch{}
+  } catch(err){
+    $('#list').innerHTML=`<div style="padding:16px;font-family:Arial,sans-serif;font-size:13px;color:#666">Could not load tracks. Please refresh.</div>`;
+    console.error(err);
+  }
+});
 
-    let raw = await r.text();
-    raw = raw.trim().replace(/^\uFEFF/, ''); // strip BOM if present
-    if (raw.startsWith('<')) throw new Error('HTML returned instead of JSON');
+async function fetchTitles(){
+  try{
+    const r=await fetch('https://vvipmedia.net/titles.json',{cache:'no-store'}); if(!r.ok) throw 0;
+    let raw=(await r.text()).trim().replace(/^\uFEFF/,'');
+    const json=JSON.parse(raw); const m=new Map();
+    for(const [k,v] of Object.entries(json||{})) m.set(stripExt(k).toLowerCase(),typeof v==='string'?v:v.title||'');
+    state.titles=m;
+  }catch{}
+}
+function applyTitles(){ if(!state.titles) return; for(const t of state.tracks){const n=state.titles.get(t.baseLower);if(n&&n.trim())t.title=n.trim();} }
 
-    const json = JSON.parse(raw);
-    const lookup = new Map();
-
-    for (const [k, v] of Object.entries(json || {})) {
-      const key = stripExt(k).toLowerCase();
-      lookup.set(key, typeof v === 'string' ? v : v.title || '');
-    }
-
-    // ✅ store titles globally so later functions can use them
-    state.titles = lookup;
-
-    console.log('Titles loaded:', lookup.size);
-  } catch (err) {
-    console.warn('Titles fetch failed:', err);
+async function fetchThumbs(){
+  try{
+    const r=await fetch('assets/thumbs/thumbs.json',{cache:'no-store'}); const d=await r.json();
+    state.thumbBases.clear(); d.forEach(f=>state.thumbBases.add(f.toLowerCase()));
+  }catch{
+    ['24.03.15.105thumb.jpg','24.09.03.122thumb.jpg','25.07.17.171thumb.jpg','IJPAUCthumb.png']
+      .forEach(f=>state.thumbBases.add(f.toLowerCase()));
   }
 }
-
-function applyTitlesToTracks() {
-  if (!state.titles) return;
-  for (const t of state.tracks) {
-    const nice = state.titles.get(t.baseLower);
-    if (nice && nice.trim()) {
-      t.title = nice.trim();
-    }
+function computeThumbCascade(){
+  const asc=[...state.tracks].sort((a,b)=>(a.date-b.date)||a.name.localeCompare(b.name));
+  let cur=DEFAULT_THUMB;
+  for(const t of asc){
+    const k1=t.baseLower+'thumb.jpg',k2=t.baseLower+'thumb.png';
+    if(state.thumbBases.has(k1)) cur=BASE_THUMB+k1;
+    else if(state.thumbBases.has(k2)) cur=BASE_THUMB+k2;
+    state.resolvedThumb.set(t.id,cur);
   }
 }
+function getThumb(t){ if((t.details||'').toLowerCase().includes('#ij')) return BASE_THUMB+'IJPAUCthumb.jpg'; return state.resolvedThumb.get(t.id)||DEFAULT_THUMB; }
 
-/* ---------- Boot ---------- */
-document.addEventListener('DOMContentLoaded', init);
-
-async function init() {
-  try {
-    // Build interface elements first
-    buildMenuUI();
-    buildFavBar();
-    setControlIcons();
-
-    // ---------- Player Controls: button bindings ----------
-    $('#toggle')?.addEventListener('click', () => {
-      if (state.i < 0 && state.filtered.length) select(0);
-      state.playing ? pause() : play();
-    });
-
-    $('#prev')?.addEventListener('click', () => {
-      if (state.filtered.length) {
-        const ni = (state.i - 1 + state.filtered.length) % state.filtered.length;
-        select(ni);
-        play();
-      }
-    });
-
-    $('#next')?.addEventListener('click', () => {
-      if (state.filtered.length) {
-        const ni = (state.i + 1) % state.filtered.length;
-        select(ni);
-        play();
-      }
-    });
-
-    // --- Load manifest safely ---
-const res = await fetch('https://vvipmedia.net/manifest.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`manifest.json not found (${res.status})`);
-    const raw = await res.text();
-
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      throw new Error('manifest.json is not valid JSON');
-    }
-
-    // --- Parse track entries ---
-    const tracks = Array.isArray(data) ? data : (data.tracks || []);
-    if (!tracks.length) throw new Error('manifest.json contains no tracks');
-
-    state.tracks = tracks.map((t, idx) => {
-      const name = t.name || '';
-      const base = stripExt(name);
-      const baseLower = base.toLowerCase();
-      const date = t.date ? new Date(t.date) : fallbackDateFromName(name);
-      return {
-        id: idx,
-        name,
-        base,
-        baseLower,
-        title: t.title || deriveTitleFromFilename(name),
-        details: t.details || '',
-        bpm: t.bpm,
-        bpm_min: t.bpm_min,
-        bpm_max: t.bpm_max,
-        length: t.length || 0,
-        src: `${BASE_MP3}${encodeURIComponent(name)}`,
-        video: t.video,
-        date,
-        thumbCandidate: BASE_THUMB + encodeURIComponent(baseLower + 'thumb.jpg')
-      };
-    });
-
-await fetchThumbs();
-computeThumbCascade();
-    console.log(`Loaded ${state.tracks.length} tracks`);
-
-await fetchTitles();
-applyTitlesToTracks();
-
-// ✅ Build list first
-applyFilterSort(true);
-
-// ✅ THEN preselect your preferred track
-preselectPreferred(PREFERRED_TITLE.toLowerCase());
-updateNowbar();
-
-console.log('Init completed successfully.');
-
-  } catch (err) {
-    console.error('Init failed:', err);
-  }
-} // ← this closes init()
-
-
-/* ---------- View / Filter / Favs ---------- */
-function buildFavBar(){
-  const wrap=document.querySelector('main .wrap');
-  const bar=document.createElement('div');
-  bar.className='favbar';
-  bar.innerHTML='<span id="favMode">Search</span><input id="favSearch" type="search" placeholder="Filter with #tags or text">';
-  wrap.prepend(bar);
-  els.favbar=bar; els.favInput=bar.querySelector('#favSearch'); els.favModeLabel=bar.querySelector('#favMode');
-  els.favInput.addEventListener('input',debounce(()=>{
-    const q=(els.favInput.value||'').trim().toLowerCase();
-    state.searchQuery=q; setView(q?'search':'favorites');
-  },120));
-}
-function setView(mode){state.viewMode=mode;applyFilterSort(true);}
-function applyFilterSort(first=false){
+function applyFilterSort(){
   const toks=(state.searchQuery||'').split(/\s+/).filter(Boolean);
   let out=[...state.tracks];
-  if (state.viewMode === 'favorites' && !toks.length) {
-  out = out.filter(t => state.favorites.has(t.name));
-
-  // restore custom order if saved
-  const saved = state.favOrder || [];
-  if (saved.length) {
-    out.sort((a, b) => saved.indexOf(a.name) - saved.indexOf(b.name));
+  if(state.searchQuery){ out=out.filter(t=>matchToks(t,toks)); }
+  else if(state.viewMode==='favorites'){
+    out=out.filter(t=>state.favorites.has(t.name));
+    if(state.favOrder.length){ out.sort((a,b)=>state.favOrder.indexOf(a.name)-state.favOrder.indexOf(b.name)); state.filtered=out; renderList(); return; }
   }
-}
-  else if(state.viewMode==='search')out=out.filter(t=>matchesTokens(t,toks));
-  out.sort((a,b)=>(b.date-a.date)||b.name.localeCompare(a.name));
-  
-state.filtered = out;
-state.renderCount = out.length; // <-- render everything
-renderList();
-}
-
-/* ---------- Thumbs + Row Click ---------- */
-async function fetchThumbs() {
-  try {
-    const r = await fetch('assets/thumbs/thumbs.json', { cache: 'no-store' });
-    if (!r.ok) throw new Error(`thumbs.json not found (${r.status})`);
-    const data = await r.json();
-    state.thumbBases.clear();
-    data.forEach(f => state.thumbBases.add(f.toLowerCase()));
-    console.log(`✅ Loaded ${state.thumbBases.size} local thumbs`);
-  } catch (err) {
-    console.warn('⚠️ fetchThumbs failed, using hardcoded fallback');
-    const thumbs = [
-      '24.03.15.105thumb.jpg',
-      '24.09.03.122thumb.jpg',
-      '25.07.17.171thumb.jpg',
-      'IJPAUCthumb.jpg'
-    ];
-    state.thumbBases.clear();
-    thumbs.forEach(f => state.thumbBases.add(f.toLowerCase()));
-  }
+  const sm=state.sortMode;
+  out.sort((a,b)=>{
+    if(sm==='date_asc') return (a.date-b.date)||a.name.localeCompare(b.name);
+    if(sm==='bpm_desc') return (b.bpm||b.bpm_min||0)-(a.bpm||a.bpm_min||0);
+    if(sm==='bpm_asc')  return (a.bpm||a.bpm_min||0)-(b.bpm||b.bpm_min||0);
+    if(sm==='len_desc') return (b.length||0)-(a.length||0);
+    if(sm==='len_asc')  return (a.length||0)-(b.length||0);
+    if(sm==='fav')      return (state.favorites.has(b.name)?1:0)-(state.favorites.has(a.name)?1:0);
+    return (b.date-a.date)||b.name.localeCompare(a.name);
+  });
+  state.filtered=out; renderList();
 }
 
-function computeThumbCascade() {
-  console.log('🧩 Computing thumbnail cascade...');
+function renderList(){
+  const elList=$('#list'), elEmpty=$('#empty-msg');
+  const out=state.filtered.filter(t=>!state.hiddenIds.has(t.id));
+  if(!out.length){ elList.innerHTML=''; elEmpty.style.display='block'; return; }
+  elEmpty.style.display='none';
+  $('#track-count').textContent=out.length===state.tracks.length?`${out.length} tracks`:`${out.length} / ${state.tracks.length}`;
 
-  // Sort oldest → newest by date
-  const asc = [...state.tracks].sort((a, b) =>
-    (a.date - b.date) || a.name.localeCompare(b.name)
-  );
-
-  let currentThumb = DEFAULT_THUMB;
-
-  for (const t of asc) {
-    const key = t.baseLower + 'thumb.jpg';
-    // ✅ Check if we have an actual local thumb file
-    if (state.thumbBases.has(key)) {
-      currentThumb = BASE_THUMB + key;
-      console.log(`🖼️ thumb switch → ${t.name} → ${currentThumb}`);
-    }
-
-    // ✅ Assign that thumb to this track
-    state.resolvedThumb.set(t.id, currentThumb);
-  }
-
-  console.log('✅ Cascade complete:', state.resolvedThumb.size, 'entries');
-}
-
-// ✅ Special IJ override
-function getResolvedThumb(t) {
-  const details = (t.details || '').toLowerCase();
-  if (details.includes('#ij')) return BASE_THUMB + 'IJPAUCthumb.jpg';
-  return state.resolvedThumb.get(t.id) || DEFAULT_THUMB;
-}
-
-/* ---------- Row click handler ---------- */
-// Clicking any row selects & plays that track (ignore stars/links)
-document.addEventListener('click', e => {
-  const row = e.target.closest('.row');
-  if (!row || e.target.closest('a') || e.target.closest('.star')) return;
-  const id = Number(row.dataset.id);
-  const idx = state.filtered.findIndex(t => t.id === id);
-  if (idx >= 0) {
-    select(idx);
-    play();
-  }
-});
-
-/* ---------- Rendering ---------- */
-function imgHTML(src, isCover = false) {
-  if (isCover) {
-    // ✅ Full-size player cover image (fills .cover)
-    return `<img src="${src}" alt="Cover" onerror="this.onerror=null;this.src='${DEFAULT_THUMB}'">`;
+  if(state.viewMode==='playlists'&&!state.searchQuery){
+    const groups={};
+    for(const t of out){ const k=t.date?t.date.toISOString().slice(0,7):'Unknown'; (groups[k]=groups[k]||[]).push(t); }
+    let html='';
+    for(const [k,tracks] of Object.entries(groups)){ html+=`<div class="section-head">${k}</div>`+tracks.map((t,i)=>rowHTML(t,i)).join(''); }
+    elList.innerHTML=html;
   } else {
-    // ✅ Small track list thumbnail
-    return `<img src="${src}" alt="Thumb" onerror="this.onerror=null;this.src='${DEFAULT_THUMB}'" style="width:56px;height:56px;border-radius:8px;object-fit:cover;">`;
+    elList.innerHTML=out.map((t,i)=>rowHTML(t,i)).join('');
+  }
+  if(state.i>=0&&state.filtered[state.i]){
+    elList.querySelector(`.track-row[data-id="${state.filtered[state.i].id}"]`)?.classList.add('is-playing');
   }
 }
 
-function favHTML(t) {
-  const on = state.favorites.has(t.name) ? 'on' : '';
-  return `<button class="star ${on}" data-fav="${t.name}">★</button>`;
-}
-
-function badgeHTML(t) {
-  const parts = [];
-  parts.push(favHTML(t)); // star first
-  parts.push('<span class="handle" title="Drag to reorder"></span>');
-  if (state.showFormats) {
-    parts.push(`<a class="pill" href="${t.src}" download>MP3</a>`);
-    parts.push(`<a class="pill" href="${BASE_WAV + encodeURIComponent(t.base + '.wav')}" download>WAV</a>`);
-    if (t.video) parts.push(`<a class="pill" href="${t.video}" target="_blank">MOV</a>`);
-    if (state.extras[t.baseLower]) parts.push(`<button class="pill gem" data-gem="${t.baseLower}">💎</button>`);
+function rowHTML(t,i){
+  const sub=[bpmLabel(t),t.length?fmtDur(t.length):'',t.date?t.date.toISOString().slice(0,10):''].filter(Boolean).join(' · ');
+  const fav=state.favorites.has(t.name);
+  const hasExtras=state.extras&&state.extras[t.baseLower];
+  let right=`<button class="star-btn${fav?' on':''}" data-fav="${t.name}" title="${fav?'Remove from':'Add to'} favourites">★</button>`;
+  if(hasExtras) right=`<button class="gem-btn" data-gem="${t.baseLower}" style="background:none;border:none;cursor:pointer;font-size:11px;padding:1px 3px;margin-left:2px">💎</button>`+right;
+  if(state.showFormats){
+    right=`<a href="${t.src}" download>MP3</a>`
+        +`<a class="wav-off" href="#">WAV</a>`
+        +(t.video?`<a href="${t.video}" target="_blank" rel="noopener">MOV</a>`:'')
+        +right;
   }
-  return `<div class="badge">${parts.join('')}</div>`;
+  return `<div class="track-row" data-id="${t.id}">
+    <span class="t-num">${String(i+1).padStart(3,'0')}</span>
+    <span class="t-thumb-cell"><img class="t-thumb" src="${getThumb(t)}" alt="" loading="lazy" onerror="this.src='${DEFAULT_THUMB}'"></span>
+    <span class="t-mid"><div class="t-title">${t.title}</div><div class="t-meta">${sub}</div></span>
+    <span class="t-right">${right}</span>
+  </div>`;
 }
 
-function rowHTML(t) {
-  const sub = [bpmLabel(t), t.length ? fmtDur(t.length) : '', t.date ? t.date.toISOString().slice(0,10) : '']
-    .filter(Boolean)
-    .join(' · ');
-  return `
-    <div class="row" data-id="${t.id}">
-      <div class="left">${imgHTML(getResolvedThumb(t))}</div>
-      <div class="middle">
-        <div class="title">${t.title}</div>
-        <div class="sub">${sub}</div>
-      </div>
-      <div class="right">${badgeHTML(t)}</div>
-    </div>`;
-}
-
-function renderList() {
-  els.list.innerHTML = state.filtered.slice(0, state.renderCount).map(rowHTML).join('');
-}
-
-/* ---------- Player Core ---------- */
-function preselectPreferred(x){
-  if(!x||!state.filtered.length) return;
-  const idx = state.filtered.findIndex(
-    t => (t.title || '').toLowerCase().includes(x)
-  );
-  if(idx >= 0) select(idx);
-}
-
-function select(i){
-  state.i = i;
-  const t = state.filtered[i];
-  updateNowbar();
-}
-
-function updateNowbar(){
-  const t = state.filtered[state.i];
-  if(!t) return;
-
-  els.nowTitle.textContent = t.title;
-  els.nowSub.textContent = [bpmLabel(t), fmtDur(t.length || 0)].filter(Boolean).join(' · ');
-
-  // cover image + data-title for mobile overlay
-  els.cover.innerHTML = imgHTML(getResolvedThumb(t), true);
-  els.cover.setAttribute('data-title', t.title || '');
-
-  // mobile small title element (if present)
-  els.nowTitleMobile = document.getElementById('now-title-mobile');
-  if (els.nowTitleMobile) els.nowTitleMobile.textContent = t.title;
-
-  document.querySelectorAll('.row').forEach(r=>r.classList.remove('playing'));
-  const activeRow=document.querySelector(`.row[data-id="${t.id}"]`);
-  if(activeRow) activeRow.classList.add('playing');
-}
-
-function play(){
-  sendToPlayer({ cmd: "play" });
-  sendToPlayer({ cmd:"load", src:t.src, play:false });
-  document.body.classList.add("playing");
-  setControlIcons();
-}
-
-function pause(){
-  state.playing = false;
-  document.body.classList.remove('playing'); // ✅ stop shimmer
-  setControlIcons();
-}
-
-function setControlIcons(){
-  const svgPrev  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fdf6d0" d="M7 5a1 1 0 0 1 1 1v12a1 1 0 1 1-2 0V6a1 1 0 0 1 1-1zm11.4 1.2a1 1 0 0 1 .6.9v9.8a1 1 0 0 1-1.6.8l-8.2-4.9a1 1 0 0 1 0-1.7l8.2-4.9a1 1 0 0 1 1-.1z"/></svg>';
-  const svgNext  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fdf6d0" d="M17 5a1 1 0 0 1 1 1v12a1 1 0 1 1-2 0V6a1 1 0 0 1 1-1zM5.6 6.2a1 1 0 0 1 1 .1l8.2 4.9a1 1 0 0 1 0 1.7l-8.2 4.9A1 1 0 0 1 5 17V7.2a1 1 0 0 1 .6-.9z"/></svg>';
-  const svgPlay  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fdf6d0" d="M8 5v14l11-7z"/></svg>';
-  const svgPause = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#fdf6d0" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
-
-  if($('#prev'))   $('#prev').innerHTML   = svgPrev;
-  if($('#next'))   $('#next').innerHTML   = svgNext;
-  if($('#toggle')) $('#toggle').innerHTML = state.playing ? svgPause : svgPlay;
-}
-
-const scrub = document.getElementById("scrub");
-scrub.addEventListener("input", e => {
-  const fraction = parseFloat(e.target.value) / 100;
-  const d = state.duration || 0;
-  if (d > 0) {
-    const newTime = d * fraction;
-    sendToPlayer({ cmd: "seek", time: newTime });
-  }
-});
-
-/* ---------- Gear + Toolbar ---------- */
-function setGearOpen(o){$('#gearwrap')?.classList.toggle('open',!!o);}
-document.addEventListener('click',e=>{
-  const gw=$('#gearwrap');if(!gw)return;
-  const btn=$('#gearBtn');
-  if(btn.contains(e.target)){e.preventDefault();setGearOpen(!gw.classList.contains('open'));return;}
-  if(!gw.contains(e.target))setGearOpen(false);
-});
-
-function buildMenuUI(){
-  const tb = els.toolbar;
-  if (!tb) return;
-  tb.innerHTML = '';
-
-  // --- Define link helper early so it's in scope ---
-  function a(h, t, l) {
-    const x = document.createElement('a');
-    x.href = h;
-    x.target = '_blank';
-    x.rel = 'noopener';
-    x.className = 'btn icon';
-    x.title = l;
-    x.innerHTML = t;
-    return x;
-  }
-
-  // --- Info button ---
-  const bInfo = document.createElement('button');
-
-  bInfo.className = 'btn icon';
-  bInfo.innerHTML = 'ℹ';
-  bInfo.title = 'Info';
-  bInfo.onclick = () =>
-    alert('Welcome to VVIP PLAYER 1.1! Press the ★ next to tracks to add them to your playlist. 🎶 ');
-  tb.append(bInfo);
-
-  // --- Plus button (toggle formats) ---
-  const bPlus = document.createElement('button');
-  bPlus.className = 'btn';
-  bPlus.textContent = '+';
-  bPlus.title = 'Toggle formats';
-
-// --- Refresh button ---
-const bRefresh = document.createElement('button');
-bRefresh.className = 'btn icon';
-bRefresh.textContent = '↻';
-bRefresh.title = 'Refresh list';
-bRefresh.onclick = () => {
-  state.hiddenIds = new Set();         // clear hidden ones
-  applyFilterSort(true);
-};
-tb.append(bRefresh);
-
-  tb.append(bPlus);
-
-  const updatePlus = () => {
-    bPlus.classList.toggle('on', state.showFormats);
-    tb.classList.toggle('show-sort', state.showFormats);
-  };
-
-  bPlus.onclick = e => {
-    e.preventDefault();
-    state.showFormats = !state.showFormats;
-    state.showWavButtons = state.showFormats;
-    state.showMovButtons = state.showFormats;
-    updatePlus();
-    renderList();
-  };
-
-  // --- Favorites toggle ---
-  const bFav = document.createElement('button');
-  bFav.className = 'btn';
-  const refresh = () => {
-    const fav = state.viewMode === 'favorites' || state.viewMode === 'search';
-    bFav.textContent = fav ? '🎵' : '⭐';
-  };
-  refresh();
-
-  bFav.onclick = e => {
-    e.preventDefault();
-    if (state.viewMode === 'all') setView('favorites');
-    else setView('all');
-    refresh();
-  };
-  tb.append(bFav);
-
-  // --- External + shop links ---
-  const yt = a('https://www.youtube.com/@VVVVIIPP26', '📺', 'YouTube');
-  const ig = a('https://www.instagram.com/vvipmediadotnet/', '📷', 'Instagram');
-  const bShop = document.createElement('a');
-  bShop.className = 'btn icon';
- bShop.href = 'https://shoppe.vvipmedia.net';
-  bShop.title = 'Shop';
-  bShop.innerHTML = '🛍️';
-  tb.append(yt, ig, bShop);
-
-  // --- Sort select ---
-  const sort = document.createElement('select');
-  sort.id = 'sort';
-  sort.innerHTML = `
-    <option value="date_desc">Newest</option>
-    <option value="date_asc">Oldest</option>
-    <option value="bpm_desc">BPM↓</option>
-    <option value="bpm_asc">BPM↑</option>
-    <option value="len_desc">Longest</option>
-    <option value="len_asc">Shortest</option>`;
-  sort.onchange = () => applyFilterSort(false, true);
-  tb.append(sort);
-
-  // --- Show welcome popup once ---
-  try {
-    const hasVisited = localStorage.getItem('vvip_visited');
-    if (!hasVisited) {
-      setTimeout(() => {
-        alert('Welcome to 🎶VVIP MEDIA🎶! Star your faves to create a playlist; check menu for extras.');
-      }, 400);
-      localStorage.setItem('vvip_visited', 'true');
-    }
-  } catch (err) {
-    console.warn('LocalStorage unavailable', err);
-  }
-}
-
-/* ---------- Extras / Gems ---------- */
-(async()=>{try{
-  const r=await fetch(`/extras.json?v=${ASSET_VERSION}`,{cache:'no-store'});
-  state.extras=await r.json();
-}catch{}})();
-
-document.addEventListener('click',e=>{
-  const gem=e.target.closest('.gem');
-  if(!gem) return;
-
-  e.preventDefault();
-  const key = gem.dataset.gem;
-  const files = state.extras[key];
-  if(!files) return;
-
-  const row = gem.closest('.row');
-  const next = row.nextElementSibling;
-  if(next && next.classList.contains('extras-drawer')){
-    next.remove();
+document.addEventListener('click', e=>{
+  const row=e.target.closest('.track-row');
+  if(row&&!e.target.closest('a')&&!e.target.closest('.star-btn')&&!e.target.closest('.gem-btn')){
+    const idx=state.filtered.findIndex(t=>t.id===Number(row.dataset.id));
+    if(idx>=0){select(idx);play();}
     return;
   }
-
-  const d = document.createElement('div');
-  d.className = 'extras-drawer';
-  d.style.cssText = `
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    padding:8px 12px;
-    background:var(--card);
-    border-top:1px solid var(--border);
-  `;
-
-  // ✅ Correct URL (no subfolder of same name)
-  d.innerHTML = files.map(f => {
-    const url = `${BASE_EXTRAS}${encodeURIComponent(f)}`;
-    return /\.(jpg|jpeg|png|gif|webp)$/i.test(f)
-      ? `<a href="${url}" target="_blank"><img src="${url}" style="width:64px;height:64px;object-fit:cover;border-radius:8px"></a>`
-      : `<a href="${url}" target="_blank" class="pill">${f}</a>`;
-  }).join('');
-
-  row.after(d);
-});
-
-// ---------- Favorites click handler ----------
-document.addEventListener('click', e => {
-  const btn = e.target.closest('.star');
-  if (!btn) return;
-
-  const trackName = btn.dataset.fav;
-  const wasFav = state.favorites.has(trackName);
-
-  // Toggle
-  if (wasFav) state.favorites.delete(trackName);
-  else state.favorites.add(trackName);
-
-  // Persist to localStorage
-  localStorage.setItem('vvip25:favs', JSON.stringify([...state.favorites]));
-
-  // Update visuals
-  btn.classList.toggle('on', !wasFav);
-
-  // If viewing favorites-only, refresh
-  if (state.viewMode === 'favorites' && wasFav) applyFilterSort();
-});
-
-/* --- Toggle search bar visibility when playlist (⭐/🎵) clicked --- */
-document.addEventListener('click', e => {
-  const favBtn = e.target.closest('.btn');
-  if (!favBtn) return;
-
-  // Check if it's the favorites/playlist toggle
-  if (favBtn.textContent.trim() === '⭐' || favBtn.textContent.trim() === '🎵') {
-    document.body.classList.toggle('show-search');
+  const star=e.target.closest('.star-btn');
+  if(star){
+    const name=star.dataset.fav, was=state.favorites.has(name);
+    was?state.favorites.delete(name):state.favorites.add(name);
+    localStorage.setItem('vvip25:favs',JSON.stringify([...state.favorites]));
+    star.classList.toggle('on',!was);
+    if(state.viewMode==='favorites'&&was) applyFilterSort();
+    return;
+  }
+  const gem=e.target.closest('.gem-btn');
+  if(gem){
+    e.preventDefault();
+    const key=gem.dataset.gem, files=state.extras[key]; if(!files) return;
+    const row2=gem.closest('.track-row'), next=row2?.nextElementSibling;
+    if(next?.classList.contains('extras-row')){next.remove();return;}
+    const d=document.createElement('div');
+    d.className='extras-row';
+    d.innerHTML=`<span class="extras-cell">${files.map(f=>{const url=`${BASE_EXTRAS}${encodeURIComponent(f)}`;return /\.(jpg|jpeg|png|gif|webp)$/i.test(f)?`<a href="${url}" target="_blank"><img src="${url}" alt="" loading="lazy"></a>`:`<a href="${url}" target="_blank" style="font-family:Arial,sans-serif;font-size:11px">${f}</a>`;}).join('')}</span>`;
+    row2?.after(d);
   }
 });
 
-</script>
-<script>
-// --- Save playback state when leaving page (iframe-aware) ---
-window.addEventListener("beforeunload", () => {
-  try {
-    const frame = document.getElementById("vvip-player-frame");
-    if (!frame || !frame.contentWindow) return;
+function select(i){ state.i=i; send({cmd:'load',src:state.filtered[i].src,play:false}); updateNow(); }
+function play(){ if(state.i<0)return; send({cmd:'load',src:state.filtered[state.i].src,play:true}); state.playing=true; $('#btn-toggle').textContent='⏸ Pause'; }
+function pause(){ send({cmd:'pause'}); state.playing=false; $('#btn-toggle').textContent='► Play'; }
+function preselectPreferred(x){ if(!x||!state.filtered.length)return; const idx=state.filtered.findIndex(t=>(t.title||'').toLowerCase().includes(x)); if(idx>=0)select(idx); }
 
-    // Ask the iframe to report current status one last time
-    frame.contentWindow.postMessage({ cmd: "report" }, "*");
-
-    // We'll listen synchronously for the reply (best-effort)
-    window.addEventListener("message", (e) => {
-      const d = e.data;
-      if (!d || d.status !== "update") return;
-      try {
-        localStorage.setItem("vvip25_src", d.src || "");
-        localStorage.setItem("vvip25_time", d.time || 0);
-        localStorage.setItem("vvip25_duration", d.duration || 0);
-        localStorage.setItem("vvip25_playing", d.playing);
-        localStorage.setItem("vvip25_title", document.querySelector("#now-title")?.textContent || "");
-      } catch (err) {
-        console.warn("Could not persist state:", err);
-      }
-    }, { once: true });
-  } catch (err) {
-    console.warn("Could not request player state:", err);
-  }
-});
-</script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const list = document.getElementById('list');
-  if (!list) return;
-
-  /* ---------- SortableJS (drag to reorder via handle only) ---------- */
-  new Sortable(list, {
-    animation: 180,
-    onMove: (evt) => {
-  const rect = evt.dragged.getBoundingClientRect();
-  const clickX = evt.originalEvent.clientX;
-  const rightHalf = clickX > rect.left + rect.width / 2;
-  return rightHalf; // ✅ only allow drag on right half
-},
-    ghostClass: 'drag-ghost',
-    delay: 120,                 // small delay prevents scroll misfires
-    delayOnTouchOnly: true,
-    onEnd: (evt) => {
-      const newOrder = [...list.querySelectorAll('.row')].map(el => Number(el.dataset.id));
-
-      // reorder state.filtered based on visual order
-      const lookup = new Map(state.filtered.map(t => [t.id, t]));
-      state.filtered = newOrder.map(id => lookup.get(id)).filter(Boolean);
-
-      // persist order if in favorites view
-      if (state.viewMode === 'favorites') {
-        const favIds = state.filtered.map(t => t.name);
-        localStorage.setItem('vvip25:favOrder', JSON.stringify(favIds));
-      }
-
-      console.log('✅ New order applied:', newOrder);
-    }
-  });
-
-  /* ---------- Refresh button logic (clears hidden tracks) ---------- */
-  const refreshBtn = document.querySelector('.btn.icon[title="Refresh list"]');
-  if (refreshBtn) {
-    refreshBtn.addEventListener('click', () => {
-      state.hiddenIds = new Set();
-      applyFilterSort(true);
-    });
-  }
-
-
-});
-</script>
-
-<script>
-
-/* ---------- Swipe gestures on mobile (fixed) ---------- */
-state.hiddenIds = new Set();
-let touchStartX = 0;
-let touchEndX = 0;
-const SWIPE_THRESHOLD = 60;
-
-function collapseRow(row) {
-  row.style.transition = 'transform 0.35s ease, opacity 0.35s ease, height 0.35s ease, margin 0.35s ease, padding 0.35s ease';
-  row.style.height = row.offsetHeight + 'px';
-  requestAnimationFrame(() => {
-    row.style.height = '0px';
-    row.style.opacity = '0';
-    row.style.margin = '0';
-    row.style.padding = '0';
-  });
-  row.addEventListener('transitionend', () => row.remove(), { once: true });
+function updateNow(){
+  const t=state.filtered[state.i]; if(!t)return;
+  $('#now-title').textContent=t.title;
+  $('#now-meta').textContent=[bpmLabel(t),t.length?fmtDur(t.length):''].filter(Boolean).join(' · ');
+  const img=$('#now-thumb'), ph=$('#now-thumb-ph');
+  img.src=getThumb(t); img.style.display='block'; ph.style.display='none';
+  img.onerror=()=>{img.style.display='none';ph.style.display='flex';};
+  $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
+  $('#list').querySelector(`.track-row[data-id="${t.id}"]`)?.classList.add('is-playing');
 }
 
-function handleSwipe(row) {
-  const dx = touchEndX - touchStartX;
-  const id = Number(row.dataset.id);
-  const track = state.filtered.find(t => t.id === id);
-  if (!track) return;
-
-  if (dx > SWIPE_THRESHOLD) {
-    // 👉 SWIPE RIGHT → toggle favourite (DO NOT REMOVE)
-    const wasFav = state.favorites.has(track.name);
-    if (wasFav) state.favorites.delete(track.name);
-    else state.favorites.add(track.name);
-    localStorage.setItem('vvip25:favs', JSON.stringify([...state.favorites]));
-    const star = row.querySelector('.star');
-    if (star) star.classList.toggle('on', !wasFav);
-    row.classList.add('swiped-right'); // mild flash only
-    setTimeout(() => row.classList.remove('swiped-right'), 250);
-  } 
-  else if (dx < -SWIPE_THRESHOLD) {
-    // 👈 SWIPE LEFT → remove from visible list
-    state.hiddenIds.add(id);
-    row.classList.add('swiped-left');
-    collapseRow(row);
-  }
-}
-
-document.addEventListener('touchstart', e => {
-  const row = e.target.closest('.row');
-  if (!row) return;
-  touchStartX = e.changedTouches[0].screenX;
-}, { passive: true });
-
-document.addEventListener('touchend', e => {
-  const row = e.target.closest('.row');
-  if (!row) return;
-  touchEndX = e.changedTouches[0].screenX;
-  handleSwipe(row);
-}, { passive: true });
-
-/* Override renderList so hidden tracks stay gone until refresh */
-const _origRenderList = renderList;
-renderList = function() {
-  const filtered = state.filtered.filter(t => !state.hiddenIds.has(t.id));
-  els.list.innerHTML = filtered.slice(0, state.renderCount).map(rowHTML).join('');
-};</script>
-
-<script>
-/* === VVIP25 — Persistent IFrame Player Bridge === */
-const playerFrame = document.getElementById("vvip-player-frame");
-function sendToPlayer(data){ playerFrame?.contentWindow?.postMessage(data,"*"); }
-
-// Replace any call that manipulates <audio> directly with sendToPlayer()
-// Example: when selecting a track, tell the iframe to load and play
-
-function select(i){
-  state.i = i;
-  const t = state.filtered[i];
-  updateNowbar();
-sendToPlayer({ cmd:"load", src:t.src, play:false });
-}
-
-function play(){ sendToPlayer({ cmd:"play" }); state.playing=true; document.body.classList.add("playing"); setControlIcons(); }
-function pause(){ sendToPlayer({ cmd:"pause" }); state.playing=false; document.body.classList.remove("playing"); setControlIcons(); }
-
-/* --- Unified message handler (time, play, scrub, persistence) --- */
-const scrubEl = document.getElementById("scrub");
-const nowTimeEl = document.getElementById("now-time");
-
-window.addEventListener("message", (e) => {
-  const d = e.data || {};
-  if (d.status === "update") {
-    // Core state
-    state.playing  = !!d.playing;
-    state.duration = Number(d.duration) || 0;
-    const t        = Number(d.time) || 0;
-
-    // UI sync
-    setControlIcons();
-    document.body.classList.toggle("playing", state.playing);
-
-    // Time text
-    if (nowTimeEl) {
-      const m = Math.floor(t / 60);
-      const s = Math.floor(t % 60);
-      nowTimeEl.textContent = `${m}:${String(s).padStart(2,"0")}`;
-    }
-
-    // Scrubber progress
-    if (scrubEl && state.duration > 0 && document.activeElement !== scrubEl) {
-      const pct = Math.min(100, Math.max(0, (t / state.duration) * 100));
-      scrubEl.value = pct;
-    }
-
-    // Persist for Shoppe / reload continuity
-    try {
-      localStorage.setItem("vvip25_time", t);
-      localStorage.setItem("vvip25_duration", state.duration);
-      localStorage.setItem("vvip25_playing", String(state.playing));
-      if (state.i >= 0 && state.filtered[state.i]) {
-        const tr = state.filtered[state.i];
-        localStorage.setItem("vvip25_src", tr.src || "");
-        localStorage.setItem("vvip25_title", tr.title || "");
-      }
-    } catch {}
-
-  } else if (d.status === "ended") {
-    // optional: auto-next
-    if (state.filtered.length) {
-      const ni = (state.i + 1) % state.filtered.length;
-      select(ni);
-      play();
-    }
+window.addEventListener('message',e=>{
+  const d=e.data||{};
+  if(d.status==='update'){
+    state.playing=!!d.playing; state.duration=Number(d.duration)||0;
+    const t=Number(d.time)||0;
+    $('#btn-toggle').textContent=state.playing?'⏸ Pause':'► Play';
+    $('#now-time').textContent=`${fmtDur(t)} / ${state.duration>0?fmtDur(state.duration):'--:--'}`;
+    const sc=$('#pb-scrub');
+    if(state.duration>0&&document.activeElement!==sc) sc.value=Math.min(100,Math.max(0,(t/state.duration)*100));
+    try{localStorage.setItem('vvip25_time',t);}catch{}
+  } else if(d.status==='ended'){
+    if(state.filtered.length){const ni=(state.i+1)%state.filtered.length;select(ni);play();}
   }
 });
 
-</script>
+$('#pb-scrub').addEventListener('input',e=>{ const pct=parseFloat(e.target.value)/100; if(state.duration>0)send({cmd:'seek',time:state.duration*pct}); });
 
+let tx0=0;
+document.addEventListener('touchstart',e=>{const r=e.target.closest('.track-row');if(!r)return;tx0=e.changedTouches[0].screenX;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const r=e.target.closest('.track-row');if(!r)return;
+  const dx=e.changedTouches[0].screenX-tx0;
+  const t=state.filtered.find(t=>t.id===Number(r.dataset.id));if(!t)return;
+  if(dx>60){const was=state.favorites.has(t.name);was?state.favorites.delete(t.name):state.favorites.add(t.name);localStorage.setItem('vvip25:favs',JSON.stringify([...state.favorites]));r.querySelector('.star-btn')?.classList.toggle('on',!was);}
+  else if(dx<-60){state.hiddenIds.add(t.id);r.style.transition='opacity .2s';r.style.opacity='0';setTimeout(()=>r.remove(),200);}
+},{passive:true});
+
+window.addEventListener('beforeunload',()=>{try{send({cmd:'report'});}catch{}});
+</script>
 </body>
 </html>
