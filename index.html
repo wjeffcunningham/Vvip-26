@@ -129,6 +129,22 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .gear-toggle:checked{background:#0044cc}
 .gear-toggle::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:var(--btn-bg);top:1px;left:1px;transition:left .2s;border:1px solid var(--btn-sh)}
 .gear-toggle:checked::after{left:18px}
+/* VVIP+ nav link — gold surge */
+#vvip-login-btn{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  text-decoration:none !important;
+  background:linear-gradient(90deg,var(--gold-sh) 0%,var(--gold-hi) 40%,var(--gold-bg) 60%,var(--gold-sh) 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:goldPulse 2.8s ease-in-out infinite;
+  letter-spacing:.04em;
+  flex-shrink:0;
+}
+@keyframes goldPulse{
+  0%  {background-position:0% 50%;opacity:.75}
+  50% {background-position:100% 50%;opacity:1}
+  100%{background-position:0% 50%;opacity:.75}
+}
 
 #site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:nowrap;align-items:center;overflow:hidden;padding-right:40px;white-space:nowrap}
 #site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:10px;font-size:11px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9;white-space:nowrap;flex-shrink:0}
@@ -148,6 +164,7 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   border-bottom:2px solid var(--fg);
   background:var(--now-bg);
   margin:0 -12px;
+  overflow:visible;
 }
 /* Row 1: thumb | info+scrub | 3x2 button grid */
 #now-top{
@@ -198,7 +215,7 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .nbtn.disabled{color:var(--muted);pointer-events:none;opacity:.4}
 .nbtn.empty{pointer-events:none;background:var(--card)}
 /* Transport: 4 buttons full width */
-#now-transport{display:flex;border-top:1px solid var(--border-light)}
+#now-transport{display:flex;border-top:1px solid var(--border-light);overflow:visible;position:relative;z-index:5}
 .tbtn-transport{
   flex:1;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;
   background:var(--btn-bg);border:none;border-right:1px solid var(--border-light);
@@ -209,20 +226,30 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .tbtn-transport:last-child{border-right:none}
 .tbtn-transport:hover{background:var(--hover)}
 .tbtn-transport:active{background:var(--border)}
-/* Play btn — gold, pulsing surge, turns off when playing */
+/* Play btn — gold surge, rises above transport bar to overlap btn-grid */
 #btn-toggle{
   background:var(--gold-bg);color:var(--gold-fg);
   font-size:16px;
+  position:relative;
+  z-index:10;
+  /* Pull upward to visually overlap the bottom-right of the button grid */
+  margin-top:-20px;
+  padding-top:20px;
+  padding-bottom:10px;
+  box-shadow:0 -2px 0 0 var(--gold-sh), 0 0 4px 1px rgba(200,168,75,.3);
   animation:playSurge 2s ease-in-out infinite;
 }
 #btn-toggle.is-playing{
-  animation:none;background:var(--btn-bg);color:var(--fg);
+  animation:none;
+  background:var(--btn-bg);color:var(--fg);
+  margin-top:0;padding-top:10px;padding-bottom:10px;
+  box-shadow:none;
 }
 #btn-toggle:hover{background:var(--gold-hi)}
 @keyframes playSurge{
-  0%  {box-shadow:0 0 4px 1px rgba(200,168,75,.3)}
-  50% {box-shadow:0 0 16px 5px rgba(200,168,75,.75)}
-  100%{box-shadow:0 0 4px 1px rgba(200,168,75,.3)}
+  0%  {box-shadow:0 -2px 0 0 var(--gold-sh),0 0 4px 1px rgba(200,168,75,.3)}
+  50% {box-shadow:0 -2px 0 0 var(--gold-sh),0 0 18px 6px rgba(200,168,75,.75)}
+  100%{box-shadow:0 -2px 0 0 var(--gold-sh),0 0 4px 1px rgba(200,168,75,.3)}
 }
 /* Video — replaces player grid when active */
 #now-video-wrap{
@@ -271,7 +298,15 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 
 /* TOOLBAR */
 #toolbar{border:1px solid var(--border);border-top:none;padding:4px 8px;display:flex;align-items:center;gap:6px;background:var(--card);font-family:Arial,Helvetica,sans-serif;font-size:12px}
-#toolbar select{font-family:Arial,Helvetica,sans-serif;font-size:12px;border:1px inset var(--btn-sh);background:var(--bg);color:var(--fg);padding:1px 2px;border-radius:0;-webkit-appearance:none;appearance:none}
+#toolbar select{
+  font-family:Arial,Helvetica,sans-serif;font-size:12px;
+  border:1px inset var(--btn-sh);background:var(--bg);color:var(--fg);
+  padding:1px 22px 1px 4px;border-radius:0;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='12' viewBox='0 0 10 12'%3E%3Cpath d='M5 2L1 6h8zM5 10L1 6h8z' fill='%23555'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 4px center;
+  cursor:pointer;
+}
 #track-count{color:var(--muted);font-size:11px;margin-left:auto}
 #toolbar.hide-sort #sort-label,#toolbar.hide-sort #sort-sel{display:none}
 
@@ -318,7 +353,15 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .htag-body{display:none}
 .htag-body.open{display:block}
 .htag-toolbar{padding:3px 8px;background:var(--card);border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:6px}
-.htag-sort{font-family:Arial,Helvetica,sans-serif;font-size:11px;border:1px inset var(--btn-sh);background:var(--bg);color:var(--fg);padding:0 2px;border-radius:0;-webkit-appearance:none;appearance:none}
+.htag-sort{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;
+  border:1px inset var(--btn-sh);background:var(--bg);color:var(--fg);
+  padding:0 18px 0 2px;border-radius:0;
+  -webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='12' viewBox='0 0 10 12'%3E%3Cpath d='M5 2L1 6h8zM5 10L1 6h8z' fill='%23555'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 3px center;
+  cursor:pointer;
+}
 
 /* TRACK LIST */
 #list{border:1px solid var(--border);border-top:none}
@@ -328,7 +371,7 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .track-row:hover{background:var(--hover)}
 .track-row.is-playing{background:var(--playing)}
 .track-row.is-playing .t-title{color:var(--playing-title)}
-.t-num{display:table-cell;font-family:"Courier New",Courier,monospace;font-size:11px;color:var(--gold-bg);padding:6px 3px 6px 8px;vertical-align:middle;width:30px;white-space:nowrap;text-align:right}
+.t-num{display:table-cell;font-family:"Courier New",Courier,monospace;font-size:11px;color:var(--fg);padding:6px 3px 6px 8px;vertical-align:middle;width:30px;white-space:nowrap;text-align:right}
 .t-thumb-cell{display:table-cell;width:70px;padding:4px 5px;vertical-align:middle}
 .t-thumb{width:62px;height:62px;object-fit:cover;border:2px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);display:block}
 .t-mid{display:table-cell;vertical-align:middle;padding:5px 6px}
@@ -371,6 +414,7 @@ body.hide-titles .t-title-file{display:inline !important}
     <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
+    <a id="vvip-login-btn" href="/members.html">VVIP+</a>
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
   <div id="gear-menu">
