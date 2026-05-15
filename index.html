@@ -10,34 +10,34 @@
 
 <style>
 :root {
-  --bg: #ffffff;
-  --fg: #111111;
-  --muted: #555555;
-  --border: #bbbbbb;
-  --border-light: #dddddd;
-  --card: #eeeeee;
-  --hover: #dde6ff;
-  --playing: #f5f5e0;
-  --playing-title: #880000;
-  --link: #0000aa;
-  --link-vis: #440088;
-  --link-hov: #aa0000;
-  --btn-bg: #d0d0d0;
-  --btn-hi: #f8f8f8;
-  --btn-sh: #888888;
-  --btn-dk: #444444;
-  --scrub-bg: #c0c0c0;
-  --now-bg: #e8e8e8;
-  --tab-inactive: #cccccc;
-  --star-on: #880000;
-  --tag-bg: #222222;
-  --tag-fg: #ffffff;
-  --sec-ga: #333333;
-  --sec-gb: #555555;
+  --bg: #f4f4f2;          /* warm white — not clinical */
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #a8a8a8;
+  --border-light: #d0d0d0;
+  --card: #e8e8e6;        /* slightly warm light grey */
+  --hover: #dce4f0;       /* muted slate-blue hover */
+  --playing: #f2f0e0;
+  --playing-title: #7a0000;
+  --link: #00308f;        /* RAF blue — gov but not dull */
+  --link-vis: #4a1a7a;
+  --link-hov: #9a0000;
+  --btn-bg: #d8d8d6;      /* medium grey buttons */
+  --btn-hi: #f0f0ee;
+  --btn-sh: #7a7a7a;
+  --btn-dk: #3a3a3a;
+  --scrub-bg: #bcbcba;
+  --now-bg: #e0e0de;      /* player bar — slightly darker than page */
+  --tab-inactive: #cacac8;
+  --star-on: #8b0000;
+  --tag-bg: #1e2a3a;      /* dark navy for section headers */
+  --tag-fg: #f0f0ee;
+  --sec-ga: #1e2a3a;
+  --sec-gb: #2e3e52;
   --logo-g1: #000044;
-  --logo-g2: #003399;
+  --logo-g2: #00308f;
   --logo-g3: #000044;
-  --logo-glo: #2255ee;
+  --logo-glo: #2255dd;
   --gold-bg: #c8a84b;
   --gold-hi: #f0d480;
   --gold-sh: #7a6020;
@@ -151,7 +151,8 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 #now-info{flex:1;min-width:0}
 #now-title-show{font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg)}
 #now-meta{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:var(--muted);margin-top:1px}
-#now-actions{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+#now-actions{display:none;gap:3px;padding:4px 12px 5px;flex-wrap:wrap;background:var(--card);border-top:1px solid var(--border-light)}
+#now-actions.visible{display:flex}
 
 .now-icon{font-family:Arial,Helvetica,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);padding:1px 6px;cursor:pointer;color:var(--fg);text-decoration:none;display:inline-block;line-height:1.5;white-space:nowrap}
 .now-icon:hover{background:var(--hover)}
@@ -189,12 +190,10 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .view-tab:hover:not(.active){background:var(--hover)}
 
 /* TOOLBAR */
-#toolbar{border:1px solid var(--border);border-top:none;padding:4px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--card);font-family:Arial,Helvetica,sans-serif;font-size:12px}
+#toolbar{border:1px solid var(--border);border-top:none;padding:4px 8px;display:flex;align-items:center;gap:6px;background:var(--card);font-family:Arial,Helvetica,sans-serif;font-size:12px}
 #toolbar select{font-family:Arial,Helvetica,sans-serif;font-size:12px;border:1px inset var(--btn-sh);background:var(--bg);color:var(--fg);padding:1px 2px}
-.tbtn{font-family:Arial,Helvetica,sans-serif;font-size:11px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);padding:1px 7px;cursor:pointer;color:var(--fg)}
-.tbtn:hover{background:var(--hover)}
-.tbtn.pressed{border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);background:var(--hover)}
 #track-count{color:var(--muted);font-size:11px;margin-left:auto}
+#toolbar.hide-sort #sort-label,#toolbar.hide-sort #sort-sel{display:none}
 
 /* HASHTAG VIEW */
 #hashtag-view{display:none}
@@ -216,8 +215,6 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .htag-body{display:none}
 .htag-body.open{display:block}
 .htag-toolbar{padding:3px 8px;background:var(--card);border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:6px}
-.htag-export{font-family:Arial,Helvetica,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);padding:1px 6px;cursor:pointer;color:var(--fg);text-decoration:none;display:inline-block}
-.htag-export:hover{background:var(--hover)}
 .htag-sort{font-family:Arial,Helvetica,sans-serif;font-size:11px;border:1px inset var(--btn-sh);background:var(--bg);color:var(--fg);padding:0 2px}
 
 /* TRACK LIST */
@@ -228,7 +225,7 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .track-row:hover{background:var(--hover)}
 .track-row.is-playing{background:var(--playing)}
 .track-row.is-playing .t-title{color:var(--playing-title)}
-.t-num{display:table-cell;font-family:"Courier New",Courier,monospace;font-size:11px;color:var(--gold-bg);padding:6px 3px 6px 8px;vertical-align:middle;width:32px;white-space:nowrap;text-align:right}
+.t-num{display:table-cell;font-family:"Courier New",Courier,monospace;font-size:11px;color:var(--gold-bg);padding:6px 3px 6px 8px;vertical-align:middle;width:30px;white-space:nowrap;text-align:right}
 .t-thumb-cell{display:table-cell;width:70px;padding:4px 5px;vertical-align:middle}
 .t-thumb{width:62px;height:62px;object-fit:cover;border:2px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);display:block}
 .t-mid{display:table-cell;vertical-align:middle;padding:5px 6px}
@@ -248,16 +245,12 @@ body.hide-titles .t-title-file{display:inline !important}
 .extras-cell img{width:60px;height:60px;object-fit:cover;border:1px solid var(--border);margin-right:4px;vertical-align:top}
 #empty-msg{display:none;padding:20px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted);text-align:center;border:1px solid var(--border);border-top:none}
 
-@media(max-width:520px){
-  #site-name{font-size:32px}
-  .t-num{display:none}
-  #scrub-wrap{width:70px}
-  #now-time{display:none}
-  .t-right{width:56px}
+@media(max-width:480px){
+  .t-right{width:44px}
   .t-right a:not(.star-btn){display:none}
-  #now-thumb-wrap,#now-thumb,#now-thumb-ph{width:60px;height:60px}
-  .t-thumb-cell{width:52px}
-  .t-thumb{width:44px;height:44px}
+}
+@media(max-width:360px){
+  .t-num{display:none}
 }
 </style>
 </head>
@@ -285,12 +278,12 @@ body.hide-titles .t-title-file{display:inline !important}
       <input type="checkbox" id="tog-dark" class="gear-toggle" onchange="toggleDark(this.checked)">
     </div>
     <div class="gear-item">
-      <label for="tog-titles">Show titles</label>
+      <label for="tog-titles">Titles</label>
       <input type="checkbox" id="tog-titles" class="gear-toggle" checked onchange="toggleTitles(this.checked)">
     </div>
     <div class="gear-item">
-      <label for="tog-files">Show filenames</label>
-      <input type="checkbox" id="tog-files" class="gear-toggle" onchange="toggleFiles(this.checked)">
+      <label for="tog-downloads">Downloads</label>
+      <input type="checkbox" id="tog-downloads" class="gear-toggle" onchange="toggleDownloads(this.checked)">
     </div>
   </div>
 </div>
@@ -337,7 +330,7 @@ body.hide-titles .t-title-file{display:inline !important}
 </div>
 
 <div id="toolbar">
-  <label id="sort-label" for="sort-sel" style="font-family:Arial,sans-serif;font-size:12px">Sort:</label>
+  <label id="sort-label" for="sort-sel" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Sort:</label>
   <select id="sort-sel">
     <option value="date_desc">Newest first</option>
     <option value="date_asc">Oldest first</option>
@@ -477,7 +470,7 @@ const state={
   favorites:new Set(JSON.parse(localStorage.getItem('vvip25:favs')||'[]')),
   favOrder:JSON.parse(localStorage.getItem('vvip25:favOrder')||'[]'),
   searchQuery:'',viewMode:'hashtags',sortMode:'date_desc',
-  extras:{},showFormats:false,filterVideo:false,hiddenIds:new Set(),titles:null,
+  extras:{},showDownloads:false,filterVideo:false,hiddenIds:new Set(),titles:null,
 };
 
 const pf=$('#vvip-player-frame');
@@ -486,14 +479,28 @@ function send(d){pf?.contentWindow?.postMessage(d,'*')}
 function toggleGear(){$('#gear-menu').classList.toggle('open')}
 document.addEventListener('click',e=>{if(!e.target.closest('#gear-btn')&&!e.target.closest('#gear-menu'))$('#gear-menu').classList.remove('open')});
 function toggleDark(on){document.documentElement.setAttribute('data-theme',on?'dark':'light');localStorage.setItem('vvip25:dark',on?'1':'')}
-function toggleTitles(on){document.body.classList.toggle('hide-titles',!on);localStorage.setItem('vvip25:hideTitles',on?'':'1');if(state.filtered[state.i])updateNow();}
-function toggleFiles(on){state.showFormats=on;localStorage.setItem('vvip25:showFiles',on?'1':'');if(state.viewMode==='hashtags')renderHashtags();else renderList();}
+function toggleTitles(on){
+  document.body.classList.toggle('hide-titles',!on);
+  localStorage.setItem('vvip25:hideTitles',on?'':'1');
+  // Update now-playing bar label
+  const t=state.filtered[state.i];
+  if(t) $('#now-title-show').textContent=on?t.title:t.name;
+}
 (()=>{
   if(localStorage.getItem('vvip25:dark')==='1'){document.documentElement.setAttribute('data-theme','dark');const el=$('#tog-dark');if(el)el.checked=true}
   if(localStorage.getItem('vvip25:hideTitles')==='1'){document.body.classList.add('hide-titles');const el=$('#tog-titles');if(el)el.checked=false}
-  if(localStorage.getItem('vvip25:showFiles')==='1'){state.showFormats=true;const el=$('#tog-files');if(el)el.checked=true}
+  if(localStorage.getItem('vvip25:downloads')==='1'){state.showDownloads=true;const el=$('#tog-downloads');if(el)el.checked=true;$('#now-actions').classList.add('visible')}
 })();
 
+function toggleDownloads(on){
+  state.showDownloads=on;
+  localStorage.setItem('vvip25:downloads',on?'1':'');
+  // Show/hide the now-actions drawer
+  $('#now-actions').classList.toggle('visible',on);
+  // Re-render rows to show/hide per-row download links
+  if(state.viewMode==='hashtags') renderHashtags();
+  else renderList();
+}
 function showHome(){$('#about-section').classList.remove('open');return false}
 function toggleAbout(){$('#about-section').classList.toggle('open')}
 
@@ -506,11 +513,11 @@ $$('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
   $$('.view-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   state.viewMode=btn.dataset.view;
+  updateToolbarVisibility();
   applyFilterSort();
 }));
 
 $('#sort-sel').addEventListener('change',e=>{state.sortMode=e.target.value;applyFilterSort()});
-
 
 
 
@@ -709,8 +716,6 @@ function renderHashtags(){
     const body=document.createElement('div');body.className='htag-body'+(isDef?' open':'');
 
     const tb=document.createElement('div');tb.className='htag-toolbar';
-    const expBtn=document.createElement('a');expBtn.className='htag-export';expBtn.href='#';expBtn.textContent='\u2b07 .m3u';
-    expBtn.addEventListener('click',ev=>{ev.preventDefault();downloadM3U(tag,st)});
     const sortSel=document.createElement('select');sortSel.className='htag-sort';
     [['date_desc','Newest'],['date_asc','Oldest'],['shuffle','Shuffle']].forEach(([v,l])=>{
       const o=document.createElement('option');o.value=v;o.textContent=l;
@@ -723,7 +728,7 @@ function renderHashtags(){
       body.querySelectorAll('.track-row').forEach(el=>el.remove());
       nt.forEach((t,i)=>body.insertAdjacentHTML('beforeend',rowHTML(t,i)));
     });
-    tb.appendChild(expBtn);tb.appendChild(sortSel);
+    tb.appendChild(sortSel);
     body.appendChild(tb);
     st.forEach((t,i)=>body.insertAdjacentHTML('beforeend',rowHTML(t,i)));
     sec.appendChild(body);
@@ -739,11 +744,7 @@ function renderHashtags(){
   updateNow();
 }
 
-function downloadM3U(tag,tracks){
-  let m3u='#EXTM3U\n';
-  for(const t of tracks)m3u+='#EXTINF:'+(t.length||0)+','+t.title+'\n'+t.src+'\n';
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([m3u],{type:'audio/x-mpegurl'}));
+));
   a.download='VVIP_'+tag+'.m3u';a.click();
 }
 
@@ -766,11 +767,11 @@ function rowHTML(t,i){
   const hasExtras=state.extras&&state.extras[t.baseLower];
   let right='<button class="star-btn'+(fav?' on':'')+'" data-fav="'+t.name+'">\u2605</button>';
   if(hasExtras)right='<button class="gem-btn" data-gem="'+t.baseLower+'" style="background:none;border:none;cursor:pointer;font-size:11px;padding:1px 3px;margin-left:2px">\ud83d\udc8e</button>'+right;
-  if(state.showFormats)right='<a href="'+t.src+'" download>MP3</a><a class="wav-off" href="#">WAV</a>'+right;
+  if(state.showDownloads)right='<a href="'+t.src+'" download style="font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
   let vTag='';
   if(t.versions&&t.versions.length)vTag='<span style="font-family:Arial,sans-serif;font-size:9px;background:var(--tag-bg);color:var(--tag-fg);padding:0 4px;margin-left:4px">v'+(1+t.versions.length)+'</span>';
   return '<div class="track-row" data-id="'+t.id+'">'
-    +'<span class="t-num">'+String(i+1).padStart(3,' ')+'</span>'
+    +'<span class="t-num">'+String(i+1).padStart(3,'0')+'</span>'
     +'<span class="t-thumb-cell"><img class="t-thumb" src="'+getThumb(t)+'" alt="" loading="lazy" onerror="this.src=\''+DEFAULT_THUMB+'\'"></span>'
     +'<span class="t-mid"><div class="t-title"><span class="t-title-name">'+t.title+vTag+'</span><span class="t-title-file">'+t.name+'</span></div><div class="t-meta">'+sub+'</div></span>'
     +'<span class="t-right">'+right+'</span>'
@@ -844,6 +845,7 @@ function updateNow(){
   if(primary)vBtns='<button class="now-icon version-btn" onclick="playVersion('+primary.id+')">v1</button>'+vBtns;
 
   $('#now-actions').innerHTML=mp3+wav+loB+hqB+vBtns;
+  if(state.showDownloads)$('#now-actions').classList.add('visible');
 }
 
 function playVersion(id){
