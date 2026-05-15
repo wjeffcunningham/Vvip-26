@@ -687,6 +687,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   initAuth();
   $('#btn-toggle').addEventListener('click',()=>{if(state.i<0&&state.filtered.length){select(0);play();return}state.playing?pause():play()});
   $('#btn-restart').addEventListener('click',()=>{send({cmd:'seek',time:0});if(!state.playing)play();});
+
   $('#btn-prev').addEventListener('click',()=>{if(!state.filtered.length)return;select((state.i-1+state.filtered.length)%state.filtered.length);play()});
   $('#btn-next').addEventListener('click',()=>{if(!state.filtered.length)return;select((state.i+1)%state.filtered.length);play()});
   $('#vid-overlay-btn').addEventListener('click',e=>{e.stopPropagation();openVideo(false)});
@@ -974,7 +975,14 @@ document.addEventListener('click',e=>{
 
 function select(i){
   state.i=i;const t=state.filtered[i];if(!t)return;
-  send({cmd:'load',src:t.src,play:false});
+  const thumb=getThumb(t);
+  const displayTitle=document.body.classList.contains('hide-titles')?t.name:t.title;
+  send({cmd:'load',src:t.src,play:false,meta:{
+    title:displayTitle,
+    artist:'VVIP Media',
+    album:'VVIPplayer0.9',
+    artwork:[{src:thumb,sizes:'512x512',type:'image/jpeg'},{src:thumb,sizes:'256x256',type:'image/jpeg'}]
+  }});
   closeVideo();
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
   document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
@@ -985,59 +993,14 @@ function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle
 
 function updateNow(){
   const t=state.filtered[state.i];if(!t)return;
-  $('#now-title-show').textContent=document.body.classList.contains('hide-titles')?t.name:t.title;
+  const displayTitle=document.body.classList.contains('hide-titles')?t.name:t.title;
+  $('#now-title-show').textContent=displayTitle;
   $('#now-meta').textContent=[bpmLabel(t),t.length?fmtDur(t.length):''].filter(Boolean).join('  /  ');
-  const img=$('#now-thumb'),ph=$('#now-thumb-ph');
-  img.src=getThumb(t);img.style.display='block';ph.style.display='none';
-  img.onerror=()=>{img.style.display='none';ph.style.display='flex'};
-  const loV=getLoVid(t),hqV=getHqVid(t);
-  $('#vid-overlay-btn').style.display=loV?'flex':'none';
-
-  // Build 3x2 button grid — 6 cells total
-  const wavSrc=BASE_WAV+encodeURIComponent(t.name.replace(/\.mp3$/i,'.wav'));
-  const cells=[];
-  // 1: MP3 — always
-  cells.push({type:'a',icon:'⬇',label:'MP3',href:t.src,download:true});
-  // 2: WAV — greyed if not premium
-  cells.push({type:'a',icon:'⬇',label:'WAV',href:wavSrc,download:true,disabled:!isPremium,title:isPremium?'WAV download':'VVIP+ only'});
-  // 3: Lo-fi video — absent if no link
-  if(loV) cells.push({type:'btn',icon:'▶',label:'Video',onclick:'openVideo(false)'});
-  // 4: HQ video — absent if no link
-  if(hqV) cells.push({type:'btn',icon:'▶',label:'HQ',onclick:'openVideo(true)'});
-  // Pad to 6 with empty tiles
-  while(cells.length<6) cells.push(null);
-
-  const grid=$('#now-btn-grid');
-  grid.innerHTML=cells.map(c=>{
-    if(!c) return '<span class="nbtn empty"></span>';
-    const dis=c.disabled?' disabled':'';
-    const cls='nbtn'+(c.disabled?' disabled':'');
-    const ti=c.title?` title="${c.title}"`:'';
-    if(c.type==='a'){
-      return `<a class="${cls}" href="${c.href}"${c.download?' download':''}${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</a>`;
-    }
-    return `<button class="${cls}" onclick="${c.onclick}"${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</button>`;
-  }).join('');
-}
-function playVersion(id){
-  const t=state.tracks.find(t=>t.id===id);if(!t)return;
-  let idx=state.filtered.findIndex(t2=>t2.id===id);
-  if(idx<0){state.filtered.splice(state.i+1,0,t);idx=state.i+1}
-  select(idx);play();
-}
-
-window.addEventListener('message',e=>{
-  const d=e.data||{};
-  if(d.status==='update'){
-    state.playing=!!d.playing;state.duration=Number(d.duration)||0;
-    const t=Number(d.time)||0;
-    const bt=$('#btn-toggle');bt.innerHTML=state.playing?'&#9646;&#9646;':'&#9654;';bt.classList.toggle('is-playing',state.playing);
-    $('#now-time').textContent=fmtDur(t)+' / '+(state.duration>0?fmtDur(state.duration):'--:--');
-    const sc=$('#pb-scrub');
-    if(state.duration>0&&document.activeElement!==sc)sc.value=Math.min(100,Math.max(0,(t/state.duration)*100));
-    try{localStorage.setItem('vvip25_time',t)}catch{}
   }else if(d.status==='ended'){
     if(state.filtered.length){select((state.i+1)%state.filtered.length);play()}
+  }else if(d.status==='action'){
+    if(d.action==='prev'&&state.filtered.length){select((state.i-1+state.filtered.length)%state.filtered.length);play()}
+    if(d.action==='next'&&state.filtered.length){select((state.i+1)%state.filtered.length);play()}
   }
 });
 $('#pb-scrub').addEventListener('input',e=>{const pct=parseFloat(e.target.value)/100;if(state.duration>0)send({cmd:'seek',time:state.duration*pct})});
