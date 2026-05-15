@@ -129,6 +129,14 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .gear-toggle:checked{background:#0044cc}
 .gear-toggle::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:var(--btn-bg);top:1px;left:1px;transition:left .2s;border:1px solid var(--btn-sh)}
 .gear-toggle:checked::after{left:18px}
+
+/* Nav items that yield space first on narrow screens */
+@media(max-width:480px){
+  .nav-shrink{display:none}
+}
+@media(max-width:600px){
+  #site-nav a,#site-nav button{margin-right:6px;font-size:10px}
+}
 /* VVIP+ nav link — gold surge */
 #vvip-login-btn{
   font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
@@ -138,7 +146,9 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   animation:goldPulse 2.8s ease-in-out infinite;
   letter-spacing:.04em;
-  flex-shrink:0;
+  flex-shrink:0 !important;  /* NEVER shrinks */
+  overflow:visible !important;
+  margin-left:4px;
 }
 @keyframes goldPulse{
   0%  {background-position:0% 50%;opacity:.75}
@@ -146,8 +156,8 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   100%{background-position:0% 50%;opacity:.75}
 }
 
-#site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:nowrap;align-items:center;overflow:hidden;padding-right:40px;white-space:nowrap}
-#site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:10px;font-size:11px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9;white-space:nowrap;flex-shrink:0}
+#site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:nowrap;align-items:center;padding-right:40px;min-width:0;overflow:hidden}
+#site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:8px;font-size:11px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9;white-space:nowrap;flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 #site-nav a:hover,#site-nav button:hover{color:var(--link-hov);text-decoration:underline}
 .nav-sep{margin-right:14px;color:var(--muted);font-family:Arial,sans-serif;font-size:12px;line-height:1.9}
 
@@ -412,8 +422,8 @@ body.hide-titles .t-title-file{display:inline !important}
     <a href="/" onclick="return showHome()">Home</a>
     <button onclick="toggleAbout()">About</button>
     <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
-    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
-    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
+    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
+    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
     <a id="vvip-login-btn" href="/members.html">VVIP+</a>
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
