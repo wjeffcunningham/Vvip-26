@@ -129,10 +129,6 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .gear-toggle:checked{background:#0044cc}
 .gear-toggle::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:var(--btn-bg);top:1px;left:1px;transition:left .2s;border:1px solid var(--btn-sh)}
 .gear-toggle:checked::after{left:18px}
-/* Nav items that yield space on narrow screens */
-@media(max-width:480px){.nav-shrink{display:none}}
-@media(max-width:600px){#site-nav a,#site-nav button{margin-right:6px;font-size:10px}}
-
 /* VVIP+ nav link — gold surge */
 #vvip-login-btn{
   font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
@@ -142,8 +138,7 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   animation:goldPulse 2.8s ease-in-out infinite;
   letter-spacing:.04em;
-  flex-shrink:0 !important;
-  overflow:visible !important;
+  flex-shrink:0;
 }
 @keyframes goldPulse{
   0%  {background-position:0% 50%;opacity:.75}
@@ -417,8 +412,8 @@ body.hide-titles .t-title-file{display:inline !important}
     <a href="/" onclick="return showHome()">Home</a>
     <button onclick="toggleAbout()">About</button>
     <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
-    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
-    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
+    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
     <a id="vvip-login-btn" href="/members.html">VVIP+</a>
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
@@ -491,6 +486,10 @@ body.hide-titles .t-title-file{display:inline !important}
   <select id="sort-sel">
     <option value="date_desc">Newest first</option>
     <option value="date_asc">Oldest first</option>
+    <option value="bpm_desc">BPM &#8595;</option>
+    <option value="bpm_asc">BPM &#8593;</option>
+    <option value="shuffle">Shuffle</option>
+    <option value="fav">Favourites first</option>
   </select>
   <span id="track-count"></span>
 </div>
@@ -642,14 +641,14 @@ function toggleTitles(on){
 (()=>{
   if(localStorage.getItem('vvip25:dark')==='1'){document.documentElement.setAttribute('data-theme','dark');const el=$('#tog-dark');if(el)el.checked=true}
   if(localStorage.getItem('vvip25:hideTitles')==='1'){document.body.classList.add('hide-titles');const el=$('#tog-titles');if(el)el.checked=false}
-  if(localStorage.getItem('vvip25:downloads')==='1'){state.showDownloads=true;const el=$('#tog-downloads');if(el)el.checked=true;const _na=$('#now-actions');if(_na)_na.classList.add('visible')}
+  if(localStorage.getItem('vvip25:downloads')==='1'){state.showDownloads=true;const el=$('#tog-downloads');if(el)el.checked=true;$('#now-actions').classList.add('visible')}
 })();
 
 function toggleDownloads(on){
   state.showDownloads=on;
   localStorage.setItem('vvip25:downloads',on?'1':'');
   // Show/hide the now-actions drawer
-  const _na=$('#now-actions');if(_na)_na.classList.toggle('visible',on);
+  $('#now-actions').classList.toggle('visible',on);
   // Re-render rows to show/hide per-row download links
   if(state.viewMode==='hashtags') renderHashtags();
   else renderList();
@@ -849,10 +848,6 @@ function renderHashtags(){
         body.classList.add('open');
         sec.querySelector('.htag-arrow').textContent='\u25be';
         sec.scrollIntoView({behavior:'smooth',block:'start'});
-        // Load this tag's playlist and autoplay first track
-        const rows=[...body.querySelectorAll('.track-row')];
-        const pl=rows.map(r=>state.tracks.find(t=>t.id===Number(r.dataset.id))).filter(Boolean);
-        if(pl.length){state.filtered=pl;select(0);play();}
       }
     });
     cloud.appendChild(btn);
@@ -969,14 +964,7 @@ document.addEventListener('click',e=>{
 
 function select(i){
   state.i=i;const t=state.filtered[i];if(!t)return;
-  const _thumb=getThumb(t);
-  const _title=document.body.classList.contains('hide-titles')?t.name:t.title;
-  send({cmd:'load',src:t.src,play:false,meta:{
-    title:_title,
-    artist:'VVIP Media',
-    album:'VVIPplayer0.9',
-    artwork:[{src:_thumb,sizes:'512x512',type:'image/jpeg'},{src:_thumb,sizes:'256x256',type:'image/jpeg'}]
-  }});
+  send({cmd:'load',src:t.src,play:false});
   closeVideo();
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
   document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
@@ -1040,9 +1028,6 @@ window.addEventListener('message',e=>{
     try{localStorage.setItem('vvip25_time',t)}catch{}
   }else if(d.status==='ended'){
     if(state.filtered.length){select((state.i+1)%state.filtered.length);play()}
-  }else if(d.status==='action'){
-    if(d.action==='prev'&&state.filtered.length){select((state.i-1+state.filtered.length)%state.filtered.length);play()}
-    if(d.action==='next'&&state.filtered.length){select((state.i+1)%state.filtered.length);play()}
   }
 });
 $('#pb-scrub').addEventListener('input',e=>{const pct=parseFloat(e.target.value)/100;if(state.duration>0)send({cmd:'seek',time:state.duration*pct})});

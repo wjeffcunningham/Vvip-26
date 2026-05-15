@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VVIPplayer 0.9</title>
+<style>
+  html,body{margin:0;padding:0;background:#000;color:#fff;height:100%;overflow:hidden;font-family:system-ui,sans-serif;}
+</style>
+</head>
+<body>
+<script>
+/* === VVIPplayer 0.9 — Player Engine === */
+
+window.addEventListener("DOMContentLoaded",()=>{
+  const audio=document.createElement("audio");
+  audio.crossOrigin="anonymous";
+  audio.preload="auto";
+  document.body.appendChild(audio);
+
+  let currentSrc=null;
+  let currentMeta={title:'',artist:'VVIP Media',album:'VVIPplayer0.9',artwork:[]};
+
+  function postUpdate(){
+    window.parent?.postMessage({
+      status:"update",
+      src:currentSrc,
+      time:audio.currentTime,
+      duration:audio.duration||0,
+      playing:!audio.paused&&!audio.ended
+    },"*");
+  }
+
+  function applyMediaSession(){
+    if(!('mediaSession' in navigator)) return;
+    navigator.mediaSession.metadata=new MediaMetadata({
+      title:currentMeta.title||'',
+      artist:currentMeta.artist||'VVIP Media',
+      album:currentMeta.album||'VVIPplayer0.9',
+      artwork:currentMeta.artwork||[]
+    });
+    navigator.mediaSession.setActionHandler('play',()=>{audio.play().catch(()=>{})});
+    navigator.mediaSession.setActionHandler('pause',()=>{audio.pause()});
+    navigator.mediaSession.setActionHandler('previoustrack',()=>{
+      window.parent?.postMessage({status:'action',action:'prev'},'*');
+    });
+    navigator.mediaSession.setActionHandler('nexttrack',()=>{
+      window.parent?.postMessage({status:'action',action:'next'},'*');
+    });
+    navigator.mediaSession.setActionHandler('seekto',e=>{
+      if(typeof e.seekTime==='number') audio.currentTime=e.seekTime;
+    });
+  }
+
+  window.addEventListener("message",e=>{
+    const d=e.data;
+    if(!d||!d.cmd) return;
+    switch(d.cmd){
+      case "load":
+        if(d.src&&d.src!==currentSrc){
+          currentSrc=d.src;
+          audio.src=d.src;
+          audio.currentTime=d.time||0;
+        } else if(d.time!=null){
+          audio.currentTime=d.time;
+        }
+        if(d.play) audio.play().catch(console.warn);
+        else if(d.play===false) audio.pause();
+        if(d.meta){currentMeta=d.meta;applyMediaSession();}
+        postUpdate();
+        break;
+      case "play":
+        audio.play().catch(console.warn);
+        postUpdate();
+        break;
+      case "pause":
+        audio.pause();
+        postUpdate();
+        break;
+      case "seek":
+        if(typeof d.time==="number"){audio.currentTime=d.time;postUpdate();}
+        break;
+      case "report":
+        postUpdate();
+        break;
+      case "meta":
+        currentMeta=d.meta;
+        applyMediaSession();
+        break;
+    }
+  });
+
+  ["play","pause","timeupdate","loadedmetadata"].forEach(ev=>{
+    audio.addEventListener(ev,()=>{
+      postUpdate();
+      if('mediaSession' in navigator)
+        navigator.mediaSession.playbackState=audio.paused?'paused':'playing';
+    });
+  });
+
+  audio.addEventListener("ended",()=>{
+    window.parent?.postMessage({status:"ended",src:currentSrc},"*");
+  });
+
+  console.log("VVIPplayer 0.9 loaded");
+});
+</script>
+</body>
+</html>
