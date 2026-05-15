@@ -1,703 +1,481 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VVIP Media</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VVIP Store</title>
 <link rel="icon" href="/favicon.ico?v=3">
-<link rel="preconnect" href="https://cdn.vvipmedia.net" crossorigin>
-
 <style>
-body {
-  margin: 0;
-  background: #ffffff;
-  color: #000000;
-  font-family: Times New Roman, Times, serif;
-  font-size: 15px;
-  line-height: 1.4;
+:root{
+  --bg:#ffffff;--fg:#111111;--muted:#555555;
+  --border:#bbbbbb;--border-light:#dddddd;
+  --card:#eeeeee;--hover:#dde6ff;
+  --link:#0000aa;--link-hov:#aa0000;
+  --btn-bg:#d0d0d0;--btn-hi:#f8f8f8;--btn-sh:#888888;--btn-dk:#444444;
+  --gold-bg:#c8a84b;--gold-hi:#f0d480;--gold-sh:#7a6020;--gold-fg:#2a1800;
+  --avail:#006600;--unavail:#888888;
+  --logo-g1:#000044;--logo-g2:#003399;--logo-glo:#2255ee;
 }
-a { color: #0000cc; text-decoration: underline; }
-a:visited { color: #551a8b; }
-a:hover { color: #cc0000; }
-
-#page {
-  max-width: 680px;
-  margin: 0 auto;
-  padding: 0 12px 120px;
+[data-theme="dark"]{
+  --bg:#111014;--fg:#e8e4d8;--muted:#888880;
+  --border:#2a2830;--border-light:#1e1c24;
+  --card:#17151c;--hover:#1a1830;
+  --link:#6699ff;--link-hov:#ff6644;
+  --btn-bg:#28263a;--btn-hi:#484660;--btn-sh:#0c0b14;--btn-dk:#060610;
+  --gold-bg:#7a6020;--gold-hi:#c8a84b;--gold-sh:#3a2a08;--gold-fg:#f0d080;
+  --avail:#44cc44;--unavail:#666660;
+  --logo-g1:#2244aa;--logo-g2:#4477dd;--logo-glo:#88aaff;
 }
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:"Times New Roman",Times,serif;font-size:15px;line-height:1.4;transition:background .3s,color .3s;overscroll-behavior:none}
+a{color:var(--link);text-decoration:none}
+a:hover{color:var(--link-hov);text-decoration:underline}
+#page{max-width:700px;margin:0 auto;padding:0 12px env(safe-area-inset-bottom,60px)}
 
 /* HEADER */
-#site-header {
-  border-bottom: 2px solid #000000;
-  padding: 18px 0 10px;
+#site-header{border-bottom:2px solid var(--fg);padding:12px 0 6px;position:relative}
+#site-name{
+  font-size:48px;font-weight:bold;margin:0 0 4px;
+  font-family:"Times New Roman",Times,serif;
+  display:inline-block;line-height:1;white-space:nowrap;
+  background:linear-gradient(90deg,var(--logo-g1) 0%,var(--logo-g2) 35%,var(--logo-glo) 50%,var(--logo-g2) 65%,var(--logo-g1) 100%);
+  background-size:260% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:logoPulse 5s ease-in-out infinite;
 }
-#site-name {
-  font-size: 28px;
-  font-weight: bold;
-  margin: 0 0 6px;
-  font-family: Times New Roman, Times, serif;
+@keyframes logoPulse{
+  0%{background-position:0% 50%;filter:drop-shadow(0 0 3px rgba(0,40,180,.12))}
+  50%{background-position:100% 50%;filter:drop-shadow(0 0 14px rgba(0,80,255,.38))}
+  100%{background-position:0% 50%;filter:drop-shadow(0 0 3px rgba(0,40,180,.12))}
 }
-#site-nav {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-}
-#site-nav a, #site-nav button {
-  color: #000000;
-  text-decoration: none;
-  margin-right: 14px;
-  font-size: 12px;
-  font-family: Arial, Helvetica, sans-serif;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  line-height: 1.8;
-}
-#site-nav a:hover, #site-nav button:hover { color: #cc0000; text-decoration: underline; }
-.nav-sep { margin-right: 14px; color: #999; line-height: 1.8; font-family: Arial, sans-serif; font-size: 12px; }
+#site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:wrap;align-items:center}
+#site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:14px;font-size:12px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9}
+#site-nav a:hover,#site-nav button:hover{color:var(--link-hov);text-decoration:underline}
+.nav-sep{margin-right:14px;color:var(--muted);font-family:Arial,sans-serif;font-size:12px;line-height:1.9}
 
-/* NOW PLAYING */
-#now-bar {
-  border-bottom: 1px solid #cccccc;
-  padding: 7px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #f4f4f4;
-  margin: 0 -12px;
-  padding-left: 12px;
-  padding-right: 12px;
+/* FILTER BAR */
+#filter-bar{
+  border:1px solid var(--border);border-top:none;
+  padding:5px 8px;background:var(--card);
+  display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  font-family:Arial,sans-serif;font-size:12px;
 }
-#now-thumb {
-  width: 40px; height: 40px;
-  object-fit: cover;
-  border: 1px solid #cccccc;
-  flex-shrink: 0;
-  display: block;
+.ftag{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;
+  background:var(--btn-bg);
+  border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);
+  padding:2px 8px;cursor:pointer;color:var(--fg);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
 }
-#now-thumb-ph {
-  width: 40px; height: 40px;
-  border: 1px solid #cccccc;
-  background: #eeeeee;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: Arial, sans-serif;
-  font-size: 11px;
-  color: #aaaaaa;
+.ftag.active{
+  background:var(--gold-bg);color:var(--gold-fg);
+  border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi);
 }
-#now-info { flex: 1; min-width: 0; }
-#now-title {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#now-meta { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #666666; margin-top: 1px; }
-#now-controls { display: flex; gap: 3px; flex-shrink: 0; }
-
-.cbtn {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11px;
-  background: #dddddd;
-  border: 1px solid;
-  border-color: #ffffff #999999 #999999 #ffffff;
-  padding: 2px 8px;
-  cursor: pointer;
-  color: #000000;
-  white-space: nowrap;
-}
-.cbtn:hover { background: #c8c8c8; }
-.cbtn:active { border-color: #999999 #ffffff #ffffff #999999; }
-
-#now-time {
-  font-family: Courier New, Courier, monospace;
-  font-size: 11px;
-  color: #666666;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-#scrub-wrap { flex: 1; max-width: 110px; min-width: 50px; flex-shrink: 1; }
-#pb-scrub {
-  width: 100%;
-  -webkit-appearance: none;
-  height: 10px;
-  background: #cccccc;
-  border: 1px inset #aaaaaa;
-  outline: none;
-  cursor: pointer;
-}
-#pb-scrub::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 10px; height: 12px;
-  background: #dddddd;
-  border: 1px solid;
-  border-color: #ffffff #999999 #999999 #ffffff;
-  cursor: pointer;
+#avail-toggle{
+  margin-left:auto;font-family:Arial,sans-serif;font-size:11px;color:var(--muted);cursor:pointer;
+  background:none;border:none;text-decoration:underline;padding:0;
 }
 
-/* VIEW TABS */
-.view-tabs {
-  display: flex;
-  margin-top: 12px;
-  border-bottom: 1px solid #cccccc;
+/* GRID */
+#shop-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:0;
+  border:1px solid var(--border);border-top:none;
 }
-.view-tab {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  padding: 4px 12px;
-  background: #eeeeee;
-  border: 1px solid #cccccc;
-  border-bottom: none;
-  cursor: pointer;
-  color: #000;
-  margin-right: 2px;
-  position: relative;
-  top: 1px;
+.shop-item{
+  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:0;
+  display:flex;flex-direction:column;
+  background:var(--bg);
+  transition:background .15s;
 }
-.view-tab.active {
-  background: #ffffff;
-  border-bottom-color: #ffffff;
-  font-weight: bold;
-}
-.view-tab:hover:not(.active) { background: #e0e0e0; }
+.shop-item:hover{background:var(--hover)}
+.shop-item.unavailable{opacity:.55}
 
-/* TOOLBAR */
-#toolbar {
-  border: 1px solid #cccccc;
-  border-top: none;
-  border-bottom: 1px solid #cccccc;
-  padding: 5px 8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  background: #fafafa;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
+.item-img{
+  width:100%;aspect-ratio:1;object-fit:cover;
+  display:block;border-bottom:1px solid var(--border-light);
+  background:var(--card);
 }
-#toolbar select {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  border: 1px inset #aaaaaa;
-  background: #ffffff;
-  padding: 1px 2px;
-  color: #000;
-}
-#search-input {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  border: 1px inset #aaaaaa;
-  padding: 1px 4px;
-  background: #ffffff;
-  color: #000;
-  width: 130px;
-}
-.tbtn {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11px;
-  background: #dddddd;
-  border: 1px solid;
-  border-color: #ffffff #999999 #999999 #ffffff;
-  padding: 1px 7px;
-  cursor: pointer;
-  color: #000000;
-}
-.tbtn:hover { background: #cccccc; }
-.tbtn.pressed { border-color: #999999 #ffffff #ffffff #999999; background: #cccccc; }
-#track-count { color: #666666; font-size: 11px; margin-left: auto; }
+.item-body{padding:10px 10px 8px;flex:1;display:flex;flex-direction:column;gap:4px}
+.item-title{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;color:var(--fg);line-height:1.2}
+.item-desc{font-family:"Times New Roman",Times,serif;font-size:12px;color:var(--muted);flex:1}
+.item-price{font-family:"Courier New",Courier,monospace;font-size:13px;color:var(--fg);font-weight:bold}
+.item-avail{font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:.04em;text-transform:uppercase}
+.item-avail.yes{color:var(--avail)}
+.item-avail.no{color:var(--unavail)}
 
-/* ABOUT */
-#about-section {
-  display: none;
-  border: 1px solid #cccccc;
-  border-top: none;
-  padding: 16px;
-  background: #fafafa;
+.item-actions{padding:0 10px 10px;display:flex;gap:6px;flex-wrap:wrap}
+.shop-btn{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  background:var(--gold-bg);
+  border:2px solid;border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi);
+  padding:4px 10px;cursor:pointer;color:var(--gold-fg);
+  text-decoration:none;display:inline-block;white-space:nowrap;
+  box-shadow:1px 1px 0 var(--gold-sh);touch-action:manipulation;
 }
-#about-section.open { display: block; }
-#about-section h2 {
-  font-family: Times New Roman, Times, serif;
-  font-size: 18px;
-  margin: 0 0 10px;
-  border-bottom: 1px solid #cccccc;
-  padding-bottom: 6px;
-}
-#about-section p { font-size: 14px; margin: 0 0 8px; line-height: 1.5; }
+.shop-btn:hover{background:var(--gold-hi)}
+.shop-btn:active{border-color:var(--gold-sh) var(--gold-hi) var(--gold-hi) var(--gold-sh)}
+.shop-btn.secondary{background:var(--btn-bg);color:var(--fg);border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);box-shadow:1px 1px 0 var(--btn-sh);font-weight:normal}
+.shop-btn.secondary:hover{background:var(--hover)}
 
-/* TRACK LIST */
-#list {
-  border: 1px solid #cccccc;
-  border-top: none;
-}
-.section-head {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11px;
-  font-weight: bold;
-  color: #ffffff;
-  background: #000066;
-  padding: 2px 8px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  border-top: 1px solid #cccccc;
-}
-.section-head:first-child { border-top: none; }
+#empty-shop{display:none;padding:24px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted);text-align:center;border:1px solid var(--border);border-top:none}
 
-.track-row {
-  display: table;
-  width: 100%;
-  box-sizing: border-box;
-  border-top: 1px solid #eeeeee;
-  cursor: pointer;
-  table-layout: fixed;
-}
-.track-row:first-child, .section-head + .track-row { border-top: none; }
-.track-row:hover { background: #eef2ff; }
-.track-row.is-playing { background: #fffde6; }
-.track-row.is-playing .t-title { color: #cc0000; }
-
-.t-num {
-  display: table-cell;
-  font-family: Courier New, Courier, monospace;
-  font-size: 10px;
-  color: #aaaaaa;
-  padding: 6px 4px 6px 8px;
-  vertical-align: middle;
-  width: 30px;
-  white-space: nowrap;
-}
-.t-thumb-cell {
-  display: table-cell;
-  width: 42px;
-  padding: 5px 5px;
-  vertical-align: middle;
-}
-.t-thumb {
-  width: 36px; height: 36px;
-  object-fit: cover;
-  border: 1px solid #cccccc;
-  display: block;
-}
-.t-mid {
-  display: table-cell;
-  vertical-align: middle;
-  padding: 5px 6px;
-}
-.t-title {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 13px;
-  font-weight: bold;
-  color: #000000;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.t-meta {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10px;
-  color: #666666;
-  margin-top: 1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.t-right {
-  display: table-cell;
-  vertical-align: middle;
-  padding: 5px 8px 5px 4px;
-  text-align: right;
-  white-space: nowrap;
-  width: 100px;
-}
-.t-right a, .t-right button {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 10px;
-  color: #000000;
-  text-decoration: none;
-  border: 1px solid #999999;
-  padding: 1px 5px;
-  background: #eeeeee;
-  margin-left: 3px;
-  cursor: pointer;
-  display: inline-block;
-  line-height: 1.4;
-}
-.t-right a:hover, .t-right button:hover { background: #dddddd; }
-.t-right a.wav-off { color: #bbbbbb; border-color: #cccccc; pointer-events: none; }
-.star-btn {
-  background: none !important;
-  border: none !important;
-  font-size: 13px !important;
-  cursor: pointer;
-  color: #cccccc;
-  padding: 1px 3px !important;
-  margin-left: 2px !important;
-}
-.star-btn.on { color: #cc0000; }
-
-.extras-row {
-  display: table;
-  width: 100%;
-  box-sizing: border-box;
-}
-.extras-cell {
-  display: table-cell;
-  padding: 6px 8px;
-  border-top: 1px solid #eeeeee;
-  background: #f8f8f8;
-}
-.extras-cell img {
-  width: 56px; height: 56px;
-  object-fit: cover;
-  border: 1px solid #cccccc;
-  margin-right: 4px;
-  vertical-align: top;
-}
-
-#empty-msg {
-  display: none;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  font-size: 13px;
-  color: #666;
-  text-align: center;
-  font-style: italic;
-  border: 1px solid #cccccc;
-  border-top: none;
-}
-
-@media (max-width: 480px) {
-  #site-name { font-size: 22px; }
-  .t-num { display: none; }
-  #scrub-wrap { display: none; }
-  #now-time { display: none; }
-  #search-input { width: 80px; }
-  .t-right { width: 60px; }
-  .t-right a:not(.star-btn) { display: none; }
+@media(max-width:420px){
+  #shop-grid{grid-template-columns:repeat(2,1fr)}
+  .item-title{font-size:12px}
 }
 </style>
 </head>
 <body>
-
-<iframe id="vvip-player-frame" src="./player.html?v=7" allow="autoplay" style="display:none;width:0;height:0;border:0"></iframe>
-
 <div id="page">
 
-  <div id="site-header">
-    <div id="site-name">VVIP Media</div>
-    <div id="site-nav">
-      <a href="/" onclick="return showHome()">Home</a>
-      <button onclick="toggleAbout()">About</button>
-      <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
-      <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
-      <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
-      <span class="nav-sep">|</span>
-      <button onclick="alert('Member login coming soon. WAV downloads available to registered members.')">Member login</button>
-    </div>
+<div id="site-header">
+  <div id="site-name">VVIP Store</div>
+  <div id="site-nav">
+    <a href="/">&#8592; Media</a>
+    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
+    <span class="nav-sep">|</span>
+    <button onclick="toggleDark()">&#9680;</button>
   </div>
-
-  <div id="about-section">
-    <h2>About VVIP Media</h2>
-    <p>VVIP Media is an independent electronic music project. All music is original, recorded across years. Available to stream and license.</p>
-    <p>For licensing, WAV downloads, and collaboration: <a href="mailto:info@vvipmedia.net">info@vvipmedia.net</a></p>
-    <p><small>Registered members can access WAV downloads after logging in.</small></p>
-  </div>
-
-  <div id="now-bar">
-    <div id="now-thumb-ph">—</div>
-    <img id="now-thumb" src="" alt="" style="display:none">
-    <div id="now-info">
-      <div id="now-title">Nothing playing</div>
-      <div id="now-meta"></div>
-    </div>
-    <div id="now-controls">
-      <button class="cbtn" id="btn-prev">◄◄</button>
-      <button class="cbtn" id="btn-toggle">► Play</button>
-      <button class="cbtn" id="btn-next">►►</button>
-    </div>
-    <div id="scrub-wrap"><input type="range" id="pb-scrub" min="0" max="100" value="0" step="0.1"></div>
-    <div id="now-time">0:00</div>
-  </div>
-
-  <div class="view-tabs">
-    <button class="view-tab active" data-view="all">All songs</button>
-    <button class="view-tab" data-view="favorites">Favourites</button>
-    <button class="view-tab" data-view="playlists">Playlists</button>
-  </div>
-
-  <div id="toolbar">
-    <label for="sort-sel" style="font-family:Arial,sans-serif;font-size:12px">Sort:</label>
-    <select id="sort-sel">
-      <option value="date_desc">Newest first</option>
-      <option value="date_asc">Oldest first</option>
-      <option value="bpm_desc">BPM (high–low)</option>
-      <option value="bpm_asc">BPM (low–high)</option>
-      <option value="len_desc">Longest first</option>
-      <option value="len_asc">Shortest first</option>
-      <option value="fav">Favourites first</option>
-    </select>
-    <label for="search-input" style="font-family:Arial,sans-serif;font-size:12px">Search:</label>
-    <input type="search" id="search-input" placeholder="title or #tag" autocomplete="off" spellcheck="false">
-    <button class="tbtn" id="formats-btn">Show files</button>
-    <span id="track-count"></span>
-  </div>
-
-  <div id="list"></div>
-  <div id="empty-msg">No tracks found.</div>
-
 </div>
 
+<div id="filter-bar">
+  <button class="ftag active" data-tag="all">All</button>
+  <button class="ftag" data-tag="#lp">LP</button>
+  <button class="ftag" data-tag="#cassette">Cassette</button>
+  <button class="ftag" data-tag="#audio">Digital</button>
+  <button class="ftag" data-tag="#apparel">Apparel</button>
+  <button class="ftag" data-tag="#print">Print</button>
+  <button id="avail-toggle" onclick="toggleAvailOnly()">Available only</button>
+</div>
+
+<div id="shop-grid"></div>
+<div id="empty-shop">No items match.</div>
+
+</div>
 <script>
-const ASSET_VERSION = 18;
-const PREFERRED_TITLE = 'Lately';
-const BASE_MP3    = 'https://cdn.vvipmedia.net/ACCESS/';
-const BASE_WAV    = 'https://cdn.vvipmedia.net/WAV/';
-const BASE_THUMB  = 'assets/thumbs/';
-const DEFAULT_THUMB = BASE_THUMB + 'default_thumb.jpg';
-const BASE_EXTRAS = 'https://cdn.vvipmedia.net/MEDIA/extras/';
+const BASE_IMG='https://cdn.vvipmedia.net/MEDIA/shoppe/';
+let items=[], activeTag='all', availOnly=false;
 
-const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
-function fmtDur(s){ s=Number(s||0); return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
-function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; }
-const stripExt = s => String(s).replace(/\.[a-z0-9]+$/i,'');
-function deriveName(n){ const b=stripExt(n).replace(/^[\d._-]+/,'').replace(/[_-]+/g,' ').trim(); return b||stripExt(n); }
-const DATE_RX=/^\s*(\d{2})[.\-_](\d{2})[.\-_](\d{2})/;
-function dateFromName(n){ const m=n.match(DATE_RX); if(!m) return null; const y=+m[1]; return new Date(Date.UTC(y>=70?1900+y:2000+y,+m[2]-1,+m[3])); }
-function bpmLabel(t){ if(t.bpm!=null) return `${t.bpm} BPM`; if(t.bpm_min!=null&&t.bpm_max!=null) return `${t.bpm_min}–${t.bpm_max} BPM`; return ''; }
-function matchToks(t,toks){ if(!toks.length) return true; const n=(t.name||'').toLowerCase(),ti=(t.title||'').toLowerCase(),d=(t.details||'').toLowerCase(); return toks.every(k=>k.startsWith('#')?d.includes(k):n.includes(k)||ti.includes(k)||d.includes(k)); }
+function fmt(price,cur){
+  if(price>=1000000) return '$'+price.toLocaleString()+' '+cur+' (seriously)';
+  return '$'+price.toFixed(0)+' '+cur;
+}
 
-const state = {
-  tracks:[], filtered:[], i:-1, playing:false, duration:0,
-  thumbBases:new Set(), resolvedThumb:new Map(),
-  favorites:new Set(JSON.parse(localStorage.getItem('vvip25:favs')||'[]')),
-  favOrder:JSON.parse(localStorage.getItem('vvip25:favOrder')||'[]'),
-  searchQuery:'', viewMode:'all', sortMode:'date_desc',
-  extras:{}, showFormats:false, hiddenIds:new Set(), titles:null
-};
+function render(){
+  const grid=document.getElementById('shop-grid');
+  const empty=document.getElementById('empty-shop');
+  const filtered=items.filter(it=>{
+    if(availOnly&&!it.available) return false;
+    if(activeTag==='all') return true;
+    return (it.tags||[]).includes(activeTag);
+  });
+  if(!filtered.length){grid.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';
+  grid.innerHTML=filtered.map(it=>{
+    const imgSrc=it.image?BASE_IMG+it.image.replace('./',''):'';
+    const priceStr=fmt(it.price,it.currency||'CAD');
+    const availLabel=it.available
+      ?'<span class="item-avail yes">Available</span>'
+      :'<span class="item-avail no">Unavailable</span>';
+    let btns='';
+    if(it.available&&it.bandcamp_url){
+      btns+=`<a class="shop-btn" href="${it.bandcamp_url}" target="_blank" rel="noopener">Buy / Listen</a>`;
+    } else if(it.available&&it.fb_marketplace){
+      btns+=`<a class="shop-btn" href="${it.fb_marketplace}" target="_blank" rel="noopener">View listing</a>`;
+    } else if(!it.available){
+      btns+=`<span class="shop-btn secondary" style="pointer-events:none;opacity:.5">Unavailable</span>`;
+    }
+    return `<div class="shop-item${it.available?'':' unavailable'}">
+      ${imgSrc?`<img class="item-img" src="${imgSrc}" alt="${it.title}" loading="lazy" onerror="this.style.display='none'">`:'<div class="item-img" style="background:var(--card)"></div>'}
+      <div class="item-body">
+        <div class="item-title">${it.title}</div>
+        <div class="item-desc">${it.description||''}</div>
+        <div class="item-price">${priceStr}</div>
+        ${availLabel}
+      </div>
+      <div class="item-actions">${btns}</div>
+    </div>`;
+  }).join('');
+}
 
-const pf = $('#vvip-player-frame');
-function send(d){ pf?.contentWindow?.postMessage(d,'*'); }
-
-function showHome(){ $('#about-section').classList.remove('open'); return false; }
-function toggleAbout(){ $('#about-section').classList.toggle('open'); }
-
-$$('.view-tab').forEach(btn => btn.addEventListener('click', () => {
-  $$('.view-tab').forEach(b=>b.classList.remove('active'));
+document.querySelectorAll('.ftag').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.ftag').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  state.viewMode=btn.dataset.view; state.searchQuery=''; $('#search-input').value='';
-  applyFilterSort();
+  activeTag=btn.dataset.tag;
+  render();
 }));
 
-$('#sort-sel').addEventListener('change', e=>{ state.sortMode=e.target.value; applyFilterSort(); });
-$('#search-input').addEventListener('input', debounce(e=>{ state.searchQuery=e.target.value.trim().toLowerCase(); applyFilterSort(); },140));
-$('#formats-btn').addEventListener('click', ()=>{
-  state.showFormats=!state.showFormats;
-  $('#formats-btn').classList.toggle('pressed',state.showFormats);
-  $('#formats-btn').textContent=state.showFormats?'Hide files':'Show files';
-  renderList();
-});
-
-document.addEventListener('DOMContentLoaded', async ()=>{
-  $('#btn-toggle').addEventListener('click',()=>{ if(state.i<0&&state.filtered.length){select(0);play();return;} state.playing?pause():play(); });
-  $('#btn-prev').addEventListener('click',()=>{ if(!state.filtered.length)return; select((state.i-1+state.filtered.length)%state.filtered.length); play(); });
-  $('#btn-next').addEventListener('click',()=>{ if(!state.filtered.length)return; select((state.i+1)%state.filtered.length); play(); });
-
-  try {
-    const res=await fetch('https://vvipmedia.net/manifest.json',{cache:'no-store'});
-    if(!res.ok) throw Error(res.status);
-    const data=JSON.parse(await res.text());
-    const tracks=Array.isArray(data)?data:(data.tracks||[]);
-    state.tracks=tracks.map((t,idx)=>{
-      const name=t.name||'', base=stripExt(name), baseLower=base.toLowerCase();
-      const date=t.date?new Date(t.date):dateFromName(name);
-      return {id:idx,name,base,baseLower,title:t.title||deriveName(name),details:t.details||'',
-        bpm:t.bpm,bpm_min:t.bpm_min,bpm_max:t.bpm_max,length:t.length||0,
-        src:`${BASE_MP3}${encodeURIComponent(name)}`,video:t.video,date};
-    });
-    await fetchThumbs(); computeThumbCascade();
-    await fetchTitles(); applyTitles();
-    applyFilterSort(); preselectPreferred(PREFERRED_TITLE.toLowerCase()); updateNow();
-    try{ const er=await fetch(`/extras.json?v=${ASSET_VERSION}`,{cache:'no-store'}); state.extras=await er.json(); }catch{}
-  } catch(err){
-    $('#list').innerHTML=`<div style="padding:16px;font-family:Arial,sans-serif;font-size:13px;color:#666">Could not load tracks. Please refresh.</div>`;
-    console.error(err);
-  }
-});
-
-async function fetchTitles(){
-  try{
-    const r=await fetch('https://vvipmedia.net/titles.json',{cache:'no-store'}); if(!r.ok) throw 0;
-    let raw=(await r.text()).trim().replace(/^\uFEFF/,'');
-    const json=JSON.parse(raw); const m=new Map();
-    for(const [k,v] of Object.entries(json||{})) m.set(stripExt(k).toLowerCase(),typeof v==='string'?v:v.title||'');
-    state.titles=m;
-  }catch{}
-}
-function applyTitles(){ if(!state.titles) return; for(const t of state.tracks){const n=state.titles.get(t.baseLower);if(n&&n.trim())t.title=n.trim();} }
-
-async function fetchThumbs(){
-  try{
-    const r=await fetch('assets/thumbs/thumbs.json',{cache:'no-store'}); const d=await r.json();
-    state.thumbBases.clear(); d.forEach(f=>state.thumbBases.add(f.toLowerCase()));
-  }catch{
-    ['24.03.15.105thumb.jpg','24.09.03.122thumb.jpg','25.07.17.171thumb.jpg','IJPAUCthumb.png']
-      .forEach(f=>state.thumbBases.add(f.toLowerCase()));
-  }
-}
-function computeThumbCascade(){
-  const asc=[...state.tracks].sort((a,b)=>(a.date-b.date)||a.name.localeCompare(b.name));
-  let cur=DEFAULT_THUMB;
-  for(const t of asc){
-    const k1=t.baseLower+'thumb.jpg',k2=t.baseLower+'thumb.png';
-    if(state.thumbBases.has(k1)) cur=BASE_THUMB+k1;
-    else if(state.thumbBases.has(k2)) cur=BASE_THUMB+k2;
-    state.resolvedThumb.set(t.id,cur);
-  }
-}
-function getThumb(t){ if((t.details||'').toLowerCase().includes('#ij')) return BASE_THUMB+'IJPAUCthumb.jpg'; return state.resolvedThumb.get(t.id)||DEFAULT_THUMB; }
-
-function applyFilterSort(){
-  const toks=(state.searchQuery||'').split(/\s+/).filter(Boolean);
-  let out=[...state.tracks];
-  if(state.searchQuery){ out=out.filter(t=>matchToks(t,toks)); }
-  else if(state.viewMode==='favorites'){
-    out=out.filter(t=>state.favorites.has(t.name));
-    if(state.favOrder.length){ out.sort((a,b)=>state.favOrder.indexOf(a.name)-state.favOrder.indexOf(b.name)); state.filtered=out; renderList(); return; }
-  }
-  const sm=state.sortMode;
-  out.sort((a,b)=>{
-    if(sm==='date_asc') return (a.date-b.date)||a.name.localeCompare(b.name);
-    if(sm==='bpm_desc') return (b.bpm||b.bpm_min||0)-(a.bpm||a.bpm_min||0);
-    if(sm==='bpm_asc')  return (a.bpm||a.bpm_min||0)-(b.bpm||b.bpm_min||0);
-    if(sm==='len_desc') return (b.length||0)-(a.length||0);
-    if(sm==='len_asc')  return (a.length||0)-(b.length||0);
-    if(sm==='fav')      return (state.favorites.has(b.name)?1:0)-(state.favorites.has(a.name)?1:0);
-    return (b.date-a.date)||b.name.localeCompare(a.name);
-  });
-  state.filtered=out; renderList();
+function toggleAvailOnly(){
+  availOnly=!availOnly;
+  document.getElementById('avail-toggle').textContent=availOnly?'Show all':'Available only';
+  render();
 }
 
-function renderList(){
-  const elList=$('#list'), elEmpty=$('#empty-msg');
-  const out=state.filtered.filter(t=>!state.hiddenIds.has(t.id));
-  if(!out.length){ elList.innerHTML=''; elEmpty.style.display='block'; return; }
-  elEmpty.style.display='none';
-  $('#track-count').textContent=out.length===state.tracks.length?`${out.length} tracks`:`${out.length} / ${state.tracks.length}`;
-
-  if(state.viewMode==='playlists'&&!state.searchQuery){
-    const groups={};
-    for(const t of out){ const k=t.date?t.date.toISOString().slice(0,7):'Unknown'; (groups[k]=groups[k]||[]).push(t); }
-    let html='';
-    for(const [k,tracks] of Object.entries(groups)){ html+=`<div class="section-head">${k}</div>`+tracks.map((t,i)=>rowHTML(t,i)).join(''); }
-    elList.innerHTML=html;
-  } else {
-    elList.innerHTML=out.map((t,i)=>rowHTML(t,i)).join('');
-  }
-  if(state.i>=0&&state.filtered[state.i]){
-    elList.querySelector(`.track-row[data-id="${state.filtered[state.i].id}"]`)?.classList.add('is-playing');
-  }
+function toggleDark(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  document.documentElement.setAttribute('data-theme',cur==='dark'?'light':'dark');
 }
 
-function rowHTML(t,i){
-  const sub=[bpmLabel(t),t.length?fmtDur(t.length):'',t.date?t.date.toISOString().slice(0,10):''].filter(Boolean).join(' · ');
-  const fav=state.favorites.has(t.name);
-  const hasExtras=state.extras&&state.extras[t.baseLower];
-  let right=`<button class="star-btn${fav?' on':''}" data-fav="${t.name}" title="${fav?'Remove from':'Add to'} favourites">★</button>`;
-  if(hasExtras) right=`<button class="gem-btn" data-gem="${t.baseLower}" style="background:none;border:none;cursor:pointer;font-size:11px;padding:1px 3px;margin-left:2px">💎</button>`+right;
-  if(state.showFormats){
-    right=`<a href="${t.src}" download>MP3</a>`
-        +`<a class="wav-off" href="#">WAV</a>`
-        +(t.video?`<a href="${t.video}" target="_blank" rel="noopener">MOV</a>`:'')
-        +right;
+// Load from embedded JSON (could also fetch from /shoppe.json)
+const SHOPPE_DATA=[
+  {
+    "title": "VVIP+ T",
+    "image": "./vvipblack.jpg",
+    "description": "Heavyweight cotton tee with front logo.",
+    "price": 100,
+    "currency": "CAD",
+    "bandcamp_url": null,
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#tee",
+      "#apparel"
+    ]
+  },
+  {
+    "title": "VVIP Basic — White on Black",
+    "image": "./tee-white.jpg",
+    "description": "Heavyweight cotton tee with pocket logo. Basic t's for basic 'bs.",
+    "price": 40,
+    "currency": "CAD",
+    "bandcamp_url": null,
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#tee",
+      "#apparel"
+    ]
+  },
+  {
+    "title": "The VVIP Tote {1.0 Ed.}",
+    "image": "./tote.jpg",
+    "description": "Art by SF Cook. High contrast = easier for babies to discern.",
+    "price": 20,
+    "currency": "CAD",
+    "bandcamp_url": null,
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#bag",
+      "#print"
+    ]
+  },
+  {
+    "title": "Sticker Pack (15)",
+    "image": "./stickers.jpg",
+    "description": "VVIP stickers. Collect them all.",
+    "price": 20,
+    "currency": "CAD",
+    "bandcamp_url": null,
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#poster",
+      "#print"
+    ]
+  },
+  {
+    "title": "VVIP Sticker Book (Edition of 15)",
+    "image": "./stickerbook.jpg",
+    "description": "Collector’s albums. Hand-numbered editions of 10. Art by SF Cook.",
+    "price": 20,
+    "currency": "CAD",
+    "bandcamp_url": null,
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#poster",
+      "#print"
+    ]
+  },
+  {
+    "title": "Cassette — VirtualVIP Unlimited",
+    "image": "./unlimited.jpg",
+    "description": "Gary++. Edition of 10. Glossy cover. Hand-cut. Hand-dubbed. Clamshell case. Includes download code.",
+    "price": 100,
+    "currency": "CAD",
+    "bandcamp_url": "https://vvip.bandcamp.com/album/unlimited",
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#cassette",
+      "#audio"
+    ]
+  },
+  {
+    "title": "LP — IJPAUC?",
+    "image": "./IJPAUCthumb.jpg",
+    "description": "Is JP (1993) An Unconscious Confession? Edition of 10. Includes download code.",
+    "price": 2000000,
+    "currency": "USD",
+    "bandcamp_url": "https://www.youtube.com/watch?v=JFxc9OQlFMU",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#lp",
+      "#audio",
+      "#essay"
+    ]
+  },
+  {
+    "title": "LP — VVIP24 ARCADE WATER",
+    "image": "./arcadewater.jpg",
+    "description": "Edition of 5. Includes download code.",
+    "price": 60,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/arcade-water",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "LP — Renders of Music for Video",
+    "image": "./renders.jpg",
+    "description": "Edition of 5. Includes download code.",
+    "price": 60,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/renders-of-music-for-video",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "LP — SUMMER 25",
+    "image": "./summer25.jpg",
+    "description": "Edition of 5. Includes download code.",
+    "price": 60,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/summer-25",
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "LP — //Another// Green World",
+    "image": "./greenworld.jpg",
+    "description": "Edition of 5. Includes download code.",
+    "price": 60,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/another-green-world",
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "LP — ACCESS",
+    "image": "./access.jpg",
+    "description": "Edition of 5. Includes download code.",
+    "price": 60,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/access",
+    "fb_marketplace": null,
+    "available": false,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "ARCADE WATER",
+    "image": "./arcadewater.jpg",
+    "description": "Digital download.",
+    "price": 5,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/arcade-water",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#audio"
+    ]
+  },
+  {
+    "title": "Renders of Music for Video",
+    "image": "./renders.jpg",
+    "description": "Digital download.",
+    "price": 5,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/renders-of-music-for-video",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "SUMMER 25",
+    "image": "./summer25.jpg",
+    "description": "Digital download.",
+    "price": 5,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/summer-25",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "/Another// Green World",
+    "image": "./greenworld.jpg",
+    "description": "Digital download.",
+    "price": 5,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/another-green-world",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "ACCESS",
+    "image": "./access.jpg",
+    "description": "Digital download.",
+    "price": 5,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/access",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
+  },
+  {
+    "title": "Sonic Radio",
+    "image": "./a3812731087_16.jpg",
+    "description": "Edition of 5. Includes download code.",
+    "price": 5,
+    "currency": "CAD",
+    "bandcamp_url": "https://virtualvip.bandcamp.com/album/sonic-radio-2",
+    "fb_marketplace": null,
+    "available": true,
+    "tags": [
+      "#lp",
+      "#audio"
+    ]
   }
-  return `<div class="track-row" data-id="${t.id}">
-    <span class="t-num">${String(i+1).padStart(3,'0')}</span>
-    <span class="t-thumb-cell"><img class="t-thumb" src="${getThumb(t)}" alt="" loading="lazy" onerror="this.src='${DEFAULT_THUMB}'"></span>
-    <span class="t-mid"><div class="t-title">${t.title}</div><div class="t-meta">${sub}</div></span>
-    <span class="t-right">${right}</span>
-  </div>`;
-}
-
-document.addEventListener('click', e=>{
-  const row=e.target.closest('.track-row');
-  if(row&&!e.target.closest('a')&&!e.target.closest('.star-btn')&&!e.target.closest('.gem-btn')){
-    const idx=state.filtered.findIndex(t=>t.id===Number(row.dataset.id));
-    if(idx>=0){select(idx);play();}
-    return;
-  }
-  const star=e.target.closest('.star-btn');
-  if(star){
-    const name=star.dataset.fav, was=state.favorites.has(name);
-    was?state.favorites.delete(name):state.favorites.add(name);
-    localStorage.setItem('vvip25:favs',JSON.stringify([...state.favorites]));
-    star.classList.toggle('on',!was);
-    if(state.viewMode==='favorites'&&was) applyFilterSort();
-    return;
-  }
-  const gem=e.target.closest('.gem-btn');
-  if(gem){
-    e.preventDefault();
-    const key=gem.dataset.gem, files=state.extras[key]; if(!files) return;
-    const row2=gem.closest('.track-row'), next=row2?.nextElementSibling;
-    if(next?.classList.contains('extras-row')){next.remove();return;}
-    const d=document.createElement('div');
-    d.className='extras-row';
-    d.innerHTML=`<span class="extras-cell">${files.map(f=>{const url=`${BASE_EXTRAS}${encodeURIComponent(f)}`;return /\.(jpg|jpeg|png|gif|webp)$/i.test(f)?`<a href="${url}" target="_blank"><img src="${url}" alt="" loading="lazy"></a>`:`<a href="${url}" target="_blank" style="font-family:Arial,sans-serif;font-size:11px">${f}</a>`;}).join('')}</span>`;
-    row2?.after(d);
-  }
-});
-
-function select(i){ state.i=i; send({cmd:'load',src:state.filtered[i].src,play:false}); updateNow(); }
-function play(){ if(state.i<0)return; send({cmd:'load',src:state.filtered[state.i].src,play:true}); state.playing=true; $('#btn-toggle').textContent='⏸ Pause'; }
-function pause(){ send({cmd:'pause'}); state.playing=false; $('#btn-toggle').textContent='► Play'; }
-function preselectPreferred(x){ if(!x||!state.filtered.length)return; const idx=state.filtered.findIndex(t=>(t.title||'').toLowerCase().includes(x)); if(idx>=0)select(idx); }
-
-function updateNow(){
-  const t=state.filtered[state.i]; if(!t)return;
-  $('#now-title').textContent=t.title;
-  $('#now-meta').textContent=[bpmLabel(t),t.length?fmtDur(t.length):''].filter(Boolean).join(' · ');
-  const img=$('#now-thumb'), ph=$('#now-thumb-ph');
-  img.src=getThumb(t); img.style.display='block'; ph.style.display='none';
-  img.onerror=()=>{img.style.display='none';ph.style.display='flex';};
-  $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
-  $('#list').querySelector(`.track-row[data-id="${t.id}"]`)?.classList.add('is-playing');
-}
-
-window.addEventListener('message',e=>{
-  const d=e.data||{};
-  if(d.status==='update'){
-    state.playing=!!d.playing; state.duration=Number(d.duration)||0;
-    const t=Number(d.time)||0;
-    $('#btn-toggle').textContent=state.playing?'⏸ Pause':'► Play';
-    $('#now-time').textContent=`${fmtDur(t)} / ${state.duration>0?fmtDur(state.duration):'--:--'}`;
-    const sc=$('#pb-scrub');
-    if(state.duration>0&&document.activeElement!==sc) sc.value=Math.min(100,Math.max(0,(t/state.duration)*100));
-    try{localStorage.setItem('vvip25_time',t);}catch{}
-  } else if(d.status==='ended'){
-    if(state.filtered.length){const ni=(state.i+1)%state.filtered.length;select(ni);play();}
-  }
-});
-
-$('#pb-scrub').addEventListener('input',e=>{ const pct=parseFloat(e.target.value)/100; if(state.duration>0)send({cmd:'seek',time:state.duration*pct}); });
-
-let tx0=0;
-document.addEventListener('touchstart',e=>{const r=e.target.closest('.track-row');if(!r)return;tx0=e.changedTouches[0].screenX;},{passive:true});
-document.addEventListener('touchend',e=>{
-  const r=e.target.closest('.track-row');if(!r)return;
-  const dx=e.changedTouches[0].screenX-tx0;
-  const t=state.filtered.find(t=>t.id===Number(r.dataset.id));if(!t)return;
-  if(dx>60){const was=state.favorites.has(t.name);was?state.favorites.delete(t.name):state.favorites.add(t.name);localStorage.setItem('vvip25:favs',JSON.stringify([...state.favorites]));r.querySelector('.star-btn')?.classList.toggle('on',!was);}
-  else if(dx<-60){state.hiddenIds.add(t.id);r.style.transition='opacity .2s';r.style.opacity='0';setTimeout(()=>r.remove(),200);}
-},{passive:true});
-
-window.addEventListener('beforeunload',()=>{try{send({cmd:'report'});}catch{}});
+];
 </script>
 </body>
 </html>
