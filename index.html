@@ -129,14 +129,10 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .gear-toggle:checked{background:#0044cc}
 .gear-toggle::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:var(--btn-bg);top:1px;left:1px;transition:left .2s;border:1px solid var(--btn-sh)}
 .gear-toggle:checked::after{left:18px}
+/* Nav items that yield space on narrow screens */
+@media(max-width:480px){.nav-shrink{display:none}}
+@media(max-width:600px){#site-nav a,#site-nav button{margin-right:6px;font-size:10px}}
 
-/* Nav items that yield space first on narrow screens */
-@media(max-width:480px){
-  .nav-shrink{display:none}
-}
-@media(max-width:600px){
-  #site-nav a,#site-nav button{margin-right:6px;font-size:10px}
-}
 /* VVIP+ nav link — gold surge */
 #vvip-login-btn{
   font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
@@ -146,9 +142,8 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   animation:goldPulse 2.8s ease-in-out infinite;
   letter-spacing:.04em;
-  flex-shrink:0 !important;  /* NEVER shrinks */
+  flex-shrink:0 !important;
   overflow:visible !important;
-  margin-left:4px;
 }
 @keyframes goldPulse{
   0%  {background-position:0% 50%;opacity:.75}
@@ -156,8 +151,8 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   100%{background-position:0% 50%;opacity:.75}
 }
 
-#site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:nowrap;align-items:center;padding-right:40px;min-width:0;overflow:hidden}
-#site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:8px;font-size:11px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9;white-space:nowrap;flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:nowrap;align-items:center;overflow:hidden;padding-right:40px;white-space:nowrap}
+#site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:10px;font-size:11px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9;white-space:nowrap;flex-shrink:0}
 #site-nav a:hover,#site-nav button:hover{color:var(--link-hov);text-decoration:underline}
 .nav-sep{margin-right:14px;color:var(--muted);font-family:Arial,sans-serif;font-size:12px;line-height:1.9}
 
@@ -496,10 +491,6 @@ body.hide-titles .t-title-file{display:inline !important}
   <select id="sort-sel">
     <option value="date_desc">Newest first</option>
     <option value="date_asc">Oldest first</option>
-    <option value="bpm_desc">BPM &#8595;</option>
-    <option value="bpm_asc">BPM &#8593;</option>
-    <option value="shuffle">Shuffle</option>
-    <option value="fav">Favourites first</option>
   </select>
   <span id="track-count"></span>
 </div>
@@ -651,14 +642,14 @@ function toggleTitles(on){
 (()=>{
   if(localStorage.getItem('vvip25:dark')==='1'){document.documentElement.setAttribute('data-theme','dark');const el=$('#tog-dark');if(el)el.checked=true}
   if(localStorage.getItem('vvip25:hideTitles')==='1'){document.body.classList.add('hide-titles');const el=$('#tog-titles');if(el)el.checked=false}
-  if(localStorage.getItem('vvip25:downloads')==='1'){state.showDownloads=true;const el=$('#tog-downloads');if(el)el.checked=true;$('#now-actions').classList.add('visible')}
+  if(localStorage.getItem('vvip25:downloads')==='1'){state.showDownloads=true;const el=$('#tog-downloads');if(el)el.checked=true;const _na=$('#now-actions');if(_na)_na.classList.add('visible')}
 })();
 
 function toggleDownloads(on){
   state.showDownloads=on;
   localStorage.setItem('vvip25:downloads',on?'1':'');
   // Show/hide the now-actions drawer
-  $('#now-actions').classList.toggle('visible',on);
+  const _na=$('#now-actions');if(_na)_na.classList.toggle('visible',on);
   // Re-render rows to show/hide per-row download links
   if(state.viewMode==='hashtags') renderHashtags();
   else renderList();
@@ -687,7 +678,6 @@ document.addEventListener('DOMContentLoaded',async()=>{
   initAuth();
   $('#btn-toggle').addEventListener('click',()=>{if(state.i<0&&state.filtered.length){select(0);play();return}state.playing?pause():play()});
   $('#btn-restart').addEventListener('click',()=>{send({cmd:'seek',time:0});if(!state.playing)play();});
-
   $('#btn-prev').addEventListener('click',()=>{if(!state.filtered.length)return;select((state.i-1+state.filtered.length)%state.filtered.length);play()});
   $('#btn-next').addEventListener('click',()=>{if(!state.filtered.length)return;select((state.i+1)%state.filtered.length);play()});
   $('#vid-overlay-btn').addEventListener('click',e=>{e.stopPropagation();openVideo(false)});
@@ -859,6 +849,10 @@ function renderHashtags(){
         body.classList.add('open');
         sec.querySelector('.htag-arrow').textContent='\u25be';
         sec.scrollIntoView({behavior:'smooth',block:'start'});
+        // Load this tag's playlist and autoplay first track
+        const rows=[...body.querySelectorAll('.track-row')];
+        const pl=rows.map(r=>state.tracks.find(t=>t.id===Number(r.dataset.id))).filter(Boolean);
+        if(pl.length){state.filtered=pl;select(0);play();}
       }
     });
     cloud.appendChild(btn);
@@ -975,13 +969,13 @@ document.addEventListener('click',e=>{
 
 function select(i){
   state.i=i;const t=state.filtered[i];if(!t)return;
-  const thumb=getThumb(t);
-  const displayTitle=document.body.classList.contains('hide-titles')?t.name:t.title;
+  const _thumb=getThumb(t);
+  const _title=document.body.classList.contains('hide-titles')?t.name:t.title;
   send({cmd:'load',src:t.src,play:false,meta:{
-    title:displayTitle,
+    title:_title,
     artist:'VVIP Media',
     album:'VVIPplayer0.9',
-    artwork:[{src:thumb,sizes:'512x512',type:'image/jpeg'},{src:thumb,sizes:'256x256',type:'image/jpeg'}]
+    artwork:[{src:_thumb,sizes:'512x512',type:'image/jpeg'},{src:_thumb,sizes:'256x256',type:'image/jpeg'}]
   }});
   closeVideo();
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
@@ -993,9 +987,57 @@ function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle
 
 function updateNow(){
   const t=state.filtered[state.i];if(!t)return;
-  const displayTitle=document.body.classList.contains('hide-titles')?t.name:t.title;
-  $('#now-title-show').textContent=displayTitle;
+  $('#now-title-show').textContent=document.body.classList.contains('hide-titles')?t.name:t.title;
   $('#now-meta').textContent=[bpmLabel(t),t.length?fmtDur(t.length):''].filter(Boolean).join('  /  ');
+  const img=$('#now-thumb'),ph=$('#now-thumb-ph');
+  img.src=getThumb(t);img.style.display='block';ph.style.display='none';
+  img.onerror=()=>{img.style.display='none';ph.style.display='flex'};
+  const loV=getLoVid(t),hqV=getHqVid(t);
+  $('#vid-overlay-btn').style.display=loV?'flex':'none';
+
+  // Build 3x2 button grid — 6 cells total
+  const wavSrc=BASE_WAV+encodeURIComponent(t.name.replace(/\.mp3$/i,'.wav'));
+  const cells=[];
+  // 1: MP3 — always
+  cells.push({type:'a',icon:'⬇',label:'MP3',href:t.src,download:true});
+  // 2: WAV — greyed if not premium
+  cells.push({type:'a',icon:'⬇',label:'WAV',href:wavSrc,download:true,disabled:!isPremium,title:isPremium?'WAV download':'VVIP+ only'});
+  // 3: Lo-fi video — absent if no link
+  if(loV) cells.push({type:'btn',icon:'▶',label:'Video',onclick:'openVideo(false)'});
+  // 4: HQ video — absent if no link
+  if(hqV) cells.push({type:'btn',icon:'▶',label:'HQ',onclick:'openVideo(true)'});
+  // Pad to 6 with empty tiles
+  while(cells.length<6) cells.push(null);
+
+  const grid=$('#now-btn-grid');
+  grid.innerHTML=cells.map(c=>{
+    if(!c) return '<span class="nbtn empty"></span>';
+    const dis=c.disabled?' disabled':'';
+    const cls='nbtn'+(c.disabled?' disabled':'');
+    const ti=c.title?` title="${c.title}"`:'';
+    if(c.type==='a'){
+      return `<a class="${cls}" href="${c.href}"${c.download?' download':''}${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</a>`;
+    }
+    return `<button class="${cls}" onclick="${c.onclick}"${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</button>`;
+  }).join('');
+}
+function playVersion(id){
+  const t=state.tracks.find(t=>t.id===id);if(!t)return;
+  let idx=state.filtered.findIndex(t2=>t2.id===id);
+  if(idx<0){state.filtered.splice(state.i+1,0,t);idx=state.i+1}
+  select(idx);play();
+}
+
+window.addEventListener('message',e=>{
+  const d=e.data||{};
+  if(d.status==='update'){
+    state.playing=!!d.playing;state.duration=Number(d.duration)||0;
+    const t=Number(d.time)||0;
+    const bt=$('#btn-toggle');bt.innerHTML=state.playing?'&#9646;&#9646;':'&#9654;';bt.classList.toggle('is-playing',state.playing);
+    $('#now-time').textContent=fmtDur(t)+' / '+(state.duration>0?fmtDur(state.duration):'--:--');
+    const sc=$('#pb-scrub');
+    if(state.duration>0&&document.activeElement!==sc)sc.value=Math.min(100,Math.max(0,(t/state.duration)*100));
+    try{localStorage.setItem('vvip25_time',t)}catch{}
   }else if(d.status==='ended'){
     if(state.filtered.length){select((state.i+1)%state.filtered.length);play()}
   }else if(d.status==='action'){
