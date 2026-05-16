@@ -931,16 +931,14 @@ function renderHashtags(){
 
   hv.innerHTML='';
 
-  /* Tag cloud — top 30 visible, rest behind expand button */
-  const TAG_LIMIT=30;
+  /* Tag cloud */
   const cloud=document.createElement('div');cloud.id='tag-cloud';
-  tags.forEach((tag,idx)=>{
+  for(const tag of tags){
     const btn=document.createElement('button');
     btn.className='tag-pill'+(tag===defTag?' active':'');
     btn.textContent='#'+tag;
     btn.style.fontSize=sz(tagMap[tag].length)+'px';
     btn.dataset.tag=tag;
-    if(idx>=TAG_LIMIT){btn.classList.add('tag-overflow');btn.style.display='none';}
     btn.addEventListener('click',()=>{
       $$('.tag-pill').forEach(p=>p.classList.remove('active'));
       btn.classList.add('active');
@@ -955,20 +953,6 @@ function renderHashtags(){
       }
     });
     cloud.appendChild(btn);
-  });
-  // Expand button — only if there are overflow tags
-  if(tags.length>TAG_LIMIT){
-    const rem=tags.length-TAG_LIMIT;
-    const expBtn=document.createElement('button');
-    expBtn.className='tag-pill tag-expand-btn';
-    expBtn.textContent='+'+rem+' more';
-    expBtn.style.fontSize='11px';
-    expBtn.style.opacity='.65';
-    expBtn.addEventListener('click',()=>{
-      $$('.tag-overflow').forEach(el=>el.style.display='');
-      expBtn.remove();
-    });
-    cloud.appendChild(expBtn);
   }
   hv.appendChild(cloud);
 
