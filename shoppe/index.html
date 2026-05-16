@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>VVIP Store — VVIPmedia.NET</title>
+<title>VVIP Shoppe — VVIPmedia.NET</title>
 <link rel="icon" href="/favicon.ico?v=3">
 <style>
 /* ── Variables — matches main site exactly ── */
@@ -213,8 +213,8 @@ a:hover{color:var(--link-hov);text-decoration:underline}
 <!-- VVIP+ upgrade banner -->
 <div id="vvip-banner">
   <div class="banner-left">
-    <div class="banner-title">✦ VVIP+ — Lifetime Access · $50 CAD</div>
-    <div class="banner-desc">WAV downloads · HQ video · member merch · early access. One-time. Forever.</div>
+    <div class="banner-title">VVIP+</div>
+    <div class="banner-desc">WAV downloads, HQ video, and other nice perks.</div>
   </div>
   <a class="banner-btn" href="https://buy.stripe.com/9B67sMgpveHocnJ58FcbC00" target="_blank" rel="noopener">Join VVIP+ →</a>
 </div>
@@ -250,7 +250,7 @@ function toggleDark(){
 }
 
 function fmt(price, cur){
-  if(price >= 1000000) return '$' + price.toLocaleString() + ' ' + cur + ' (seriously)';
+  if(price >= 1000000) return '$' + price.toLocaleString() + ' ' + cur + '';
   return '$' + price.toFixed(0) + ' ' + (cur || 'CAD');
 }
 

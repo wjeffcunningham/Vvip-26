@@ -680,7 +680,7 @@ async function signInMagic(){
     options: { emailRedirectTo: window.location.origin + '/members.html' }
   });
   if(error) showMagicMsg('Error: ' + error.message);
-  else showMagicMsg('✓ Check your email for the magic link.');
+  else showMagicMsg('✓ Check your email for the link.');
 }
 function showMagicMsg(t){ document.getElementById('magic-msg').textContent = t; }
 
