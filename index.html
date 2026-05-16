@@ -931,8 +931,8 @@ function renderHashtags(){
 
   hv.innerHTML='';
 
-  /* Tag cloud — top 30 visible, rest behind expand button */
-  const TAG_LIMIT=30;
+  /* Tag cloud — top 40 visible, rest behind expand button */
+  const TAG_LIMIT=40;
   const cloud=document.createElement('div');cloud.id='tag-cloud';
   tags.forEach((tag,idx)=>{
     const btn=document.createElement('button');
