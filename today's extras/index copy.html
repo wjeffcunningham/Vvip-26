@@ -582,25 +582,24 @@ const BASE_VHQ='https://cdn.vvipmedia.net/VIDEOS/';
 
 /* Video maps */
 // LQ: YouTube video IDs (embed via youtube-nocookie.com)
-// Not yet on YouTube: chevy weather, slowwww, arcade winter, a light breeze, kits, duski, aerrie
 const LO_MAP={
-  'analog tv':       'FqlGTGeW3lg',
-  'purple morning':  'JLZPxAuWMmY',
-  'free zone':       'd-66iDBpYwg',
-  'goofy spoon':     'k6DdIh2jM_g',
-  'lit(e) rail':     'ZEqryQgiIgM',
-  'lit rail':        'ZEqryQgiIgM',
-  'mbpx':            'ofOgeY0uuxA',
-  'ocean park':      '3jw4HtjP1i8',
-  'afternoon sunset':'h43HpdIwY7c',
-  'arcade water':    '9k9V5N7yQFY',
-  'sea':             'w-5VCXzMFMs',
-  'yvr':             'w-5VCXzMFMs',
-  'lo\u00e7se':      'crLxT6UCBdY',
-  'losse':           'crLxT6UCBdY',
-  'waater':          'aRrkiAbpgkc',
-  'lately':          '5p3er_46RRw',
-  'ship yard':       'VD2zRBOCfAU',
+  'analog tv':'dQw4w9WgXcQ',           // 🔧 REPLACE with real YouTube ID
+  'chevy weather':'dQw4w9WgXcQ',        // 🔧 REPLACE
+  'purple morning':'dQw4w9WgXcQ',       // 🔧 REPLACE
+  'free zone':'dQw4w9WgXcQ',           // 🔧 REPLACE
+  'goofy spoon':'dQw4w9WgXcQ',         // 🔧 REPLACE
+  'lit(e) rail':'dQw4w9WgXcQ',         // 🔧 REPLACE
+  'lit rail':'dQw4w9WgXcQ',            // 🔧 REPLACE
+  'mbpx':'dQw4w9WgXcQ',               // 🔧 REPLACE
+  'ocean park':'dQw4w9WgXcQ',          // 🔧 REPLACE
+  'aerrie':'dQw4w9WgXcQ',             // 🔧 REPLACE
+  'slowwww':'dQw4w9WgXcQ',            // 🔧 REPLACE
+  'afternoon sunset':'dQw4w9WgXcQ',    // 🔧 REPLACE
+  'arcade water':'dQw4w9WgXcQ',        // 🔧 REPLACE
+  'arcade winter':'dQw4w9WgXcQ',       // 🔧 REPLACE
+  'a light breeze':'dQw4w9WgXcQ',      // 🔧 REPLACE
+  'kits':'dQw4w9WgXcQ',               // 🔧 REPLACE
+  'duski':'dQw4w9WgXcQ',              // 🔧 REPLACE
 };
 const HQ_MAP={
   'access':'VVIP24 Access.mov',
@@ -618,11 +617,11 @@ const HQ_MAP={
 function getLoVid(t){
   const tl=(t.title||'').toLowerCase();
   if((t.details||'').toLowerCase().includes('#ij')){
-    return 'yt:JFxc9OQlFMU';
+    // IJPAUC YouTube ID — 🔧 REPLACE with real ID
+    return 'yt:dQw4w9WgXcQ';
   }
   if(tl.includes('\u00e6rie')||tl.includes('aerie')){
-    // not yet on YouTube — no LQ link
-    return null;
+    const id=LO_MAP['aerrie'];return id?'yt:'+id:null;
   }
   for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
   return null;
@@ -1057,10 +1056,7 @@ document.addEventListener('click',e=>{
 
 function select(i){
   state.i=i;const t=state.filtered[i];if(!t)return;
-  // Artwork must be absolute URL for iOS lock screen Media Session
-  const thumbRel=getThumb(t);
-  const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
-  send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:thumbAbs}});
+  send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:getThumb(t)}});
   closeVideo();
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
   document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
