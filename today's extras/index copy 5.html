@@ -734,8 +734,9 @@ function toggleTitles(on){
 function toggleDownloads(on){
   state.showDownloads=on;
   localStorage.setItem('vvip25:downloads',on?'1':'0');
-  // Toggle visibility in-place — no re-render, no playback disruption
-  document.querySelectorAll('.t-dl-link').forEach(el=>el.style.display=on?'':'none');
+  // Re-render rows to show/hide per-row download links
+  if(state.viewMode==='hashtags') renderHashtags();
+  else renderList();
 }
 function showHome(){$('#about-section').classList.remove('open');return false}
 function toggleAbout(){$('#about-section').classList.toggle('open')}
@@ -1020,9 +1021,7 @@ function rowHTML(t,i){
   const hasExtras=state.extras&&state.extras[t.baseLower];
   let right='<button class="star-btn'+(fav?' on':'')+'" data-fav="'+t.name+'">\u2605</button>';
   if(hasExtras)right='<button class="gem-btn" data-gem="'+t.baseLower+'" style="background:none;border:none;cursor:pointer;font-size:11px;padding:1px 3px;margin-left:2px">\ud83d\udc8e</button>'+right;
-  // Always render download link — toggling just shows/hides it without re-render
-  const dlDisplay=state.showDownloads?'':'none';
-  right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
+  if(state.showDownloads)right='<a href="'+t.src+'" download style="font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
   let vTag='';
   if(t.versions&&t.versions.length)vTag='<span style="font-family:Arial,sans-serif;font-size:9px;background:var(--tag-bg);color:var(--tag-fg);padding:0 4px;margin-left:4px">v'+(1+t.versions.length)+'</span>';
   const ruled=applyDisplayRule(t.title);
