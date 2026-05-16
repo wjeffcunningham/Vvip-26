@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VVIP+ Membership — VVIPmedia.NET</title>
+<link rel="icon" href="/favicon.ico?v=3">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+/* ── CSS variables — identical to index.html ── */
+:root {
+  --bg: #f4f4f2;
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #a8a8a8;
+  --border-light: #d0d0d0;
+  --card: #e8e8e6;
+  --hover: #dce4f0;
+  --link: #00308f;
+  --link-vis: #4a1a7a;
+  --link-hov: #9a0000;
+  --btn-bg: #d8d8d6;
+  --btn-hi: #f0f0ee;
+  --btn-sh: #7a7a7a;
+  --btn-dk: #3a3a3a;
+  --scrub-bg: #bcbcba;
+  --now-bg: #e0e0de;
+  --tab-inactive: #cacac8;
+  --star-on: #8b0000;
+  --tag-bg: #1e2a3a;
+  --tag-fg: #f0f0ee;
+  --sec-ga: #1e2a3a;
+  --sec-gb: #2e3e52;
+  --gold-bg: #c8a84b;
+  --gold-hi: #f0d480;
+  --gold-sh: #7a6020;
+  --gold-fg: #2a1800;
+  --gold-glow: rgba(200,168,75,0);
+}
+[data-theme="dark"] {
+  --bg: #111014;
+  --fg: #e8e4d8;
+  --muted: #888880;
+  --border: #2a2830;
+  --border-light: #1e1c24;
+  --card: #17151c;
+  --hover: #1a1830;
+  --link: #6699ff;
+  --link-vis: #cc88ff;
+  --link-hov: #ff6644;
+  --btn-bg: #28263a;
+  --btn-hi: #484660;
+  --btn-sh: #0c0b14;
+  --btn-dk: #060610;
+  --scrub-bg: #28263a;
+  --now-bg: #15131a;
+  --tab-inactive: #1c1a28;
+  --star-on: #ddaa44;
+  --tag-bg: #0c0a22;
+  --tag-fg: #99aaee;
+  --sec-ga: #0c0a22;
+  --sec-gb: #14123a;
+  --gold-bg: #7a6020;
+  --gold-hi: #c8a84b;
+  --gold-sh: #3a2a08;
+  --gold-fg: #f0d080;
+  --gold-glow: rgba(200,168,75,0.12);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--fg);
+  font-family:"Times New Roman",Times,serif;
+  font-size:15px;line-height:1.4;
+  transition:background .3s,color .3s;
+  min-height:100vh;
+}
+a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov)}
+
+/* ── PAGE SHELL ── */
+#page{max-width:700px;margin:0 auto;padding:0 12px 60px}
+
+/* ── HEADER — identical to index.html ── */
+#site-header{border-bottom:2px solid var(--fg);padding:14px 0 8px;position:relative}
+#site-name{
+  font-size:clamp(36px,10vw,64px);font-weight:bold;margin:0 0 4px;
+  font-family:"Times New Roman",Times,serif;
+  display:block;line-height:1.05;white-space:normal;word-break:keep-all;
+  max-width:calc(100% - 44px);
+  background:linear-gradient(90deg,#000066 0%,#0033cc 40%,#3366ff 55%,#0033cc 70%,#000066 100%);
+  background-size:260% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:logoPulse 5s ease-in-out infinite;
+}
+@keyframes logoPulse{
+  0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}
+}
+#site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:nowrap;align-items:center;padding-right:44px;min-width:0;overflow:hidden}
+#site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:8px;font-size:11px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9;white-space:nowrap;flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#site-nav a:hover,#site-nav button:hover{color:var(--link-hov);text-decoration:underline}
+
+/* VVIP+ nav — gold, never shrinks */
+#vvip-nav-link{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  text-decoration:none !important;
+  background:linear-gradient(90deg,var(--gold-sh) 0%,var(--gold-hi) 40%,var(--gold-bg) 60%,var(--gold-sh) 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:goldPulse 2.8s ease-in-out infinite;
+  letter-spacing:.04em;
+  flex-shrink:0 !important;
+  margin-left:4px;
+}
+@keyframes goldPulse{
+  0%{background-position:0% 50%;opacity:.75}
+  50%{background-position:100% 50%;opacity:1}
+  100%{background-position:0% 50%;opacity:.75}
+}
+
+#dark-btn{
+  position:absolute;right:0;top:14px;font-size:14px;
+  background:none;border:none;cursor:pointer;padding:2px 4px;line-height:1;
+  font-family:Arial,sans-serif;color:var(--muted);
+}
+#dark-btn:hover{color:var(--fg)}
+
+/* ── PANEL ── */
+#panel{margin-top:24px}
+
+/* Section blocks */
+.m-section{
+  border:1px solid var(--border);
+  margin-bottom:16px;
+  background:var(--card);
+}
+.m-section-head{
+  background:linear-gradient(90deg,var(--sec-ga),var(--sec-gb));
+  color:var(--tag-fg);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:11px;font-weight:bold;letter-spacing:.07em;text-transform:uppercase;
+  padding:5px 12px;
+}
+.m-section-body{padding:14px 16px}
+
+/* Status badge */
+#status-badge{
+  display:inline-block;
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  padding:2px 10px;margin-bottom:10px;letter-spacing:.05em;
+  border:1px solid;
+}
+#status-badge.free{background:var(--btn-bg);border-color:var(--border);color:var(--muted)}
+#status-badge.premium{
+  background:linear-gradient(90deg,var(--gold-sh),var(--gold-bg),var(--gold-hi),var(--gold-bg),var(--gold-sh));
+  background-size:300% 100%;
+  animation:goldPulse 3s ease-in-out infinite;
+  border-color:var(--gold-sh);color:var(--gold-fg);
+  -webkit-background-clip:unset;-webkit-text-fill-color:unset;background-clip:unset;
+}
+#status-badge.admin{background:#0c0a22;border-color:#4455cc;color:#99aaee}
+
+/* Form elements */
+.m-field{margin-bottom:12px}
+.m-label{display:block;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:var(--muted);margin-bottom:3px;letter-spacing:.03em;text-transform:uppercase}
+.m-input{
+  width:100%;font-family:"Times New Roman",Times,serif;font-size:15px;
+  background:var(--bg);color:var(--fg);
+  border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
+  padding:6px 8px;outline:none;
+}
+.m-input:focus{border-color:var(--link)}
+.m-input[readonly]{opacity:.6;cursor:default}
+
+/* Buttons */
+.m-btn{
+  font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;
+  padding:8px 20px;cursor:pointer;border:1px solid;
+  border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);
+  background:var(--btn-bg);color:var(--fg);
+  letter-spacing:.03em;
+  transition:background .1s;
+  display:inline-block;text-decoration:none;
+}
+.m-btn:hover{background:var(--hover)}
+.m-btn:active{background:var(--border)}
+.m-btn.gold{
+  background:var(--gold-bg);color:var(--gold-fg);
+  border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi);
+  font-size:13px;padding:10px 28px;
+}
+.m-btn.gold:hover{background:var(--gold-hi)}
+.m-btn.danger{background:#5a0000;color:#f0d0d0;border-color:#880000 #220000 #220000 #880000}
+.m-btn.danger:hover{background:#7a0000}
+.m-btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+
+/* Auth panel */
+#auth-panel{text-align:center;padding:32px 16px}
+#auth-panel h2{font-size:22px;margin:0 0 8px;font-family:"Times New Roman",Times,serif}
+#auth-panel p{font-family:Arial,sans-serif;font-size:13px;color:var(--muted);margin:0 0 24px}
+.auth-divider{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin:14px 0;display:flex;align-items:center;gap:10px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+#magic-email{width:100%;max-width:320px}
+#magic-msg{font-family:Arial,sans-serif;font-size:12px;margin-top:10px;color:var(--muted);min-height:18px}
+
+/* Google btn */
+.google-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;
+  padding:10px 24px;cursor:pointer;
+  border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);
+  background:var(--btn-bg);color:var(--fg);
+  transition:background .1s;
+}
+.google-btn:hover{background:var(--hover)}
+.google-btn svg{width:18px;height:18px;flex-shrink:0}
+
+/* VVIP+ upgrade card */
+#upgrade-card{
+  border:2px solid var(--gold-bg);
+  background:linear-gradient(135deg,var(--bg) 60%,var(--gold-glow));
+  padding:20px;
+  position:relative;overflow:hidden;
+}
+#upgrade-card::before{
+  content:'VVIP+';
+  position:absolute;right:-18px;top:8px;
+  font-family:Arial,sans-serif;font-size:64px;font-weight:900;
+  color:var(--gold-bg);opacity:.07;
+  letter-spacing:-.02em;pointer-events:none;
+  transform:rotate(-8deg);
+}
+.upgrade-price{
+  font-family:"Times New Roman",Times,serif;
+  font-size:38px;font-weight:bold;
+  color:var(--gold-bg);line-height:1;margin:0 0 2px;
+}
+.upgrade-price sup{font-size:18px;vertical-align:top;margin-top:6px;display:inline-block}
+.upgrade-sub{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.03em}
+.upgrade-perks{list-style:none;padding:0;margin:0 0 18px;font-family:Arial,sans-serif;font-size:12px}
+.upgrade-perks li{padding:3px 0;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:8px}
+.upgrade-perks li::before{content:'✦';color:var(--gold-bg);font-size:10px;flex-shrink:0}
+.upgrade-perks li:last-child{border-bottom:none}
+
+/* Benefits grid (premium unlocked) */
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+@media(max-width:480px){.benefit-grid{grid-template-columns:1fr}}
+.benefit-tile{
+  border:1px solid var(--border);padding:12px;background:var(--bg);
+  font-family:Arial,sans-serif;font-size:12px;
+}
+.benefit-tile-icon{font-size:20px;margin-bottom:4px}
+.benefit-tile-label{font-weight:bold;margin-bottom:2px;color:var(--fg)}
+.benefit-tile-desc{color:var(--muted);font-size:11px}
+
+/* Admin tools */
+#admin-panel .m-section-head{background:linear-gradient(90deg,#0c0a22,#1a1860);color:#99aaee}
+.admin-tab-row{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px}
+.admin-tab{
+  font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.04em;
+  padding:5px 14px;background:var(--tab-inactive);border:1px solid var(--border);
+  border-bottom:none;cursor:pointer;color:var(--fg);margin-right:2px;
+  position:relative;top:1px;text-transform:uppercase;
+}
+.admin-tab.active{background:var(--bg);font-weight:bold}
+.admin-tab:hover:not(.active){background:var(--hover)}
+.admin-pane{display:none}
+.admin-pane.active{display:block}
+
+/* Upload form */
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.upload-grid{grid-template-columns:1fr}}
+.upload-full{grid-column:1/-1}
+.m-select{
+  width:100%;font-family:Arial,sans-serif;font-size:12px;
+  background:var(--bg);color:var(--fg);
+  border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
+  padding:6px 8px;outline:none;border-radius:0;
+  -webkit-appearance:none;appearance:none;cursor:pointer;
+}
+.m-file-input{font-family:Arial,sans-serif;font-size:12px;color:var(--fg)}
+#upload-status{
+  font-family:Arial,sans-serif;font-size:12px;margin-top:10px;
+  min-height:18px;padding:6px 10px;display:none;
+}
+#upload-status.ok{background:#003300;color:#88ff88;border:1px solid #006600;display:block}
+#upload-status.err{background:#330000;color:#ff8888;border:1px solid #660000;display:block}
+#upload-status.working{background:var(--card);color:var(--muted);border:1px solid var(--border);display:block}
+
+/* Song editor */
+#song-list-wrap{max-height:320px;overflow-y:auto;border:1px solid var(--border);margin-bottom:12px}
+.song-edit-row{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 8px;border-bottom:1px solid var(--border-light);
+  font-family:Arial,sans-serif;font-size:12px;cursor:pointer;
+}
+.song-edit-row:hover{background:var(--hover)}
+.song-edit-row.selected{background:var(--hover);font-weight:bold}
+.song-edit-num{color:var(--muted);font-size:10px;width:28px;text-align:right;flex-shrink:0}
+#song-edit-form{display:none;border:1px solid var(--border);padding:14px;background:var(--bg);margin-top:4px}
+#song-edit-form.open{display:block}
+
+/* Feedback messages */
+.m-msg{
+  font-family:Arial,sans-serif;font-size:12px;
+  padding:7px 12px;margin-top:8px;border:1px solid;display:none;
+}
+.m-msg.show{display:block}
+.m-msg.ok{background:#003300;color:#88ff88;border-color:#006600}
+.m-msg.err{background:#330000;color:#ff8888;border-color:#660000}
+.m-msg.info{background:var(--card);color:var(--muted);border-color:var(--border)}
+
+/* Spinner */
+.spin{display:inline-block;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Responsive */
+@media(max-width:600px){
+  #site-nav a,#site-nav button{margin-right:5px;font-size:10px}
+}
+</style>
+</head>
+<body>
+
+<div id="page">
+
+<!-- HEADER -->
+<div id="site-header">
+  <div id="site-name">VVIP Media.NET</div>
+  <div id="site-nav">
+    <a href="/">Home</a>
+    <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
+    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
+    <a id="vvip-nav-link" href="/members.html">VVIP+</a>
+  </div>
+  <button id="dark-btn" onclick="toggleDark()" title="Toggle dark mode">◑</button>
+</div>
+
+<!-- PANEL -->
+<div id="panel">
+
+  <!-- STATE: not logged in -->
+  <div id="view-auth" style="display:none">
+    <div class="m-section">
+      <div class="m-section-head">VVIP+ Membership</div>
+      <div id="auth-panel">
+        <h2>Sign in to continue</h2>
+        <p>Free to join. VVIP+ lifetime access available after sign-in.</p>
+
+        <button class="google-btn" onclick="signInGoogle()">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Continue with Google
+        </button>
+
+        <div class="auth-divider">or</div>
+
+        <div class="m-field">
+          <input class="m-input" type="email" id="magic-email" placeholder="your@email.com" style="max-width:320px;margin:0 auto;display:block">
+        </div>
+        <button class="m-btn" onclick="signInMagic()">Send magic link</button>
+        <div id="magic-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATE: logged in (free + premium share this shell) -->
+  <div id="view-member" style="display:none">
+
+    <!-- Profile section -->
+    <div class="m-section">
+      <div class="m-section-head">Your Profile</div>
+      <div class="m-section-body">
+        <div id="status-badge" class="free">FREE MEMBER</div>
+
+        <div class="m-field">
+          <label class="m-label">Username</label>
+          <input class="m-input" type="text" id="inp-username" placeholder="choose a username" maxlength="32" autocomplete="off">
+        </div>
+        <div class="m-field">
+          <label class="m-label">Email</label>
+          <input class="m-input" type="text" id="inp-email" readonly>
+        </div>
+        <div class="m-btn-row">
+          <button class="m-btn" onclick="saveUsername()">Save username</button>
+          <button class="m-btn danger" onclick="signOut()">Sign out</button>
+        </div>
+        <div id="profile-msg" class="m-msg"></div>
+      </div>
+    </div>
+
+    <!-- VVIP+ upgrade (shown only to free members) -->
+    <div class="m-section" id="upgrade-section">
+      <div class="m-section-head">VVIP+ — Lifetime Access</div>
+      <div class="m-section-body">
+        <div id="upgrade-card">
+          <div class="upgrade-price"><sup>$</sup>50</div>
+          <div class="upgrade-sub">ONE-TIME · EARLY BIRD · LIFETIME</div>
+          <ul class="upgrade-perks">
+            <li>WAV downloads of every track</li>
+            <li>HQ video — full resolution</li>
+            <li>Exclusive merch &amp; swag access</li>
+            <li>Priority access to new releases</li>
+            <li>Supports the work directly</li>
+          </ul>
+          <a id="stripe-btn" class="m-btn gold" href="STRIPE_PAYMENT_LINK_HERE" target="_blank" rel="noopener">
+            Upgrade to VVIP+ →
+          </a>
+          <p style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin:10px 0 0">
+            Secure payment via Stripe. One-time charge, no subscription.
+          </p>
+        </div>
+        <div id="stripe-check-wrap" style="margin-top:12px;font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">
+          Already paid? <button class="m-btn" onclick="recheckPremium()" style="padding:3px 10px;font-size:11px">Refresh status</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits (shown only to premium members) -->
+    <div class="m-section" id="benefits-section" style="display:none">
+      <div class="m-section-head">Your VVIP+ Benefits</div>
+      <div class="m-section-body">
+        <div class="benefit-grid">
+          <div class="benefit-tile">
+            <div class="benefit-tile-icon">⬇</div>
+            <div class="benefit-tile-label">WAV Downloads</div>
+            <div class="benefit-tile-desc">Every track in lossless WAV — available in the player.</div>
+          </div>
+          <div class="benefit-tile">
+            <div class="benefit-tile-icon">▶</div>
+            <div class="benefit-tile-label">HQ Video</div>
+            <div class="benefit-tile-desc">Full-resolution video streams — unlocked in the player.</div>
+          </div>
+          <div class="benefit-tile">
+            <div class="benefit-tile-icon">🛍</div>
+            <div class="benefit-tile-label">Merch &amp; Swag</div>
+            <div class="benefit-tile-desc">Member-only drops. <a href="https://shoppe.vvipmedia.net" target="_blank">Visit the store →</a></div>
+          </div>
+          <div class="benefit-tile">
+            <div class="benefit-tile-icon">✦</div>
+            <div class="benefit-tile-label">More Coming</div>
+            <div class="benefit-tile-desc">Early access, exclusives, and surprises.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /view-member -->
+
+  <!-- STATE: admin tools (appended below member view when isAdmin) -->
+  <div id="admin-panel" class="m-section" style="display:none">
+    <div class="m-section-head">⬡ Admin Tools</div>
+    <div class="m-section-body">
+
+      <div class="admin-tab-row">
+        <button class="admin-tab active" onclick="adminTab('upload',this)">Upload Track</button>
+        <button class="admin-tab" onclick="adminTab('edit',this)">Edit Song Info</button>
+      </div>
+
+      <!-- Upload pane -->
+      <div class="admin-pane active" id="pane-upload">
+        <div class="upload-grid">
+          <div class="m-field upload-full">
+            <label class="m-label">MP3 File</label>
+            <input type="file" id="up-file" accept=".mp3" class="m-file-input">
+          </div>
+          <div class="m-field">
+            <label class="m-label">Display Title</label>
+            <input class="m-input" type="text" id="up-title" placeholder="e.g. Analog TV">
+          </div>
+          <div class="m-field">
+            <label class="m-label">BPM (optional)</label>
+            <input class="m-input" type="number" id="up-bpm" placeholder="e.g. 120" min="40" max="300">
+          </div>
+          <div class="m-field">
+            <label class="m-label">BPM Range min (optional)</label>
+            <input class="m-input" type="number" id="up-bpm-min" placeholder="e.g. 90">
+          </div>
+          <div class="m-field">
+            <label class="m-label">BPM Range max (optional)</label>
+            <input class="m-input" type="number" id="up-bpm-max" placeholder="e.g. 130">
+          </div>
+          <div class="m-field">
+            <label class="m-label">Date (YYYY-MM-DD)</label>
+            <input class="m-input" type="date" id="up-date">
+          </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Tags / Details (e.g. #bestvvip #ij)</label>
+            <input class="m-input" type="text" id="up-details" placeholder="#bestvvip #ambient">
+          </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Length (mm:ss, optional)</label>
+            <input class="m-input" type="text" id="up-length" placeholder="3:42">
+          </div>
+        </div>
+        <div class="m-btn-row">
+          <button class="m-btn gold" onclick="uploadTrack()">Upload &amp; Add to Manifest</button>
+        </div>
+        <div id="upload-status"></div>
+      </div>
+
+      <!-- Edit pane -->
+      <div class="admin-pane" id="pane-edit">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">Click any track to edit its metadata.</p>
+        <div id="song-list-wrap">
+          <div id="song-list" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);padding:10px">Loading tracks…</div>
+        </div>
+        <div id="song-edit-form">
+          <input type="hidden" id="edit-orig-name">
+          <div class="upload-grid">
+            <div class="m-field">
+              <label class="m-label">Display Title</label>
+              <input class="m-input" type="text" id="edit-title">
+            </div>
+            <div class="m-field">
+              <label class="m-label">BPM</label>
+              <input class="m-input" type="number" id="edit-bpm">
+            </div>
+            <div class="m-field">
+              <label class="m-label">BPM min</label>
+              <input class="m-input" type="number" id="edit-bpm-min">
+            </div>
+            <div class="m-field">
+              <label class="m-label">BPM max</label>
+              <input class="m-input" type="number" id="edit-bpm-max">
+            </div>
+            <div class="m-field">
+              <label class="m-label">Date</label>
+              <input class="m-input" type="date" id="edit-date">
+            </div>
+            <div class="m-field">
+              <label class="m-label">Length (mm:ss)</label>
+              <input class="m-input" type="text" id="edit-length">
+            </div>
+            <div class="m-field upload-full">
+              <label class="m-label">Tags / Details</label>
+              <input class="m-input" type="text" id="edit-details">
+            </div>
+          </div>
+          <div class="m-btn-row">
+            <button class="m-btn gold" onclick="saveEdit()">Save Changes</button>
+            <button class="m-btn" onclick="cancelEdit()">Cancel</button>
+          </div>
+          <div id="edit-msg" class="m-msg"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div id="view-loading" style="text-align:center;padding:40px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted)">
+    <span class="spin">◌</span> Loading…
+  </div>
+
+</div><!-- /panel -->
+</div><!-- /page -->
+
+<script>
+// ── CONFIG — same as index.html ──
+const SUPA_URL = 'https://YOUR_PROJECT.supabase.co';
+const SUPA_KEY = 'YOUR_ANON_KEY';
+const STRIPE_LINK = 'STRIPE_PAYMENT_LINK_HERE'; // e.g. https://buy.stripe.com/...
+const MANIFEST_URL = 'https://vvipmedia.net/manifest.json';
+// Supabase Edge Function URL for manifest updates (deploy separately)
+const EDGE_MANIFEST = 'https://YOUR_PROJECT.supabase.co/functions/v1/update-manifest';
+
+let supa = null;
+try { supa = supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e){}
+
+let currentUser = null;
+let profile = null;
+let allTracks = []; // for admin editor
+
+// ── DARK MODE ──
+(()=>{
+  const dark = localStorage.getItem('vvip25:dark') === '1';
+  if(dark) document.documentElement.setAttribute('data-theme','dark');
+})();
+function toggleDark(){
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  localStorage.setItem('vvip25:dark', dark ? '' : '1');
+}
+
+// ── AUTH ──
+async function init(){
+  show('view-loading');
+  if(!supa){ show('view-auth'); return; }
+
+  const { data: { session } } = await supa.auth.getSession();
+  if(session){
+    await onSession(session);
+  } else {
+    show('view-auth');
+  }
+
+  supa.auth.onAuthStateChange(async (_, s) => {
+    if(s) await onSession(s);
+    else { currentUser = null; profile = null; show('view-auth'); }
+  });
+}
+
+async function onSession(session){
+  currentUser = session.user;
+  await loadProfile();
+  renderMember();
+  show('view-member');
+}
+
+async function loadProfile(){
+  if(!supa || !currentUser) return;
+  const { data } = await supa
+    .from('profiles')
+    .select('username, is_premium, is_admin')
+    .eq('id', currentUser.id)
+    .single();
+
+  if(!data){
+    // Create profile row if first login
+    await supa.from('profiles').insert({ id: currentUser.id });
+    profile = { username: '', is_premium: false, is_admin: false };
+  } else {
+    profile = data;
+  }
+}
+
+function renderMember(){
+  if(!currentUser || !profile) return;
+
+  // Email
+  document.getElementById('inp-email').value = currentUser.email || '';
+  document.getElementById('inp-username').value = profile.username || '';
+
+  // Status badge
+  const badge = document.getElementById('status-badge');
+  if(profile.is_admin){
+    badge.className = 'admin';
+    badge.textContent = '⬡ ADMIN';
+  } else if(profile.is_premium){
+    badge.className = 'premium';
+    badge.textContent = '✦ VVIP+';
+  } else {
+    badge.className = 'free';
+    badge.textContent = 'FREE MEMBER';
+  }
+
+  // Upgrade vs benefits
+  document.getElementById('upgrade-section').style.display = profile.is_premium ? 'none' : '';
+  document.getElementById('benefits-section').style.display = profile.is_premium ? '' : 'none';
+
+  // Admin panel
+  if(profile.is_admin){
+    document.getElementById('admin-panel').style.display = '';
+    loadTracksForEditor();
+  }
+}
+
+async function signInGoogle(){
+  if(!supa) return alert('Auth not configured.');
+  await supa.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/members.html' }
+  });
+}
+
+async function signInMagic(){
+  if(!supa) return alert('Auth not configured.');
+  const email = document.getElementById('magic-email').value.trim();
+  if(!email){ showMagicMsg('Please enter your email.'); return; }
+  showMagicMsg('Sending… ◌');
+  const { error } = await supa.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin + '/members.html' }
+  });
+  if(error) showMagicMsg('Error: ' + error.message);
+  else showMagicMsg('✓ Check your email for the magic link.');
+}
+function showMagicMsg(t){ document.getElementById('magic-msg').textContent = t; }
+
+async function signOut(){
+  if(!supa) return;
+  await supa.auth.signOut();
+  show('view-auth');
+}
+
+// ── PROFILE ──
+async function saveUsername(){
+  const val = document.getElementById('inp-username').value.trim();
+  if(!val){ showProfileMsg('Please enter a username.', 'err'); return; }
+  if(!/^[a-zA-Z0-9_.-]{2,32}$/.test(val)){
+    showProfileMsg('2–32 chars: letters, numbers, _ . -', 'err'); return;
+  }
+  showProfileMsg('Saving…', 'info');
+  const { error } = await supa.from('profiles')
+    .update({ username: val })
+    .eq('id', currentUser.id);
+  if(error) showProfileMsg('Error: ' + error.message, 'err');
+  else { profile.username = val; showProfileMsg('✓ Saved.', 'ok'); }
+}
+function showProfileMsg(t, cls){
+  const el = document.getElementById('profile-msg');
+  el.textContent = t; el.className = 'm-msg show ' + (cls||'info');
+  if(cls === 'ok') setTimeout(()=>el.classList.remove('show'), 3000);
+}
+
+// ── PREMIUM CHECK ──
+async function recheckPremium(){
+  showProfileMsg('Checking…', 'info');
+  await loadProfile();
+  renderMember();
+  if(profile.is_premium) showProfileMsg('✓ VVIP+ activated!', 'ok');
+  else showProfileMsg('Not yet activated. Contact support if you\'ve paid.', 'err');
+}
+
+// ── ADMIN: LOAD TRACKS ──
+async function loadTracksForEditor(){
+  try {
+    const r = await fetch(MANIFEST_URL, { cache: 'no-store' });
+    const data = await r.json();
+    allTracks = Array.isArray(data) ? data : (data.tracks || []);
+    renderSongList();
+  } catch(e) {
+    document.getElementById('song-list').textContent = 'Could not load manifest.';
+  }
+}
+
+function renderSongList(){
+  const el = document.getElementById('song-list');
+  if(!allTracks.length){ el.textContent = 'No tracks.'; return; }
+  el.innerHTML = allTracks.map((t, i) =>
+    `<div class="song-edit-row" onclick="openEditRow(${i})">
+      <span class="song-edit-num">${String(i+1).padStart(3,'0')}</span>
+      <span>${t.title || t.name}</span>
+    </div>`
+  ).join('');
+}
+
+function openEditRow(i){
+  const t = allTracks[i];
+  document.querySelectorAll('.song-edit-row').forEach((r,j)=>r.classList.toggle('selected',j===i));
+  document.getElementById('edit-orig-name').value = t.name;
+  document.getElementById('edit-title').value = t.title || '';
+  document.getElementById('edit-bpm').value = t.bpm || '';
+  document.getElementById('edit-bpm-min').value = t.bpm_min || '';
+  document.getElementById('edit-bpm-max').value = t.bpm_max || '';
+  document.getElementById('edit-date').value = t.date ? t.date.slice(0,10) : '';
+  document.getElementById('edit-length').value = t.length ? fmtLen(t.length) : '';
+  document.getElementById('edit-details').value = t.details || '';
+  const f = document.getElementById('song-edit-form');
+  f.classList.add('open');
+  f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function cancelEdit(){
+  document.getElementById('song-edit-form').classList.remove('open');
+  document.querySelectorAll('.song-edit-row').forEach(r=>r.classList.remove('selected'));
+}
+
+async function saveEdit(){
+  const origName = document.getElementById('edit-orig-name').value;
+  const idx = allTracks.findIndex(t => t.name === origName);
+  if(idx < 0){ showEditMsg('Track not found.', 'err'); return; }
+
+  const lengthStr = document.getElementById('edit-length').value.trim();
+  const updated = {
+    ...allTracks[idx],
+    title: document.getElementById('edit-title').value.trim() || undefined,
+    bpm: parseInt(document.getElementById('edit-bpm').value) || undefined,
+    bpm_min: parseInt(document.getElementById('edit-bpm-min').value) || undefined,
+    bpm_max: parseInt(document.getElementById('edit-bpm-max').value) || undefined,
+    date: document.getElementById('edit-date').value || undefined,
+    length: lengthStr ? parseLenSec(lengthStr) : undefined,
+    details: document.getElementById('edit-details').value.trim() || undefined,
+  };
+  // Clean undefined
+  Object.keys(updated).forEach(k => updated[k] === undefined && delete updated[k]);
+  allTracks[idx] = updated;
+
+  showEditMsg('Saving…', 'info');
+  const ok = await pushManifest();
+  if(ok){ showEditMsg('✓ Saved.', 'ok'); renderSongList(); }
+  else showEditMsg('Error saving manifest. Check console.', 'err');
+}
+
+// ── ADMIN: UPLOAD ──
+async function uploadTrack(){
+  const file = document.getElementById('up-file').files[0];
+  if(!file){ setUpStatus('No file selected.', 'err'); return; }
+  if(!file.name.toLowerCase().endsWith('.mp3')){ setUpStatus('MP3 files only.', 'err'); return; }
+
+  const title = document.getElementById('up-title').value.trim();
+  const bpm = parseInt(document.getElementById('up-bpm').value) || undefined;
+  const bpmMin = parseInt(document.getElementById('up-bpm-min').value) || undefined;
+  const bpmMax = parseInt(document.getElementById('up-bpm-max').value) || undefined;
+  const date = document.getElementById('up-date').value || undefined;
+  const details = document.getElementById('up-details').value.trim() || undefined;
+  const lengthStr = document.getElementById('up-length').value.trim();
+  const length = lengthStr ? parseLenSec(lengthStr) : undefined;
+
+  setUpStatus('Uploading MP3…', 'working');
+
+  // 1. Upload to Supabase Storage (bucket: 'tracks' — configure in Supabase dashboard)
+  const { error: upErr } = await supa.storage
+    .from('tracks')
+    .upload(file.name, file, { cacheControl: '3600', upsert: false });
+
+  if(upErr){ setUpStatus('Upload error: ' + upErr.message, 'err'); return; }
+
+  setUpStatus('Updating manifest…', 'working');
+
+  // 2. Add to in-memory manifest and push
+  const newTrack = { name: file.name };
+  if(title) newTrack.title = title;
+  if(bpm) newTrack.bpm = bpm;
+  if(bpmMin) newTrack.bpm_min = bpmMin;
+  if(bpmMax) newTrack.bpm_max = bpmMax;
+  if(date) newTrack.date = date;
+  if(details) newTrack.details = details;
+  if(length) newTrack.length = length;
+
+  allTracks.push(newTrack);
+  const ok = await pushManifest();
+  if(ok){
+    setUpStatus('✓ Uploaded and manifest updated!', 'ok');
+    // Reset form
+    document.getElementById('up-file').value = '';
+    ['up-title','up-bpm','up-bpm-min','up-bpm-max','up-date','up-details','up-length']
+      .forEach(id => document.getElementById(id).value = '');
+  } else {
+    setUpStatus('MP3 uploaded but manifest update failed. Check console.', 'err');
+  }
+}
+
+// ── MANIFEST PUSH ──
+async function pushManifest(){
+  // Calls a Supabase Edge Function that writes manifest.json back to your CDN/R2
+  // Deploy the edge function from the template below
+  try {
+    const { data: { session } } = await supa.auth.getSession();
+    const res = await fetch(EDGE_MANIFEST, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token,
+      },
+      body: JSON.stringify({ tracks: allTracks }),
+    });
+    return res.ok;
+  } catch(e) {
+    console.error('pushManifest error', e);
+    return false;
+  }
+}
+
+// ── HELPERS ──
+function fmtLen(sec){ sec=Number(sec||0); return Math.floor(sec/60)+':'+String(Math.floor(sec%60)).padStart(2,'0') }
+function parseLenSec(str){ const p=str.split(':'); return p.length===2?parseInt(p[0])*60+parseInt(p[1]):parseInt(str)||0 }
+function show(id){
+  ['view-loading','view-auth','view-member'].forEach(v=>{
+    const el=document.getElementById(v);if(el)el.style.display='none';
+  });
+  const t=document.getElementById(id);if(t)t.style.display='';
+}
+function setUpStatus(msg,cls){
+  const el=document.getElementById('upload-status');
+  el.textContent=msg;el.className=cls;el.style.display='block';
+}
+function showEditMsg(t,cls){
+  const el=document.getElementById('edit-msg');
+  el.textContent=t;el.className='m-msg show '+(cls||'info');
+  if(cls==='ok')setTimeout(()=>el.classList.remove('show'),3000);
+}
+function adminTab(name, btn){
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.admin-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-'+name).classList.add('active');
+}
+
+// ── STRIPE LINK ──
+document.getElementById('stripe-btn').href = STRIPE_LINK;
+
+// ── GO ──
+init();
+</script>
+</body>
+</html>

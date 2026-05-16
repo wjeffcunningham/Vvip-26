@@ -579,8 +579,8 @@ body.hide-titles .t-title-file{display:inline !important}
 <script>
 const ASSET_VERSION=20;
 // ── Supabase config ── fill in your project URL + anon key ──
-const SUPA_URL='https://fyyfiimnltaktrsczjdq.supabase.co';
-const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
+const SUPA_URL='https://YOUR_PROJECT.supabase.co';
+const SUPA_KEY='YOUR_ANON_KEY';
 let supa=null,vvipUser=null,isPremium=false,isAdmin=false;
 try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 const PREFERRED_TAG='bestvvip';

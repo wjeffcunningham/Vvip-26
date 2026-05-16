@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VVIPplayer 0.9</title>
+<style>
+  html,body {
+    margin:0; padding:0;
+    background:#000;
+    color:#fff;
+    height:100%;
+    overflow:hidden;
+    font-family:system-ui,sans-serif;
+  }
+</style>
+</head>
+<body>
+
+<script>
+/* === VVIP25 — Player Engine (Iframe backend) === */
+
+window.addEventListener("DOMContentLoaded", () => {
+  // --- Create audio element once DOM exists ---
+  const audio = document.createElement("audio");
+  audio.crossOrigin = "anonymous";
+  audio.preload = "auto";
+  document.body.appendChild(audio);
+
+  let currentSrc = null;
+
+  // --- Utility: format seconds ---
+  function fmtTime(sec){
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2,"0")}`;
+  }
+
+  // --- Post updates to parent ---
+  function postUpdate(){
+    window.parent?.postMessage({
+      status: "update",
+      src: currentSrc,
+      time: audio.currentTime,
+      duration: audio.duration || 0,
+      playing: !audio.paused && !audio.ended
+    }, "*");
+  }
+
+  // --- Media Session API (lock screen / Now Playing on iOS/Android) ---
+  function updateMediaSession(meta){
+    if(!("mediaSession" in navigator)) return;
+    if(meta){
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: meta.title || "VVIP Media",
+        artist: "VVIPmedia.NET",
+        album: "VVIPmedia.NET Player",
+        artwork: meta.thumb ? [
+          {src: meta.thumb, sizes:"512x512", type:"image/jpeg"},
+          {src: meta.thumb, sizes:"256x256", type:"image/jpeg"},
+        ] : []
+      });
+    }
+    navigator.mediaSession.setActionHandler("play",  () => { audio.play(); postUpdate(); });
+    navigator.mediaSession.setActionHandler("pause", () => { audio.pause(); postUpdate(); });
+    navigator.mediaSession.setActionHandler("previoustrack", () => {
+      window.parent?.postMessage({status:"cmd",cmd:"prev"},"*");
+    });
+    navigator.mediaSession.setActionHandler("nexttrack", () => {
+      window.parent?.postMessage({status:"cmd",cmd:"next"},"*");
+    });
+    navigator.mediaSession.setActionHandler("seekto", (details) => {
+      if(details.seekTime != null) audio.currentTime = details.seekTime;
+      postUpdate();
+    });
+  }
+
+  // --- Respond to commands from parent ---
+  window.addEventListener("message", e => {
+    const d = e.data;
+    if(!d || !d.cmd) return;
+
+    switch(d.cmd){
+      case "load":
+        if(d.src && d.src !== currentSrc){
+          currentSrc = d.src;
+          audio.src = d.src;
+          audio.currentTime = d.time || 0;
+          if(d.play) audio.play().catch(console.warn);
+          else audio.pause();
+        } else if(d.time != null) {
+          audio.currentTime = d.time;
+        }
+        if(d.play) audio.play().catch(console.warn);
+        else if(d.play === false) audio.pause();
+        // Update lock screen metadata
+        if(d.meta) updateMediaSession(d.meta);
+        postUpdate();
+        break;
+
+      case "play":
+        audio.play().catch(console.warn);
+        postUpdate();
+        break;
+
+      case "pause":
+        audio.pause();
+        postUpdate();
+        break;
+
+      case "seek":
+        if(typeof d.time === "number") {
+          audio.currentTime = d.time;
+          postUpdate();
+        }
+        break;
+
+      case "report":
+        postUpdate();
+        break;
+
+      case "prev":
+      case "next":
+        // handled at main page level
+        break;
+    }
+  });
+
+  ["play","pause","timeupdate","loadedmetadata"].forEach(ev=>{
+  audio.addEventListener(ev, () => postUpdate());
+});
+
+// ✅ when a track finishes, explicitly tell parent to go next
+audio.addEventListener("ended", () => {
+  window.parent?.postMessage({ status: "ended", src: currentSrc }, "*");
+});
+
+  console.log("✅ player.html loaded");
+});
+</script>
+
+</body>
+</html>

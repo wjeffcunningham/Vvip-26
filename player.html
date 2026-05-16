@@ -21,20 +21,13 @@
 /* === VVIP25 — Player Engine (Iframe backend) === */
 
 window.addEventListener("DOMContentLoaded", () => {
-  // --- Create audio element once DOM exists ---
   const audio = document.createElement("audio");
   audio.crossOrigin = "anonymous";
   audio.preload = "auto";
   document.body.appendChild(audio);
 
   let currentSrc = null;
-
-  // --- Utility: format seconds ---
-  function fmtTime(sec){
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${m}:${s.toString().padStart(2,"0")}`;
-  }
+  let lastMeta = null; // persisted so lock screen survives play/pause
 
   // --- Post updates to parent ---
   function postUpdate(){
@@ -47,35 +40,72 @@ window.addEventListener("DOMContentLoaded", () => {
     }, "*");
   }
 
-  // --- Media Session API (lock screen / Now Playing on iOS/Android) ---
+  // --- Sync iOS lock screen playback state + scrub position ---
+  function syncMediaState(){
+    if(!("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = audio.paused ? "paused" : "playing";
+    if(audio.duration && isFinite(audio.duration)){
+      try {
+        navigator.mediaSession.setPositionState({
+          duration: audio.duration,
+          playbackRate: audio.playbackRate || 1,
+          position: Math.min(audio.currentTime, audio.duration),
+        });
+      } catch(e){}
+    }
+  }
+
+  // --- Full Media Session setup: handlers + optional metadata ---
   function updateMediaSession(meta){
     if(!("mediaSession" in navigator)) return;
-    if(meta){
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: meta.title || "VVIP Media",
-        artist: "VVIPmedia.NET",
-        album: "VVIPmedia.NET Player",
-        artwork: meta.thumb ? [
-          {src: meta.thumb, sizes:"512x512", type:"image/jpeg"},
-          {src: meta.thumb, sizes:"256x256", type:"image/jpeg"},
-        ] : []
-      });
-    }
-    navigator.mediaSession.setActionHandler("play",  () => { audio.play(); postUpdate(); });
-    navigator.mediaSession.setActionHandler("pause", () => { audio.pause(); postUpdate(); });
+
+    // Handlers (idempotent — safe to call repeatedly)
+    navigator.mediaSession.setActionHandler("play", () => {
+      audio.play().catch(()=>{}); syncMediaState(); postUpdate();
+    });
+    navigator.mediaSession.setActionHandler("pause", () => {
+      audio.pause(); syncMediaState(); postUpdate();
+    });
+    try { navigator.mediaSession.setActionHandler("stop", () => {
+      audio.pause(); syncMediaState(); postUpdate();
+    }); } catch(e){}
     navigator.mediaSession.setActionHandler("previoustrack", () => {
       window.parent?.postMessage({status:"cmd",cmd:"prev"},"*");
     });
     navigator.mediaSession.setActionHandler("nexttrack", () => {
       window.parent?.postMessage({status:"cmd",cmd:"next"},"*");
     });
-    navigator.mediaSession.setActionHandler("seekto", (details) => {
-      if(details.seekTime != null) audio.currentTime = details.seekTime;
-      postUpdate();
+    navigator.mediaSession.setActionHandler("seekto", (d) => {
+      if(d.seekTime != null) audio.currentTime = d.seekTime;
+      syncMediaState(); postUpdate();
     });
+    try { navigator.mediaSession.setActionHandler("seekbackward", (d) => {
+      audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset||10));
+      syncMediaState(); postUpdate();
+    }); } catch(e){}
+    try { navigator.mediaSession.setActionHandler("seekforward", (d) => {
+      audio.currentTime = Math.min(audio.duration||0, audio.currentTime + (d.seekOffset||10));
+      syncMediaState(); postUpdate();
+    }); } catch(e){}
+
+    // Metadata (only update if provided)
+    if(meta){
+      lastMeta = meta;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title:  meta.title  || "VVIP Media",
+        artist: "VVIPmedia.NET",
+        album:  "VVIPmedia.NET Player",
+        artwork: meta.thumb ? [
+          { src: meta.thumb, sizes: "512x512", type: "image/jpeg" },
+          { src: meta.thumb, sizes: "256x256", type: "image/jpeg" },
+        ] : []
+      });
+    }
+
+    syncMediaState();
   }
 
-  // --- Respond to commands from parent ---
+  // --- Message handler ---
   window.addEventListener("message", e => {
     const d = e.data;
     if(!d || !d.cmd) return;
@@ -86,31 +116,31 @@ window.addEventListener("DOMContentLoaded", () => {
           currentSrc = d.src;
           audio.src = d.src;
           audio.currentTime = d.time || 0;
-          if(d.play) audio.play().catch(console.warn);
-          else audio.pause();
-        } else if(d.time != null) {
+        } else if(d.time != null){
           audio.currentTime = d.time;
         }
         if(d.play) audio.play().catch(console.warn);
         else if(d.play === false) audio.pause();
-        // Update lock screen metadata
-        if(d.meta) updateMediaSession(d.meta);
+        updateMediaSession(d.meta || lastMeta); // always refresh lock screen
         postUpdate();
         break;
 
       case "play":
         audio.play().catch(console.warn);
+        updateMediaSession(lastMeta); // re-apply stored meta so lock screen shows title
         postUpdate();
         break;
 
       case "pause":
         audio.pause();
+        syncMediaState();
         postUpdate();
         break;
 
       case "seek":
-        if(typeof d.time === "number") {
+        if(typeof d.time === "number"){
           audio.currentTime = d.time;
+          syncMediaState();
           postUpdate();
         }
         break;
@@ -121,19 +151,31 @@ window.addEventListener("DOMContentLoaded", () => {
 
       case "prev":
       case "next":
-        // handled at main page level
-        break;
+        break; // handled by parent
     }
   });
 
-  ["play","pause","timeupdate","loadedmetadata"].forEach(ev=>{
-  audio.addEventListener(ev, () => postUpdate());
-});
+  // Native audio events -> sync everything
+  ["play","pause","loadedmetadata"].forEach(ev =>
+    audio.addEventListener(ev, () => { syncMediaState(); postUpdate(); })
+  );
 
-// ✅ when a track finishes, explicitly tell parent to go next
-audio.addEventListener("ended", () => {
-  window.parent?.postMessage({ status: "ended", src: currentSrc }, "*");
-});
+  // timeupdate: post to parent every tick, but throttle position state to every 5s
+  audio.addEventListener("timeupdate", () => {
+    if(!audio._lastPos || audio.currentTime - audio._lastPos >= 5){
+      audio._lastPos = audio.currentTime;
+      syncMediaState();
+    }
+    postUpdate();
+  });
+
+  audio.addEventListener("ended", () => {
+    if("mediaSession" in navigator) navigator.mediaSession.playbackState = "none";
+    window.parent?.postMessage({ status: "ended", src: currentSrc }, "*");
+  });
+
+  // Init handlers immediately so iOS treats this iframe as a media session from first load
+  updateMediaSession(null);
 
   console.log("✅ player.html loaded");
 });

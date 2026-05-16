@@ -137,30 +137,18 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 @media(max-width:600px){
   #site-nav a,#site-nav button{margin-right:6px;font-size:10px}
 }
-/* VVIP+ nav link — gold, dark-mode shimmer only */
+/* VVIP+ nav link — gold surge */
 #vvip-login-btn{
   font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
   text-decoration:none !important;
+  background:linear-gradient(90deg,var(--gold-sh) 0%,var(--gold-hi) 40%,var(--gold-bg) 60%,var(--gold-sh) 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:goldPulse 2.8s ease-in-out infinite;
   letter-spacing:.04em;
-  flex-shrink:0 !important;
-  white-space:nowrap !important;
+  flex-shrink:0 !important;  /* NEVER shrinks */
   overflow:visible !important;
   margin-left:4px;
-  color:var(--gold-bg);
-  /* Light mode: static gold, no animation */
-  -webkit-text-fill-color:var(--gold-bg);
-}
-/* Dark mode only: animated shimmer */
-[data-theme="dark"] #vvip-login-btn{
-  background:linear-gradient(90deg,var(--gold-sh) 0%,var(--gold-hi) 35%,#fff8e0 50%,var(--gold-hi) 65%,var(--gold-sh) 100%);
-  background-size:400% 100%;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:vvipShimmer 4s ease-in-out infinite;
-}
-@keyframes vvipShimmer{
-  0%  {background-position:100% 50%}
-  50% {background-position:0% 50%}
-  100%{background-position:100% 50%}
 }
 @keyframes goldPulse{
   0%  {background-position:0% 50%;opacity:.75}
@@ -579,8 +567,8 @@ body.hide-titles .t-title-file{display:inline !important}
 <script>
 const ASSET_VERSION=20;
 // ── Supabase config ── fill in your project URL + anon key ──
-const SUPA_URL='https://fyyfiimnltaktrsczjdq.supabase.co';
-const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
+const SUPA_URL='https://YOUR_PROJECT.supabase.co';
+const SUPA_KEY='YOUR_ANON_KEY';
 let supa=null,vvipUser=null,isPremium=false,isAdmin=false;
 try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 const PREFERRED_TAG='bestvvip';
