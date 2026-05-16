@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VVIP Store — VVIPmedia.NET</title>
+<link rel="icon" href="/favicon.ico?v=3">
+<style>
+/* ── Variables — matches main site exactly ── */
+:root{
+  --bg:#f4f4f2;--fg:#1a1a1a;--muted:#5a5a5a;
+  --border:#a8a8a8;--border-light:#d0d0d0;
+  --card:#e8e8e6;--hover:#dce4f0;
+  --link:#00308f;--link-vis:#4a1a7a;--link-hov:#9a0000;
+  --btn-bg:#d8d8d6;--btn-hi:#f0f0ee;--btn-sh:#7a7a7a;--btn-dk:#3a3a3a;
+  --gold-bg:#c8a84b;--gold-hi:#f0d480;--gold-sh:#7a6020;--gold-fg:#2a1800;
+  --tag-bg:#1e2a3a;--tag-fg:#f0f0ee;
+  --sec-ga:#1e2a3a;--sec-gb:#2e3e52;
+  --avail:#005500;--unavail:#888880;
+}
+[data-theme="dark"]{
+  --bg:#111014;--fg:#e8e4d8;--muted:#888880;
+  --border:#2a2830;--border-light:#1e1c24;
+  --card:#17151c;--hover:#1a1830;
+  --link:#6699ff;--link-vis:#cc88ff;--link-hov:#ff6644;
+  --btn-bg:#28263a;--btn-hi:#484660;--btn-sh:#0c0b14;--btn-dk:#060610;
+  --gold-bg:#7a6020;--gold-hi:#c8a84b;--gold-sh:#3a2a08;--gold-fg:#f0d080;
+  --tag-bg:#0c0a22;--tag-fg:#99aaee;
+  --sec-ga:#0c0a22;--sec-gb:#14123a;
+  --avail:#44bb44;--unavail:#555550;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;-webkit-text-size-adjust:100%}
+body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:"Times New Roman",Times,serif;font-size:15px;line-height:1.4;transition:background .3s,color .3s}
+a{color:var(--link);text-decoration:none}
+a:visited{color:var(--link-vis)}
+a:hover{color:var(--link-hov);text-decoration:underline}
+#page{max-width:700px;margin:0 auto;padding:0 12px 60px}
+
+/* ── HEADER ── */
+#site-header{border-bottom:2px solid var(--fg);padding:14px 0 8px;position:relative}
+#site-name{
+  font-size:clamp(36px,10vw,64px);font-weight:bold;margin:0 0 4px;
+  font-family:"Times New Roman",Times,serif;
+  display:block;line-height:1.05;white-space:normal;word-break:keep-all;
+  max-width:calc(100% - 44px);
+  background:linear-gradient(90deg,#000066 0%,#0033cc 40%,#3366ff 55%,#0033cc 70%,#000066 100%);
+  background-size:260% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:logoPulse 5s ease-in-out infinite;
+}
+@keyframes logoPulse{
+  0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}
+}
+#site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:nowrap;align-items:center;padding-right:44px;min-width:0;overflow:hidden}
+#site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:8px;font-size:11px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9;white-space:nowrap;flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#site-nav a:hover,#site-nav button:hover{color:var(--link-hov);text-decoration:underline}
+
+/* VVIP+ nav — gold, never shrinks, dark-mode shimmer */
+#vvip-nav-link{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  text-decoration:none !important;letter-spacing:.04em;
+  flex-shrink:0 !important;white-space:nowrap !important;
+  margin-left:4px;color:var(--gold-bg);
+  -webkit-text-fill-color:var(--gold-bg);
+}
+[data-theme="dark"] #vvip-nav-link{
+  background:linear-gradient(90deg,var(--gold-sh) 0%,var(--gold-hi) 35%,#fff8e0 50%,var(--gold-hi) 65%,var(--gold-sh) 100%);
+  background-size:400% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:vvipShimmer 4s ease-in-out infinite;
+}
+@keyframes vvipShimmer{
+  0%{background-position:100% 50%}50%{background-position:0% 50%}100%{background-position:100% 50%}
+}
+
+#dark-btn{
+  position:absolute;right:0;top:14px;font-size:14px;
+  background:none;border:none;cursor:pointer;padding:2px 4px;line-height:1;
+  font-family:Arial,sans-serif;color:var(--muted);
+}
+#dark-btn:hover{color:var(--fg)}
+
+/* ── VVIP+ BANNER ── */
+#vvip-banner{
+  margin-top:14px;
+  border:2px solid var(--gold-bg);
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  flex-wrap:wrap;
+  background:linear-gradient(135deg,var(--bg) 55%,rgba(200,168,75,.06));
+  position:relative;overflow:hidden;
+}
+#vvip-banner::before{
+  content:'VVIP+';position:absolute;right:-10px;top:2px;
+  font-family:Arial,sans-serif;font-size:52px;font-weight:900;
+  color:var(--gold-bg);opacity:.07;pointer-events:none;
+  transform:rotate(-6deg);
+}
+.banner-left{flex:1;min-width:180px}
+.banner-title{
+  font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;
+  color:var(--gold-bg);letter-spacing:.04em;margin-bottom:2px;
+}
+.banner-desc{font-family:Arial,sans-serif;font-size:11px;color:var(--muted)}
+.banner-btn{
+  font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;
+  background:var(--gold-bg);color:var(--gold-fg);
+  border:1px solid;border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi);
+  padding:7px 18px;cursor:pointer;text-decoration:none;display:inline-block;
+  white-space:nowrap;flex-shrink:0;
+}
+.banner-btn:hover{background:var(--gold-hi);color:var(--gold-fg)}
+
+/* ── FILTER BAR ── */
+#filter-bar{
+  border:1px solid var(--border);border-top:none;
+  padding:5px 8px;background:var(--card);
+  display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  font-family:Arial,sans-serif;font-size:12px;
+  margin-top:12px;
+}
+.ftag{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;
+  background:var(--btn-bg);
+  border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);
+  padding:2px 8px;cursor:pointer;color:var(--fg);
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.ftag.active{
+  background:var(--tag-bg);color:var(--tag-fg);
+  border-color:var(--tag-bg);
+}
+.ftag:hover:not(.active){background:var(--hover)}
+#avail-toggle{
+  margin-left:auto;font-family:Arial,sans-serif;font-size:11px;
+  color:var(--muted);cursor:pointer;background:none;border:none;
+  text-decoration:underline;padding:0;
+}
+
+/* ── GRID ── */
+#shop-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  border:1px solid var(--border);border-top:none;
+}
+.shop-item{
+  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;background:var(--bg);
+  transition:background .12s;
+}
+.shop-item:hover{background:var(--hover)}
+.shop-item.unavailable{opacity:.5}
+
+.item-img{
+  width:100%;aspect-ratio:1;object-fit:cover;display:block;
+  border-bottom:1px solid var(--border-light);background:var(--card);
+}
+.item-body{padding:10px 10px 6px;flex:1;display:flex;flex-direction:column;gap:4px}
+.item-title{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;color:var(--fg);line-height:1.2}
+.item-desc{font-family:"Times New Roman",Times,serif;font-size:12px;color:var(--muted);flex:1;line-height:1.35}
+.item-price{font-family:"Courier New",Courier,monospace;font-size:13px;color:var(--fg);font-weight:bold;margin-top:2px}
+.item-avail{font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:.04em;text-transform:uppercase}
+.item-avail.yes{color:var(--avail)}
+.item-avail.no{color:var(--unavail)}
+
+.item-actions{padding:0 10px 10px;display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.shop-btn{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  background:var(--gold-bg);color:var(--gold-fg);
+  border:1px solid;border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi);
+  padding:5px 12px;cursor:pointer;text-decoration:none;
+  display:inline-block;white-space:nowrap;
+  box-shadow:1px 1px 0 var(--gold-sh);touch-action:manipulation;
+}
+.shop-btn:hover{background:var(--gold-hi);color:var(--gold-fg)}
+.shop-btn:active{border-color:var(--gold-sh) var(--gold-hi) var(--gold-hi) var(--gold-sh)}
+.shop-btn.secondary{
+  background:var(--btn-bg);color:var(--muted);
+  border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);
+  box-shadow:1px 1px 0 var(--btn-sh);font-weight:normal;
+  pointer-events:none;opacity:.5;
+}
+
+#empty-shop{
+  display:none;padding:28px;font-family:Arial,sans-serif;
+  font-size:13px;color:var(--muted);text-align:center;
+  border:1px solid var(--border);border-top:none;
+}
+
+@media(max-width:440px){
+  #shop-grid{grid-template-columns:repeat(2,1fr)}
+  .item-title{font-size:12px}
+  .item-desc{font-size:11px}
+}
+</style>
+</head>
+<body>
+<div id="page">
+
+<div id="site-header">
+  <div id="site-name">VVIP Store</div>
+  <div id="site-nav">
+    <a href="/">← Media</a>
+    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
+    <a id="vvip-nav-link" href="/members.html">VVIP+</a>
+  </div>
+  <button id="dark-btn" onclick="toggleDark()" title="Toggle dark mode">◑</button>
+</div>
+
+<!-- VVIP+ upgrade banner -->
+<div id="vvip-banner">
+  <div class="banner-left">
+    <div class="banner-title">✦ VVIP+ — Lifetime Access · $50 CAD</div>
+    <div class="banner-desc">WAV downloads · HQ video · member merch · early access. One-time. Forever.</div>
+  </div>
+  <a class="banner-btn" href="https://buy.stripe.com/9B67sMgpveHocnJ58FcbC00" target="_blank" rel="noopener">Join VVIP+ →</a>
+</div>
+
+<div id="filter-bar">
+  <button class="ftag active" data-tag="all">All</button>
+  <button class="ftag" data-tag="#lp">LP</button>
+  <button class="ftag" data-tag="#cassette">Cassette</button>
+  <button class="ftag" data-tag="#audio">Digital</button>
+  <button class="ftag" data-tag="#apparel">Apparel</button>
+  <button class="ftag" data-tag="#print">Print</button>
+  <button id="avail-toggle" onclick="toggleAvailOnly()">Available only</button>
+</div>
+
+<div id="shop-grid"></div>
+<div id="empty-shop">No items match.</div>
+
+</div>
+
+<script>
+const BASE_IMG = 'https://cdn.vvipmedia.net/MEDIA/shoppe/';
+let items = [], activeTag = 'all', availOnly = false;
+
+// ── Dark mode (synced with main site) ──
+(()=>{
+  if(localStorage.getItem('vvip25:dark') === '1')
+    document.documentElement.setAttribute('data-theme','dark');
+})();
+function toggleDark(){
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  localStorage.setItem('vvip25:dark', dark ? '' : '1');
+}
+
+function fmt(price, cur){
+  if(price >= 1000000) return '$' + price.toLocaleString() + ' ' + cur + ' (seriously)';
+  return '$' + price.toFixed(0) + ' ' + (cur || 'CAD');
+}
+
+function render(){
+  const grid = document.getElementById('shop-grid');
+  const empty = document.getElementById('empty-shop');
+  const filtered = items.filter(it => {
+    if(availOnly && !it.available) return false;
+    if(activeTag === 'all') return true;
+    return (it.tags || []).includes(activeTag);
+  });
+  if(!filtered.length){ grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(it => {
+    const imgSrc = it.image ? BASE_IMG + it.image.replace('./','') : '';
+    const priceStr = fmt(it.price, it.currency);
+    const availLabel = it.available
+      ? '<span class="item-avail yes">Available</span>'
+      : '<span class="item-avail no">Unavailable</span>';
+    let btns = '';
+    if(it.available && it.stripe_url){
+      btns += `<a class="shop-btn" href="${it.stripe_url}" target="_blank" rel="noopener">Buy →</a>`;
+    }
+    if(it.available && it.bandcamp_url){
+      const label = it.stripe_url ? 'Bandcamp' : 'Buy / Listen';
+      btns += `<a class="shop-btn${it.stripe_url?' secondary':''}" href="${it.bandcamp_url}" target="_blank" rel="noopener">${label}</a>`;
+    }
+    if(it.available && it.fb_marketplace){
+      btns += `<a class="shop-btn secondary" href="${it.fb_marketplace}" target="_blank" rel="noopener">View listing</a>`;
+    }
+    if(!it.available){
+      btns += `<span class="shop-btn secondary">Unavailable</span>`;
+    }
+    return `<div class="shop-item${it.available ? '' : ' unavailable'}">
+      ${imgSrc
+        ? `<img class="item-img" src="${imgSrc}" alt="${it.title}" loading="lazy" onerror="this.style.display='none'">`
+        : `<div class="item-img"></div>`}
+      <div class="item-body">
+        <div class="item-title">${it.title}</div>
+        <div class="item-desc">${it.description || ''}</div>
+        <div class="item-price">${priceStr}</div>
+        ${availLabel}
+      </div>
+      <div class="item-actions">${btns}</div>
+    </div>`;
+  }).join('');
+}
+
+// Filter tabs
+document.querySelectorAll('.ftag').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.ftag').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeTag = btn.dataset.tag;
+  render();
+}));
+
+function toggleAvailOnly(){
+  availOnly = !availOnly;
+  document.getElementById('avail-toggle').textContent = availOnly ? 'Show all' : 'Available only';
+  render();
+}
+
+// Load from shoppe.json (falls back to embedded data)
+async function loadShop(){
+  try {
+    const r = await fetch('/shoppe/shoppe.json', { cache: 'no-store' });
+    if(!r.ok) throw 0;
+    items = await r.json();
+  } catch {
+    items = FALLBACK;
+  }
+  render();
+}
+
+// Fallback = full item list embedded (so store works even if JSON fetch fails)
+const FALLBACK = [
+  {"title":"VVIP+ T","image":"./vvipblack.jpg","description":"Heavyweight cotton tee with front logo.","price":100,"currency":"CAD","bandcamp_url":null,"stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#tee","#apparel"]},
+  {"title":"VVIP Basic — White on Black","image":"./tee-white.jpg","description":"Heavyweight cotton tee with pocket logo. Basic t's for basic 'bs.","price":40,"currency":"CAD","bandcamp_url":null,"stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#tee","#apparel"]},
+  {"title":"The VVIP Tote {1.0 Ed.}","image":"./tote.jpg","description":"Art by SF Cook. High contrast = easier for babies to discern.","price":20,"currency":"CAD","bandcamp_url":null,"stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#bag","#print"]},
+  {"title":"Sticker Pack (15)","image":"./stickers.jpg","description":"VVIP stickers. Collect them all.","price":20,"currency":"CAD","bandcamp_url":null,"stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#poster","#print"]},
+  {"title":"VVIP Sticker Book (Edition of 15)","image":"./stickerbook.jpg","description":"Collector's albums. Hand-numbered editions of 10. Art by SF Cook.","price":20,"currency":"CAD","bandcamp_url":null,"stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#poster","#print"]},
+  {"title":"Cassette — VirtualVIP Unlimited","image":"./unlimited.jpg","description":"Gary++. Edition of 10. Glossy cover. Hand-cut. Hand-dubbed. Clamshell case. Includes download code.","price":100,"currency":"CAD","bandcamp_url":"https://vvip.bandcamp.com/album/unlimited","stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#cassette","#audio"]},
+  {"title":"LP — IJPAUC?","image":"./IJPAUCthumb.jpg","description":"Is JP (1993) An Unconscious Confession? Edition of 10. Includes download code.","price":2000000,"currency":"USD","bandcamp_url":"https://www.youtube.com/watch?v=JFxc9OQlFMU","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#lp","#audio","#essay"]},
+  {"title":"LP — VVIP24 ARCADE WATER","image":"./arcadewater.jpg","description":"Edition of 5. Includes download code.","price":60,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/arcade-water","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#lp","#audio"]},
+  {"title":"LP — Renders of Music for Video","image":"./renders.jpg","description":"Edition of 5. Includes download code.","price":60,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/renders-of-music-for-video","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#lp","#audio"]},
+  {"title":"LP — SUMMER 25","image":"./summer25.jpg","description":"Edition of 5. Includes download code.","price":60,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/summer-25","stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#lp","#audio"]},
+  {"title":"LP — //Another// Green World","image":"./greenworld.jpg","description":"Edition of 5. Includes download code.","price":60,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/another-green-world","stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#lp","#audio"]},
+  {"title":"LP — ACCESS","image":"./access.jpg","description":"Edition of 5. Includes download code.","price":60,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/access","stripe_url":null,"fb_marketplace":null,"available":false,"tags":["#lp","#audio"]},
+  {"title":"ARCADE WATER","image":"./arcadewater.jpg","description":"Digital download.","price":5,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/arcade-water","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#audio"]},
+  {"title":"Renders of Music for Video","image":"./renders.jpg","description":"Digital download.","price":5,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/renders-of-music-for-video","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#lp","#audio"]},
+  {"title":"SUMMER 25","image":"./summer25.jpg","description":"Digital download.","price":5,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/summer-25","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#lp","#audio"]},
+  {"title":"/Another// Green World","image":"./greenworld.jpg","description":"Digital download.","price":5,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/another-green-world","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#lp","#audio"]},
+  {"title":"ACCESS","image":"./access.jpg","description":"Digital download.","price":5,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/access","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#lp","#audio"]},
+  {"title":"Sonic Radio","image":"./a3812731087_16.jpg","description":"Edition of 5. Includes download code.","price":5,"currency":"CAD","bandcamp_url":"https://virtualvip.bandcamp.com/album/sonic-radio-2","stripe_url":null,"fb_marketplace":null,"available":true,"tags":["#lp","#audio"]}
+];
+
+loadShop();
+</script>
+</body>
+</html>
