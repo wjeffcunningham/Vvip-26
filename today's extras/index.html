@@ -175,8 +175,6 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   background:var(--now-bg);
   margin:0 -12px;
   overflow:visible;
-  /* iOS Safari: allow vertical scroll to propagate past the player bar */
-  touch-action:pan-y;
 }
 /* Row 1: thumb | info+scrub | 3x2 button grid */
 #now-top{
@@ -199,16 +197,7 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 #now-scrub-row{display:flex;align-items:center;gap:5px;padding:3px 10px 6px}
 #now-time{font-family:"Courier New",Courier,monospace;font-size:10px;color:var(--muted);white-space:nowrap;flex-shrink:0}
 #scrub-wrap{flex:1;min-width:0}
-/* Scrub bar — crisp pointer interaction */
-#pb-scrub{
-  width:100%;-webkit-appearance:none;height:10px;
-  background:var(--scrub-bg);
-  border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
-  outline:none;cursor:pointer;display:block;border-radius:0;
-  /* Prevent scroll hijack while scrubbing */
-  touch-action:none;
-  will-change:value;
-}
+#pb-scrub{width:100%;-webkit-appearance:none;height:10px;background:var(--scrub-bg);border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);outline:none;cursor:pointer;display:block;border-radius:0}
 #pb-scrub::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:16px;background:var(--btn-bg);cursor:pointer;border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi)}
 /* 3x2 button grid */
 #now-btn-grid{
@@ -243,8 +232,6 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   padding:10px 0;cursor:pointer;color:var(--fg);
   display:flex;align-items:center;justify-content:center;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;
-  /* Allow parent scroll on vertical swipe */
-  touch-action:pan-y manipulation;
 }
 .tbtn-transport:last-child{border-right:none}
 .tbtn-transport:hover{background:var(--hover)}
@@ -274,69 +261,29 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   50% {box-shadow:0 -2px 0 0 var(--gold-sh),0 0 18px 6px rgba(200,168,75,.75)}
   100%{box-shadow:0 -2px 0 0 var(--gold-sh),0 0 4px 1px rgba(200,168,75,.3)}
 }
-/* Video — replaces / extends player when active */
+/* Video — replaces player grid when active */
 #now-video-wrap{
-  display:none;
-  position:relative;
-  background:#000;
+  display:none;width:100%;background:#000;position:relative;
 }
 #now-video-wrap.active{display:block}
-
-/* Desktop: side-by-side — video takes left half, player controls stay right */
-@media(min-width:601px){
-  #now-bar.video-mode{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    grid-template-rows:auto auto;
-    align-items:stretch;
-  }
-  #now-bar.video-mode #now-video-wrap{
-    grid-column:1;grid-row:1/3;
-    display:flex;flex-direction:column;
-    min-height:180px;
-  }
-  #now-bar.video-mode #now-top{
-    grid-column:2;grid-row:1;
-    display:grid; /* keep normal layout */
-  }
-  #now-bar.video-mode #now-transport{
-    grid-column:2;grid-row:2;
-  }
-}
-
-/* Mobile: stacked — video on top, controls below */
-@media(max-width:600px){
-  #now-bar.video-mode #now-video-wrap{
-    display:block;
-    width:100%;
-  }
-  #now-bar.video-mode #now-top,
-  #now-bar.video-mode #now-transport{
-    display:grid;   /* restore normal mobile layout */
-  }
-}
-
-/* Video fills its container without letterboxing — no black bars */
-#now-video-wrap iframe.yt-embed{
-  width:100%;
-  aspect-ratio:16/9;
-  display:block;
-  border:none;
+#now-video-wrap video{
+  width:100%;display:block;
   background:#000;
-}
-#now-video-wrap video#now-video{
-  width:100%;
-  aspect-ratio:16/9;
-  display:block;
-  background:#000;
-  object-fit:cover; /* fill, no letterbox */
+  /* letterbox: video fills width, bars top/bottom */
+  max-height:70vw; /* generous but contained */
+  object-fit:contain;
 }
 #now-video-close{
   position:absolute;top:6px;right:8px;
   font-family:Arial,sans-serif;font-size:11px;
   background:rgba(0,0,0,.7);color:#fff;
   border:1px solid rgba(255,255,255,.3);
-  padding:3px 10px;cursor:pointer;z-index:10;
+  padding:3px 10px;cursor:pointer;
+}
+/* Hide grid+transport when video active */
+#now-bar.video-mode #now-top,
+#now-bar.video-mode #now-transport{
+  display:none;
 }
 /* Mobile: 2x2 top, 6-wide btn row */
 @media(max-width:600px){
@@ -491,7 +438,7 @@ body.hide-titles .t-title-file{display:inline !important}
     </div>
     <div class="gear-item">
       <label for="tog-downloads">Downloads</label>
-      <input type="checkbox" id="tog-downloads" class="gear-toggle" checked onchange="toggleDownloads(this.checked)">
+      <input type="checkbox" id="tog-downloads" class="gear-toggle" onchange="toggleDownloads(this.checked)">
     </div>
   </div>
 </div>
@@ -580,26 +527,25 @@ const BASE_EXTRAS='https://cdn.vvipmedia.net/MEDIA/extras/';
 const BASE_VLO='https://cdn.vvipmedia.net/videos/';
 const BASE_VHQ='https://cdn.vvipmedia.net/VIDEOS/';
 
-/* Video maps */
-// LQ: YouTube video IDs (embed via youtube-nocookie.com)
+/* Video maps - cross-referenced from bucket screenshots vs titles.json */
 const LO_MAP={
-  'analog tv':'dQw4w9WgXcQ',           // 🔧 REPLACE with real YouTube ID
-  'chevy weather':'dQw4w9WgXcQ',        // 🔧 REPLACE
-  'purple morning':'dQw4w9WgXcQ',       // 🔧 REPLACE
-  'free zone':'dQw4w9WgXcQ',           // 🔧 REPLACE
-  'goofy spoon':'dQw4w9WgXcQ',         // 🔧 REPLACE
-  'lit(e) rail':'dQw4w9WgXcQ',         // 🔧 REPLACE
-  'lit rail':'dQw4w9WgXcQ',            // 🔧 REPLACE
-  'mbpx':'dQw4w9WgXcQ',               // 🔧 REPLACE
-  'ocean park':'dQw4w9WgXcQ',          // 🔧 REPLACE
-  'aerrie':'dQw4w9WgXcQ',             // 🔧 REPLACE
-  'slowwww':'dQw4w9WgXcQ',            // 🔧 REPLACE
-  'afternoon sunset':'dQw4w9WgXcQ',    // 🔧 REPLACE
-  'arcade water':'dQw4w9WgXcQ',        // 🔧 REPLACE
-  'arcade winter':'dQw4w9WgXcQ',       // 🔧 REPLACE
-  'a light breeze':'dQw4w9WgXcQ',      // 🔧 REPLACE
-  'kits':'dQw4w9WgXcQ',               // 🔧 REPLACE
-  'duski':'dQw4w9WgXcQ',              // 🔧 REPLACE
+  'analog tv':'_VVIP Analog TV.mp4',
+  'chevy weather':'_VVIP Chevy Weather {trailer}.mp4',
+  'purple morning':'_VVIP Purple Morning.mp4',
+  'free zone':'_VVIP free zone.mp4',
+  'goofy spoon':'_VVIP goofy spoon.mp4',
+  'lit(e) rail':'_VVIP lit rail.mp4',
+  'lit rail':'_VVIP lit rail.mp4',
+  'mbpx':'_VVIP mbpx.mp4',
+  'ocean park':'_VVIP ocean park.mp4',
+  'aerrie':'_VVIP aerie.mp4',
+  'slowwww':'_VVIP25 slowwww.mp4',
+  'afternoon sunset':'_VVIP24 Afternoon Sunset.mp4',
+  'arcade water':'_VVIP24 Arcade Water {Full Album}.mp4',
+  'arcade winter':'_VVIP24 Arcade Winter.mp4',
+  'a light breeze':'_VVIP Wed Aug 6 (A Light Breeze).mp4',
+  'kits':'_VVIP Thu Aug 7 (Kits).mp4',
+  'duski':'_VVIP dusky.mp4',
 };
 const HQ_MAP={
   'access':'VVIP24 Access.mov',
@@ -616,14 +562,10 @@ const HQ_MAP={
 
 function getLoVid(t){
   const tl=(t.title||'').toLowerCase();
-  if((t.details||'').toLowerCase().includes('#ij')){
-    // IJPAUC YouTube ID — 🔧 REPLACE with real ID
-    return 'yt:dQw4w9WgXcQ';
-  }
-  if(tl.includes('\u00e6rie')||tl.includes('aerie')){
-    const id=LO_MAP['aerrie'];return id?'yt:'+id:null;
-  }
-  for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
+  if((t.details||'').toLowerCase().includes('#ij')) return BASE_VLO+encodeURIComponent('_VVIP IJPAUC {Full Album}.mp4');
+  /* special: aerie/aerie unicode */
+  if(tl.includes('\u00e6rie')||tl.includes('aerie')) return BASE_VLO+encodeURIComponent('_VVIP \u00e6rie.mp4');
+  for(const[k,f] of Object.entries(LO_MAP)) if(tl.includes(k)) return BASE_VLO+encodeURIComponent(f);
   return null;
 }
 function getHqVid(t){
@@ -691,8 +633,7 @@ const state={
   favorites:new Set(JSON.parse(localStorage.getItem('vvip25:favs')||'[]')),
   favOrder:JSON.parse(localStorage.getItem('vvip25:favOrder')||'[]'),
   searchQuery:'',viewMode:'hashtags',sortMode:'date_desc',
-  extras:{},showDownloads:true,filterVideo:false,hiddenIds:new Set(),titles:null,
-  displayRules:null,
+  extras:{},showDownloads:false,filterVideo:false,hiddenIds:new Set(),titles:null,
 };
 
 const pf=$('#vvip-player-frame');
@@ -711,16 +652,14 @@ function toggleTitles(on){
 (()=>{
   if(localStorage.getItem('vvip25:dark')==='1'){document.documentElement.setAttribute('data-theme','dark');const el=$('#tog-dark');if(el)el.checked=true}
   if(localStorage.getItem('vvip25:hideTitles')==='1'){document.body.classList.add('hide-titles');const el=$('#tog-titles');if(el)el.checked=false}
-  // Downloads: default ON unless user explicitly turned off
-  const dlPref=localStorage.getItem('vvip25:downloads');
-  const dlOn=(dlPref===null||dlPref==='1'); // null = never set = default on
-  state.showDownloads=dlOn;
-  const dlEl=$('#tog-downloads');if(dlEl)dlEl.checked=dlOn;
+  if(localStorage.getItem('vvip25:downloads')==='1'){state.showDownloads=true;const el=$('#tog-downloads');if(el)el.checked=true;$('#now-actions').classList.add('visible')}
 })();
 
 function toggleDownloads(on){
   state.showDownloads=on;
-  localStorage.setItem('vvip25:downloads',on?'1':'0');
+  localStorage.setItem('vvip25:downloads',on?'1':'');
+  // Show/hide the now-actions drawer
+  $('#now-actions').classList.toggle('visible',on);
   // Re-render rows to show/hide per-row download links
   if(state.viewMode==='hashtags') renderHashtags();
   else renderList();
@@ -778,7 +717,6 @@ document.addEventListener('DOMContentLoaded',async()=>{
 
     await fetchThumbs();computeThumbCascade();
     await fetchTitles();applyTitles();
-    try{const dr=await fetch('/display-rules.json?v='+ASSET_VERSION,{cache:'no-store'});state.displayRules=await dr.json()}catch{}
     state.viewMode='hashtags';updateToolbarVisibility();applyFilterSort();
     try{const er=await fetch('/extras.json?v='+ASSET_VERSION,{cache:'no-store'});state.extras=await er.json()}catch{}
   }catch(err){
@@ -827,37 +765,20 @@ function getThumb(t){if((t.details||'').toLowerCase().includes('#ij'))return BAS
 function openVideo(hq){
   const t=state.filtered[state.i];if(!t)return;
   const url=hq?getHqVid(t):getLoVid(t);
-  if(!url){alert(hq?'HQ video not available (VVIP+ members only).':'No video available for this track.');return}
+  if(!url){alert(hq?'HQ video not available (members only).':'No video available for this track.');return}
+  // Keep audio playing — video plays alongside (muted) or user controls
   const vw=$('#now-video-wrap'),vid=$('#now-video');
-  // Remove any existing YT iframe
-  vw.querySelector('.yt-embed')?.remove();
-  if(!hq&&url.startsWith('yt:')){
-    // YouTube embed (LQ)
-    const ytId=url.slice(3);
-    const iframe=document.createElement('iframe');
-    iframe.className='yt-embed';
-    iframe.src='https://www.youtube-nocookie.com/embed/'+ytId+'?autoplay=1&rel=0';
-    iframe.allow='autoplay; fullscreen; picture-in-picture';
-    iframe.allowFullscreen=true;
-    vw.insertBefore(iframe,vid);
-    vid.style.display='none';
-  } else {
-    // Direct CDN video (HQ)
-    vw.querySelector('.yt-embed')?.remove();
-    vid.style.display='block';
-    vid.src=url;
-    vid.load();
-    vid.play().catch(()=>{});
-  }
+  vid.src=url;
   vw.classList.add('active');
   $('#now-bar').classList.add('video-mode');
+  vid.load();
+  vid.play().catch(()=>{});
 }
 function closeVideo(){
   const vw=$('#now-video-wrap'),vid=$('#now-video');
   vw.classList.remove('active');
   $('#now-bar').classList.remove('video-mode');
-  vid.pause();vid.src='';vid.style.display='block';
-  vw.querySelector('.yt-embed')?.remove();
+  vid.pause();vid.src='';
 }
 
 function sortTracks(arr,mode){
@@ -1011,12 +932,10 @@ function rowHTML(t,i){
   if(state.showDownloads)right='<a href="'+t.src+'" download style="font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
   let vTag='';
   if(t.versions&&t.versions.length)vTag='<span style="font-family:Arial,sans-serif;font-size:9px;background:var(--tag-bg);color:var(--tag-fg);padding:0 4px;margin-left:4px">v'+(1+t.versions.length)+'</span>';
-  const ruled=applyDisplayRule(t.title);
-  const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
   return '<div class="track-row" data-id="'+t.id+'">'
     +'<span class="t-num">'+String(i+1).padStart(3,'0')+'</span>'
     +'<span class="t-thumb-cell"><img class="t-thumb" src="'+getThumb(t)+'" alt="" loading="lazy" onerror="this.src=\''+DEFAULT_THUMB+'\'"></span>'
-    +'<span class="t-mid"><div class="t-title"><span class="t-title-name">'+titleDisplay+vTag+'</span><span class="t-title-file">'+t.name+'</span></div><div class="t-meta">'+sub+'</div></span>'
+    +'<span class="t-mid"><div class="t-title"><span class="t-title-name">'+t.title+vTag+'</span><span class="t-title-file">'+t.name+'</span></div><div class="t-meta">'+sub+'</div></span>'
     +'<span class="t-right">'+right+'</span>'
     +'</div>';
 }
@@ -1056,7 +975,7 @@ document.addEventListener('click',e=>{
 
 function select(i){
   state.i=i;const t=state.filtered[i];if(!t)return;
-  send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:getThumb(t)}});
+  send({cmd:'load',src:t.src,play:false});
   closeVideo();
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
   document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
@@ -1065,34 +984,9 @@ function select(i){
 function play(){if(state.i<0)return;send({cmd:'load',src:state.filtered[state.i].src,play:true});state.playing=true;const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');}
 function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');}
 
-// Display Rules — returns HTML string for a title, or null if no rule applies
-function applyDisplayRule(title){
-  if(!state.displayRules||!title)return null;
-  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
-  const tl=title.toLowerCase();
-  for(const[key,rule] of Object.entries(state.displayRules)){
-    if(key.startsWith('_'))continue;
-    if(!tl.includes(key.toLowerCase()))continue;
-    const mode=rule.modes||'both';
-    if(mode==='dark'&&!isDark)continue;
-    if(mode==='light'&&isDark)continue;
-    if(rule.segments){
-      return rule.segments.map(seg=>{
-        const esc=seg.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        if(seg.style)return`<span style="${seg.style}">${esc}</span>`;
-        return esc;
-      }).join('');
-    }
-  }
-  return null;
-}
-
 function updateNow(){
   const t=state.filtered[state.i];if(!t)return;
-  const rawTitle=document.body.classList.contains('hide-titles')?t.name:t.title;
-  const el=$('#now-title-show');
-  const ruled=applyDisplayRule(rawTitle);
-  if(ruled){el.innerHTML=ruled}else{el.textContent=rawTitle}
+  $('#now-title-show').textContent=document.body.classList.contains('hide-titles')?t.name:t.title;
   $('#now-meta').textContent=[bpmLabel(t),t.length?fmtDur(t.length):''].filter(Boolean).join('  /  ');
   const img=$('#now-thumb'),ph=$('#now-thumb-ph');
   img.src=getThumb(t);img.style.display='block';ph.style.display='none';
@@ -1135,54 +1029,24 @@ function playVersion(id){
 
 window.addEventListener('message',e=>{
   const d=e.data||{};
-  if(d.status==='cmd'){
-    if(d.cmd==='prev'&&state.filtered.length){select((state.i-1+state.filtered.length)%state.filtered.length);play()}
-    if(d.cmd==='next'&&state.filtered.length){select((state.i+1)%state.filtered.length);play()}
-    return;
-  }
   if(d.status==='update'){
     state.playing=!!d.playing;state.duration=Number(d.duration)||0;
     const t=Number(d.time)||0;
     const bt=$('#btn-toggle');bt.innerHTML=state.playing?'&#9646;&#9646;':'&#9654;';bt.classList.toggle('is-playing',state.playing);
     $('#now-time').textContent=fmtDur(t)+' / '+(state.duration>0?fmtDur(state.duration):'--:--');
     const sc=$('#pb-scrub');
-    // Only sync scrub position if user isn't actively dragging
-    if(state.duration>0&&!sc.matches(':active')&&document.activeElement!==sc)
-      sc.value=Math.min(100,Math.max(0,(t/state.duration)*100));
+    if(state.duration>0&&document.activeElement!==sc)sc.value=Math.min(100,Math.max(0,(t/state.duration)*100));
     try{localStorage.setItem('vvip25_time',t)}catch{}
   }else if(d.status==='ended'){
     if(state.filtered.length){select((state.i+1)%state.filtered.length);play()}
   }
 });
-// Crisp scrub — pointer capture so it tracks even outside the element
-(()=>{
-  const sc=$('#pb-scrub');
-  let scrubbing=false;
-  function commitSeek(){
-    if(state.duration>0){
-      const pct=parseFloat(sc.value)/100;
-      send({cmd:'seek',time:state.duration*pct});
-    }
-  }
-  sc.addEventListener('pointerdown',e=>{scrubbing=true;sc.setPointerCapture(e.pointerId)},{passive:true});
-  sc.addEventListener('pointermove',e=>{
-    if(!scrubbing)return;
-    // Optimistic time display — no round-trip wait
-    if(state.duration>0){
-      const t=state.duration*(parseFloat(sc.value)/100);
-      $('#now-time').textContent=fmtDur(t)+' / '+fmtDur(state.duration);
-    }
-  },{passive:true});
-  sc.addEventListener('pointerup',()=>{if(scrubbing){scrubbing=false;commitSeek()}});
-  sc.addEventListener('pointercancel',()=>{scrubbing=false});
-  sc.addEventListener('change',()=>commitSeek());
-})();
+$('#pb-scrub').addEventListener('input',e=>{const pct=parseFloat(e.target.value)/100;if(state.duration>0)send({cmd:'seek',time:state.duration*pct})});
 
 let tx0=0;
 document.addEventListener('touchstart',e=>{const r=e.target.closest('.track-row');if(!r)return;tx0=e.changedTouches[0].screenX},{passive:true});
 document.addEventListener('touchend',e=>{
   const r=e.target.closest('.track-row');if(!r)return;
-  if(e.target.closest('#pb-scrub'))return; // don't interfere with scrub
   const dx=e.changedTouches[0].screenX-tx0;
   const t=state.filtered.find(t=>t.id===Number(r.dataset.id));if(!t)return;
   if(dx>60){const was=state.favorites.has(t.name);was?state.favorites.delete(t.name):state.favorites.add(t.name);localStorage.setItem('vvip25:favs',JSON.stringify([...state.favorites]));r.querySelector('.star-btn')?.classList.toggle('on',!was)}

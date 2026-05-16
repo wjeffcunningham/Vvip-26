@@ -1,0 +1,18 @@
+{
+  "_comment": "Title display rules. Each key is a lowercase song title (or fragment). Rules are checked case-insensitively. 'segments' splits the title into styled spans. 'modes' = 'dark'|'light'|'both'. For segment style, use CSS inline style strings.",
+  "display flex": {
+    "modes": "dark",
+    "segments": [
+      { "text": "Display;", "style": "color:#ff1a1a;text-shadow:0 0 8px #ff0000,0 0 2px #ff4444" },
+      { "text": " " },
+      { "text": "Flex;",    "style": "color:#00cfff;text-shadow:0 0 8px #00aaff,0 0 2px #00eeff" }
+    ]
+  },
+  "another green world": {
+    "modes": "both",
+    "segments": [
+      { "text": "Another", "style": "font-style:italic" },
+      { "text": " Green World" }
+    ]
+  }
+}

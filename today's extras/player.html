@@ -47,34 +47,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }, "*");
   }
 
-  // --- Media Session API (lock screen / Now Playing on iOS/Android) ---
-  function updateMediaSession(meta){
-    if(!("mediaSession" in navigator)) return;
-    if(meta){
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: meta.title || "VVIP Media",
-        artist: "VVIPmedia.NET",
-        album: "VVIPmedia.NET Player",
-        artwork: meta.thumb ? [
-          {src: meta.thumb, sizes:"512x512", type:"image/jpeg"},
-          {src: meta.thumb, sizes:"256x256", type:"image/jpeg"},
-        ] : []
-      });
-    }
-    navigator.mediaSession.setActionHandler("play",  () => { audio.play(); postUpdate(); });
-    navigator.mediaSession.setActionHandler("pause", () => { audio.pause(); postUpdate(); });
-    navigator.mediaSession.setActionHandler("previoustrack", () => {
-      window.parent?.postMessage({status:"cmd",cmd:"prev"},"*");
-    });
-    navigator.mediaSession.setActionHandler("nexttrack", () => {
-      window.parent?.postMessage({status:"cmd",cmd:"next"},"*");
-    });
-    navigator.mediaSession.setActionHandler("seekto", (details) => {
-      if(details.seekTime != null) audio.currentTime = details.seekTime;
-      postUpdate();
-    });
-  }
-
   // --- Respond to commands from parent ---
   window.addEventListener("message", e => {
     const d = e.data;
@@ -93,8 +65,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }
         if(d.play) audio.play().catch(console.warn);
         else if(d.play === false) audio.pause();
-        // Update lock screen metadata
-        if(d.meta) updateMediaSession(d.meta);
         postUpdate();
         break;
 
