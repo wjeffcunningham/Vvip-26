@@ -505,15 +505,6 @@ body.hide-titles .t-title-file{display:inline !important}
       <label for="tog-downloads">Downloads</label>
       <input type="checkbox" id="tog-downloads" class="gear-toggle" checked onchange="toggleDownloads(this.checked)">
     </div>
-    <!-- Member-only toggles — shown when logged in -->
-    <div class="gear-item" id="gear-gems" style="display:none">
-      <label for="tog-gems">Gems</label>
-      <input type="checkbox" id="tog-gems" class="gear-toggle" checked onchange="toggleGems(this.checked)">
-    </div>
-    <div class="gear-item" id="gear-fx" style="display:none">
-      <label for="tog-fx">Text Effects</label>
-      <input type="checkbox" id="tog-fx" class="gear-toggle" checked onchange="toggleTextFx(this.checked)">
-    </div>
   </div>
 </div>
 
@@ -564,7 +555,6 @@ body.hide-titles .t-title-file{display:inline !important}
   <button class="view-tab active" data-view="hashtags">Playlists</button>
   <button class="view-tab" data-view="favorites">Favourites</button>
   <button class="view-tab" data-view="all">All songs</button>
-  <button class="view-tab" data-view="video">Video</button>
 </div>
 
 <div id="toolbar">
@@ -577,7 +567,6 @@ body.hide-titles .t-title-file{display:inline !important}
     <option value="shuffle">Shuffle</option>
     <option value="fav">Favourites first</option>
   </select>
-  <button id="fav-shuffle-btn" onclick="shuffleFavs()" style="display:none;font-family:Arial,sans-serif;font-size:11px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 10px;cursor:pointer;color:var(--fg)">⇌ Shuffle</button>
   <span id="track-count"></span>
 </div>
 
@@ -640,9 +629,13 @@ const HQ_MAP={
 
 function getLoVid(t){
   const tl=(t.title||'').toLowerCase();
-  // Never use the IJPAUC album video for individual tracks
-  // Only match explicit per-track entries in LO_MAP
-  if(tl.includes('\u00e6rie')||tl.includes('aerie')) return null; // not on YT yet
+  if((t.details||'').toLowerCase().includes('#ij')){
+    return 'yt:JFxc9OQlFMU';
+  }
+  if(tl.includes('\u00e6rie')||tl.includes('aerie')){
+    // not yet on YouTube — no LQ link
+    return null;
+  }
   for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
   return null;
 }
@@ -678,7 +671,6 @@ async function onSession(session){
   isAdmin=data?.is_admin||false;
   renderAuthNav();
   renderNowActions();
-  showMemberGearItems();
 }
 function clearSession(){ vvipUser=null;isPremium=false;isAdmin=false;renderAuthNav(); }
 function renderAuthNav(){
@@ -714,7 +706,6 @@ const state={
   searchQuery:'',viewMode:'hashtags',sortMode:'date_desc',
   extras:{},showDownloads:true,filterVideo:false,hiddenIds:new Set(),titles:null,
   displayRules:null,
-  showGems:true,showTextFx:true,
 };
 
 const pf=$('#vvip-player-frame');
@@ -740,55 +731,19 @@ function toggleTitles(on){
   const dlEl=$('#tog-downloads');if(dlEl)dlEl.checked=dlOn;
 })();
 
-function toggleGems(on){
-  state.showGems=on;
-  localStorage.setItem('vvip25:gems',on?'1':'0');
-  document.querySelectorAll('.gem-btn').forEach(el=>el.style.display=on?'':'none');
-}
-function toggleTextFx(on){
-  state.showTextFx=on;
-  localStorage.setItem('vvip25:textfx',on?'1':'0');
-  // Re-render titles in now bar and visible rows
-  updateNow();
-  document.querySelectorAll('.t-title-name').forEach(el=>{
-    const id=Number(el.closest('.track-row')?.dataset.id);
-    const t=state.tracks.find(x=>x.id===id);if(!t)return;
-    const ruled=on?applyDisplayRule(t.title):null;
-    if(ruled)el.innerHTML=ruled;
-    else el.innerHTML=t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+(el.querySelector('.ver-btn')?el.querySelector('.ver-btn').outerHTML:'');
-  });
-}
-function showMemberGearItems(){
-  document.getElementById('gear-gems').style.display='';
-  document.getElementById('gear-fx').style.display='';
-  // Restore saved prefs
-  const gems=localStorage.getItem('vvip25:gems');
-  const fx=localStorage.getItem('vvip25:textfx');
-  if(gems==='0'){state.showGems=false;const el=$('#tog-gems');if(el)el.checked=false;}
-  if(fx==='0'){state.showTextFx=false;const el=$('#tog-fx');if(el)el.checked=false;}
-}
 function toggleDownloads(on){
   state.showDownloads=on;
   localStorage.setItem('vvip25:downloads',on?'1':'0');
+  // Toggle visibility in-place — no re-render, no playback disruption
   document.querySelectorAll('.t-dl-link').forEach(el=>el.style.display=on?'':'none');
-}
-function shuffleFavs(){
-  sortTracks(state.filtered,'shuffle');
-  state.favOrder=[...state.filtered.map(t=>t.name)];
-  localStorage.setItem('vvip25:favOrder',JSON.stringify(state.favOrder));
-  renderList();
 }
 function showHome(){$('#about-section').classList.remove('open');return false}
 function toggleAbout(){$('#about-section').classList.toggle('open')}
 
 function updateToolbarVisibility(){
   const tb=$('#toolbar');
-  const mode=state.viewMode;
-  if(mode==='all'||mode==='video') tb.classList.remove('hide-sort');
+  if(state.viewMode==='all') tb.classList.remove('hide-sort');
   else tb.classList.add('hide-sort');
-  // Show shuffle btn in favorites
-  const shuffleBtn=$('#fav-shuffle-btn');
-  if(shuffleBtn) shuffleBtn.style.display=(mode==='favorites')?'':'none';
 }
 $$('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
   $$('.view-tab').forEach(b=>b.classList.remove('active'));
@@ -831,19 +786,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 
     const vg={};
     for(const t of state.tracks){const c=t.name.replace(/\s*v\d+\.mp3$/i,'.mp3').toLowerCase();(vg[c]=vg[c]||[]).push(t)}
-    for(const g of Object.values(vg)){
-      if(g.length<2)continue;
-      // Sort all versions by varNum ascending (v1, v2, v3...)
-      g.sort((a,b)=>(a.varNum||1)-(b.varNum||1));
-      // Most recent version = highest varNum = last in array
-      const newest=g[g.length-1];
-      const others=g.slice(0,g.length-1); // older versions
-      // newest becomes the "primary" — others are its .versions
-      newest.versions=others;
-      newest.varNum=null; // treat as primary so it shows in lists
-      // hide the older ones from main list (they're accessible via version btn)
-      others.forEach(t=>{ if(!t.varNum) t.varNum=1; }); // ensure they stay hidden
-    }
+    for(const g of Object.values(vg)){if(g.length<2)continue;g.sort((a,b)=>(a.varNum||1)-(b.varNum||1));g[0].versions=g.slice(1)}
 
     await fetchThumbs();computeThumbCascade();
     await fetchTitles();applyTitles();
@@ -897,12 +840,11 @@ function openVideo(hq){
   const t=state.filtered[state.i];if(!t)return;
   const url=hq?getHqVid(t):getLoVid(t);
   if(!url){alert(hq?'HQ video not available (VVIP+ members only).':'No video available for this track.');return}
-  // Pause audio before video starts
-  send({cmd:'pause'});state.playing=false;
-  const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');
   const vw=$('#now-video-wrap'),vid=$('#now-video');
+  // Remove any existing YT iframe
   vw.querySelector('.yt-embed')?.remove();
   if(!hq&&url.startsWith('yt:')){
+    // YouTube embed (LQ)
     const ytId=url.slice(3);
     const iframe=document.createElement('iframe');
     iframe.className='yt-embed';
@@ -912,8 +854,12 @@ function openVideo(hq){
     vw.insertBefore(iframe,vid);
     vid.style.display='none';
   } else {
+    // Direct CDN video (HQ)
+    vw.querySelector('.yt-embed')?.remove();
     vid.style.display='block';
-    vid.src=url;vid.load();vid.play().catch(()=>{});
+    vid.src=url;
+    vid.load();
+    vid.play().catch(()=>{});
   }
   vw.classList.add('active');
   $('#now-bar').classList.add('video-mode');
@@ -924,11 +870,6 @@ function closeVideo(){
   $('#now-bar').classList.remove('video-mode');
   vid.pause();vid.src='';vid.style.display='block';
   vw.querySelector('.yt-embed')?.remove();
-  // Resume audio from where it was
-  if(state.i>=0){
-    send({cmd:'play'});state.playing=true;
-    const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');
-  }
 }
 
 function sortTracks(arr,mode){
@@ -951,16 +892,10 @@ function applyFilterSort(){
     sortTracks(out,state.sortMode);
     state.filtered=out;renderList();return;
   }
-  if(state.viewMode==='video'){
-    out=out.filter(t=>getLoVid(t)||getHqVid(t));
-    sortTracks(out,state.sortMode);state.filtered=out;renderList();return;
-  }
   if(state.viewMode==='hashtags'){state.filtered=out;renderHashtags();return}
   if(state.viewMode==='favorites'){
     out=out.filter(t=>state.favorites.has(t.name));
-    if(!out.length){state.filtered=[];renderList();return;}
     if(state.favOrder.length){out.sort((a,b)=>state.favOrder.indexOf(a.name)-state.favOrder.indexOf(b.name));state.filtered=out;renderList();return}
-    sortTracks(out,state.sortMode);state.filtered=out;renderList();return;
   }
   sortTracks(out,state.sortMode);state.filtered=out;renderList();
 }
@@ -992,8 +927,7 @@ function renderHashtags(){
   const sz=c=>maxC===minC?14:Math.round(8+(c-minC)/(maxC-minC)*14);
 
   const defTag=tags.includes(PREFERRED_TAG)?PREFERRED_TAG:(tags.find(t=>t!=='untagged')||tags[0]);
-  // One coin flip for ALL categories — all newest-first or all oldest-first
-  const globalDefSort=RSORTS[Math.floor(Math.random()*RSORTS.length)];
+  const defSort=RSORTS[Math.floor(Math.random()*RSORTS.length)];
 
   hv.innerHTML='';
 
@@ -1043,7 +977,7 @@ function renderHashtags(){
     const tracks=tagMap[tag];
     const isDef=tag===defTag;
     const st=[...tracks];
-    sortTracks(st,globalDefSort); // all categories use the same random direction
+    if(isDef)sortTracks(st,defSort);else sortTracks(st,'date_desc');
 
     const sec=document.createElement('div');sec.className='htag-section'+(tag===PREFERRED_TAG?' best-tag':'');sec.dataset.tag=tag;
 
@@ -1057,7 +991,8 @@ function renderHashtags(){
     const sortSel=document.createElement('select');sortSel.className='htag-sort';
     [['date_desc','Newest'],['date_asc','Oldest'],['shuffle','Shuffle']].forEach(([v,l])=>{
       const o=document.createElement('option');o.value=v;o.textContent=l;
-      if(v===globalDefSort)o.selected=true;
+      if(isDef&&v===defSort)o.selected=true;
+      else if(!isDef&&v==='date_desc')o.selected=true;
       sortSel.appendChild(o);
     });
     sortSel.addEventListener('change',()=>{
@@ -1105,15 +1040,7 @@ function rowHTML(t,i){
   const dlDisplay=state.showDownloads?'':'none';
   right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
   let vTag='';
-  if(t.versions&&t.versions.length){
-    // Show current version label + clickable cycle btn
-    const totalVers=1+t.versions.length;
-    // Find which version is currently active for this group
-    const allVers=[t,...t.versions].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
-    // The primary (t) is the newest; clicking cycles to next older
-    const nextVer=t.versions[0]; // oldest unheard version
-    vTag='<button class="ver-btn" data-track-id="'+t.id+'" onclick="cycleVersion(event,'+t.id+')" title="Cycle versions" style="font-family:Arial,sans-serif;font-size:9px;background:var(--tag-bg);color:var(--tag-fg);border:none;padding:0 4px;margin-left:4px;cursor:pointer;vertical-align:middle">v'+totalVers+' ↺</button>';
-  }
+  if(t.versions&&t.versions.length)vTag='<span style="font-family:Arial,sans-serif;font-size:9px;background:var(--tag-bg);color:var(--tag-fg);padding:0 4px;margin-left:4px">v'+(1+t.versions.length)+'</span>';
   const ruled=applyDisplayRule(t.title);
   const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
   return '<div class="track-row" data-id="'+t.id+'">'
@@ -1173,7 +1100,7 @@ function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle
 
 // Display Rules — returns HTML string for a title, or null if no rule applies
 function applyDisplayRule(title){
-  if(!state.showTextFx||!state.displayRules||!title)return null;
+  if(!state.displayRules||!title)return null;
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   const tl=title.toLowerCase();
   for(const[key,rule] of Object.entries(state.displayRules)){
@@ -1231,37 +1158,6 @@ function updateNow(){
     }
     return `<button class="${cls}" onclick="${c.onclick}"${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</button>`;
   }).join('');
-}
-function cycleVersion(e,id){
-  e.stopPropagation();
-  const t=state.tracks.find(t=>t.id===id);if(!t||!t.versions||!t.versions.length)return;
-  // Rotate: swap primary track with first version
-  // t is currently playing as primary; t.versions[0] is next to play
-  const nextT=t.versions[0];
-  const rest=t.versions.slice(1);
-  // Swap: nextT becomes new primary, t goes to end of versions
-  nextT.versions=[...rest,t];
-  nextT.varNum=null; // make it appear in lists
-  t.versions=[];t.varNum=1; // demote current primary
-  // Update in state.tracks
-  const tIdx=state.tracks.findIndex(x=>x.id===id);
-  const nIdx=state.tracks.findIndex(x=>x.id===nextT.id);
-  if(tIdx>=0)state.tracks[tIdx]=nextT; // replace in array with same slot
-  if(nIdx>=0)state.tracks.splice(nIdx,1); // remove nextT from its old position
-  // Re-index state.filtered to point to nextT
-  const fi=state.filtered.findIndex(x=>x.id===id);
-  if(fi>=0)state.filtered[fi]=nextT;
-  // If this was playing, reload
-  const wasPlaying=state.playing&&state.i>=0&&state.filtered[state.i]?.id===nextT.id;
-  if(fi>=0&&fi===state.i){
-    const thumbRel=getThumb(nextT);
-    const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
-    send({cmd:'load',src:nextT.src,play:wasPlaying,meta:{title:nextT.title||nextT.name,thumb:thumbAbs}});
-    updateNow();
-  }
-  // Re-render just the affected row
-  const row=document.querySelector('.track-row[data-id="'+id+'"]');
-  if(row){row.outerHTML=rowHTML(nextT,state.filtered.indexOf(nextT));}
 }
 function playVersion(id){
   const t=state.tracks.find(t=>t.id===id);if(!t)return;
