@@ -1213,12 +1213,9 @@ function updateNow(){
   cells.push({type:'a',icon:'⬇',label:'MP3',href:t.src,download:true});
   // 2: WAV — greyed if not premium
   cells.push({type:'a',icon:'⬇',label:'WAV',href:wavSrc,download:true,disabled:!isPremium,title:isPremium?'WAV download':'VVIP+ only'});
-  // 3: Gems — only if track has extras and gems are enabled
-  const hasGems=state.showGems&&state.extras&&state.extras[t.baseLower];
-  if(hasGems) cells.push({type:'btn',icon:'💎',label:'Gems',onclick:'openPlayerGems()'});
-  // 4: Lo-fi video
+  // 3: Lo-fi video — absent if no link
   if(loV) cells.push({type:'btn',icon:'▶',label:'Video',onclick:'openVideo(false)'});
-  // 5: HQ video
+  // 4: HQ video — absent if no link
   if(hqV) cells.push({type:'btn',icon:'▶',label:'HQ',onclick:'openVideo(true)'});
   // Pad to 6 with empty tiles
   while(cells.length<6) cells.push(null);
@@ -1235,41 +1232,6 @@ function updateNow(){
     return `<button class="${cls}" onclick="${c.onclick}"${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</button>`;
   }).join('');
 }
-function openPlayerGems(){
-  const t=state.filtered[state.i];if(!t)return;
-  const files=state.extras[t.baseLower];if(!files||!files.length)return;
-  // Build a lightbox-style overlay in the thumbnail area
-  const existing=$('#gems-overlay');if(existing)existing.remove();
-  const overlay=document.createElement('div');
-  overlay.id='gems-overlay';
-  overlay.style.cssText='position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px';
-  let idx=0;
-  const imgFiles=files.filter(f=>/\.(jpg|jpeg|png|gif|webp)$/i.test(f));
-  const vidFiles=files.filter(f=>/\.(mp4|mov|webm)$/i.test(f));
-  const allMedia=[...imgFiles,...vidFiles];
-  if(!allMedia.length){overlay.remove();return;}
-  function render(){
-    const f=allMedia[idx];
-    const isVid=/\.(mp4|mov|webm)$/i.test(f);
-    const url=BASE_EXTRAS+encodeURIComponent(f);
-    overlay.innerHTML=`
-      <div style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;letter-spacing:.06em">💎 GEMS — ${t.title} — ${idx+1}/${allMedia.length}</div>
-      ${isVid
-        ?`<video src="${url}" controls autoplay style="max-width:min(90vw,600px);max-height:60vh;background:#000"></video>`
-        :`<img src="${url}" style="max-width:min(90vw,600px);max-height:65vh;object-fit:contain;border:1px solid #333">`}
-      <div style="display:flex;gap:14px;align-items:center">
-        ${allMedia.length>1?`<button onclick="gemNav(-1)" style="font-family:Arial,sans-serif;font-size:13px;background:none;border:1px solid #555;color:#fff;padding:4px 14px;cursor:pointer">◄</button>`:''}
-        <a href="${url}" target="_blank" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;text-decoration:underline">open</a>
-        ${allMedia.length>1?`<button onclick="gemNav(1)" style="font-family:Arial,sans-serif;font-size:13px;background:none;border:1px solid #555;color:#fff;padding:4px 14px;cursor:pointer">►</button>`:''}
-      </div>
-      <button onclick="document.getElementById('gems-overlay').remove()" style="font-family:Arial,sans-serif;font-size:11px;background:none;border:1px solid #555;color:#aaa;padding:3px 14px;cursor:pointer;margin-top:4px">✕ Close</button>`;
-  }
-  window.gemNav=function(dir){idx=(idx+dir+allMedia.length)%allMedia.length;render();}
-  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
-  render();
-  document.body.appendChild(overlay);
-}
-
 function cycleVersion(e,id){
   e.stopPropagation();
   const t=state.tracks.find(t=>t.id===id);if(!t||!t.versions||!t.versions.length)return;

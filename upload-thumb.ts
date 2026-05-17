@@ -1,4 +1,5 @@
 // Supabase Edge Function: upload-thumb
+// Uploads image to R2 at assets/thumbs/ AND updates thumbs.json
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -23,31 +24,71 @@ serve(async (req) => {
     const thumbName = form.get("thumbName") as string;
     if (!file || !thumbName) return json({ error: "Missing file or thumbName" }, 400);
 
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    const contentType = file.type || "image/jpeg";
     const accountId = Deno.env.get("CLOUDFLARE_ACCOUNT_ID")!;
     const accessKey = Deno.env.get("R2_ACCESS_KEY_ID")!;
     const secretKey = Deno.env.get("R2_SECRET_ACCESS_KEY")!;
-    const bucket = Deno.env.get("R2_BUCKET_NAME")!;
-    const r2Key = `assets/thumbs/${thumbName}`;
-    const url = `https://${accountId}.r2.cloudflarestorage.com/${bucket}/${r2Key}`;
-    const now = new Date();
-    const dateStr = now.toISOString().replace(/[-:]/g,"").replace(/\..*/,"Z");
-    const dateOnly = dateStr.slice(0,8);
-    const contentHash = await sha256hex(bytes);
-    const hdrs: Record<string,string> = {
-      "Content-Type": contentType,
-      "Cache-Control": "public, max-age=31536000",
-      "x-amz-content-sha256": contentHash,
-      "x-amz-date": dateStr,
-      "Host": `${accountId}.r2.cloudflarestorage.com`,
-    };
-    hdrs["Authorization"] = await signV4({ method:"PUT", url, headers:hdrs, body:bytes, accessKey, secretKey, region:"auto", service:"s3", dateStr, dateOnly, contentHash });
-    const r2res = await fetch(url, { method:"PUT", headers:hdrs, body:bytes });
-    if (!r2res.ok) return json({ error:"R2 write failed", detail: await r2res.text() }, 500);
-    return json({ ok:true, path:r2Key });
-  } catch(e) { return json({ error:String(e) }, 500); }
+    const bucket    = Deno.env.get("R2_BUCKET_NAME")!;
+
+    // 1. Upload the image file to R2
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const contentType = file.type || "image/jpeg";
+    await r2Put({ accountId, accessKey, secretKey, bucket,
+      key: `assets/thumbs/${thumbName}`,
+      body: bytes, contentType,
+      cacheControl: "public, max-age=31536000" });
+
+    // 2. Fetch current thumbs.json, add new entry if not already present
+    let thumbsList: string[] = [];
+    try {
+      const existing = await r2Get({ accountId, accessKey, secretKey, bucket,
+        key: "assets/thumbs/thumbs.json" });
+      if (existing.ok) thumbsList = JSON.parse(await existing.text());
+    } catch(_) {}
+
+    if (!thumbsList.map(t => t.toLowerCase()).includes(thumbName.toLowerCase())) {
+      thumbsList.push(thumbName);
+    }
+
+    // 3. Write updated thumbs.json back to R2
+    const thumbsBytes = new TextEncoder().encode(JSON.stringify(thumbsList, null, 2));
+    await r2Put({ accountId, accessKey, secretKey, bucket,
+      key: "assets/thumbs/thumbs.json",
+      body: thumbsBytes, contentType: "application/json",
+      cacheControl: "no-store" });
+
+    return json({ ok: true, path: `assets/thumbs/${thumbName}`, thumbsCount: thumbsList.length });
+  } catch(e) { return json({ error: String(e) }, 500); }
 });
+
+async function r2Put({ accountId, accessKey, secretKey, bucket, key, body, contentType, cacheControl }: any) {
+  const url = `https://${accountId}.r2.cloudflarestorage.com/${bucket}/${key}`;
+  const now = new Date();
+  const dateStr = now.toISOString().replace(/[-:]/g,"").replace(/\..*/,"Z");
+  const dateOnly = dateStr.slice(0,8);
+  const contentHash = await sha256hex(body);
+  const hdrs: Record<string,string> = {
+    "Content-Type": contentType, "Cache-Control": cacheControl,
+    "x-amz-content-sha256": contentHash, "x-amz-date": dateStr,
+    "Host": `${accountId}.r2.cloudflarestorage.com`,
+  };
+  hdrs["Authorization"] = await signV4({ method:"PUT", url, headers:hdrs, body, accessKey, secretKey, region:"auto", service:"s3", dateStr, dateOnly, contentHash });
+  const res = await fetch(url, { method:"PUT", headers:hdrs, body });
+  if (!res.ok) throw new Error(`R2 PUT failed for ${key}: ${await res.text()}`);
+}
+
+async function r2Get({ accountId, accessKey, secretKey, bucket, key }: any) {
+  const url = `https://${accountId}.r2.cloudflarestorage.com/${bucket}/${key}`;
+  const now = new Date();
+  const dateStr = now.toISOString().replace(/[-:]/g,"").replace(/\..*/,"Z");
+  const dateOnly = dateStr.slice(0,8);
+  const emptyHash = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+  const hdrs: Record<string,string> = {
+    "x-amz-content-sha256": emptyHash, "x-amz-date": dateStr,
+    "Host": `${accountId}.r2.cloudflarestorage.com`,
+  };
+  hdrs["Authorization"] = await signV4({ method:"GET", url, headers:hdrs, body:new Uint8Array(0), accessKey, secretKey, region:"auto", service:"s3", dateStr, dateOnly, contentHash:emptyHash });
+  return fetch(url, { method:"GET", headers:hdrs });
+}
 
 function json(data: unknown, status=200) {
   return new Response(JSON.stringify(data), { status, headers:{...CORS,"Content-Type":"application/json"} });
