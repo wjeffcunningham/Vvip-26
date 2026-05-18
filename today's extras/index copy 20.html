@@ -78,7 +78,11 @@
   --gold-fg: #f0d080;
 }
 
-html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !important;transition:none !important}
+/* Animations disabled when user preference is set */
+html.no-anim *, html.no-anim *::before, html.no-anim *::after {
+  animation: none !important;
+  transition: none !important;
+}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{background:var(--bg);color:var(--fg);font-family:"Times New Roman",Times,serif;font-size:15px;line-height:1.4;transition:background .3s,color .3s}
@@ -510,10 +514,6 @@ body.hide-titles .t-title-file{display:inline !important}
       <label for="tog-downloads">Downloads</label>
       <input type="checkbox" id="tog-downloads" class="gear-toggle" checked onchange="toggleDownloads(this.checked)">
     </div>
-    <div class="gear-item">
-      <label for="tog-anim">Text animations</label>
-      <input type="checkbox" id="tog-anim" class="gear-toggle" checked onchange="toggleAnim(this.checked)">
-    </div>
     <!-- Member-only toggles — shown when logged in -->
     <div class="gear-item" id="gear-gems" style="display:none">
       <label for="tog-gems">Gems</label>
@@ -524,9 +524,6 @@ body.hide-titles .t-title-file{display:inline !important}
       <input type="checkbox" id="tog-fx" class="gear-toggle" checked onchange="toggleTextFx(this.checked)">
     </div>
     <!-- Auth items — shown when logged in -->
-    <div class="gear-item" id="gear-vvip-upsell" style="display:none">
-      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">✦ Upgrade to VVIP+</a>
-    </div>
     <div class="gear-item" id="gear-account" style="display:none;border-top:1px solid var(--border-light);margin-top:4px;padding-top:4px">
       <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;color:var(--fg);text-decoration:none" id="gear-account-label">My Account</a>
     </div>
@@ -698,15 +695,9 @@ function extractTags(s){if(!s)return[];return[...s.matchAll(/#([a-zA-Z0-9_-]+)/g
 // ── Auth ──
 async function initAuth(){
   if(!supa)return;
-  // Register listener FIRST so Google OAuth hash redirect is caught immediately
-  let handled=false;
-  supa.auth.onAuthStateChange(async(_,s)=>{
-    if(s&&!handled){handled=true;await onSession(s);}
-    else if(!s){handled=false;clearSession();}
-  });
-  // Also handle returning visitors (existing session, no hash)
   const{data:{session}}=await supa.auth.getSession();
-  if(session&&!handled){handled=true;await onSession(session);}
+  if(session) await onSession(session);
+  supa.auth.onAuthStateChange((_,s)=>{ if(s) onSession(s); else clearSession(); });
 }
 async function onSession(session){
   vvipUser=session.user;
@@ -783,7 +774,7 @@ function toggleTitles(on){
 (()=>{
   if(localStorage.getItem('vvip25:dark')==='1'){document.documentElement.setAttribute('data-theme','dark');const el=$('#tog-dark');if(el)el.checked=true}
   if(localStorage.getItem('vvip25:hideTitles')==='1'){document.body.classList.add('hide-titles');const el=$('#tog-titles');if(el)el.checked=false}
-  if(localStorage.getItem('vvip25:anim')==='0'){document.documentElement.classList.add('no-anim');const el=$('#tog-anim');if(el)el.checked=false;}
+  if(localStorage.getItem('vvip25:anim')==='0'){document.documentElement.classList.add('no-anim')}
   // Downloads: default ON unless user explicitly turned off
   const dlPref=localStorage.getItem('vvip25:downloads');
   const dlOn=(dlPref===null||dlPref==='1'); // null = never set = default on
@@ -814,8 +805,6 @@ function showMemberGearItems(){
   document.getElementById('gear-fx').style.display='';
   document.getElementById('gear-account').style.display='';
   document.getElementById('gear-signout').style.display='';
-  const upsell=document.getElementById('gear-vvip-upsell');
-  if(upsell) upsell.style.display=(!isPremium&&!isAdmin)?'':'none';
   // Label with email or role
   const lbl=document.getElementById('gear-account-label');
   if(lbl&&vvipUser){
@@ -832,10 +821,6 @@ function toggleDownloads(on){
   state.showDownloads=on;
   localStorage.setItem('vvip25:downloads',on?'1':'0');
   document.querySelectorAll('.t-dl-link').forEach(el=>el.style.display=on?'':'none');
-}
-function toggleAnim(on){
-  document.documentElement.classList.toggle('no-anim',!on);
-  localStorage.setItem('vvip25:anim',on?'1':'0');
 }
 function shuffleFavs(){
   sortTracks(state.filtered,'shuffle');
