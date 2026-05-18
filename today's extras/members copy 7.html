@@ -315,6 +315,17 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 .spin{display:inline-block;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* Gear menu items */
+.gear-item-m{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px;color:var(--fg)}
+.gear-item-m:last-child{border-bottom:none}
+
+/* Dossier label — username in profile section head */
+#dossier-label{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:normal;
+  letter-spacing:.03em;color:var(--tag-fg);opacity:.7;margin-left:auto;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;
+}
+
 /* Responsive */
 @media(max-width:600px){
   #site-nav a,#site-nav button{margin-right:5px;font-size:10px}
@@ -391,17 +402,17 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()" style="position:absolute;right:0;top:14px;font-size:22px;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;transition:transform .4s ease;user-select:none">&#9881;&#65039;</button>
   <div id="gear-menu" style="display:none;position:absolute;right:0;top:52px;background:var(--bg);border:2px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);padding:8px 14px;z-index:200;font-family:Arial,Helvetica,sans-serif;font-size:12px;min-width:200px;box-shadow:3px 3px 0 var(--btn-dk)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
+    <div class="gear-item-m">
       <label for="m-tog-dark" style="cursor:pointer">Dark mode</label>
       <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-dark" onchange="toggleDark()"><span class="sq-toggle-track"></span></label>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
+    <div class="gear-item-m">
       <label for="m-tog-titles" style="cursor:pointer">Titles</label>
-      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-titles" checked onchange="localStorage.setItem('vvip25:hideTitles',this.checked?'':'1')"><span class="sq-toggle-track"></span></label>
+      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-titles" checked onchange="savePref('vvip25:hideTitles',!this.checked)"><span class="sq-toggle-track"></span></label>
     </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;gap:14px">
+    <div class="gear-item-m">
       <label for="m-tog-downloads" style="cursor:pointer">Downloads</label>
-      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-downloads" checked onchange="localStorage.setItem('vvip25:downloads',this.checked?'1':'0')"><span class="sq-toggle-track"></span></label>
+      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-downloads" checked onchange="savePref('vvip25:downloads',this.checked?'1':'0')"><span class="sq-toggle-track"></span></label>
     </div>
   </div>
 </div>
@@ -438,17 +449,17 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
     </div>
   </div>
 
-  <!-- STATE: logged in — all tiers share this shell, sections shown/hidden by role -->
+  <!-- STATE: logged in (free + premium share this shell) -->
   <div id="view-member" style="display:none">
 
-    <!-- ── ACCOUNT (all members) ── -->
+    <!-- Profile section -->
     <div class="m-section">
       <div class="m-section-head" style="display:flex;align-items:center">
-        <span>Account</span>
-        <span id="dossier-label" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:normal;letter-spacing:.03em;color:var(--tag-fg);opacity:.7;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px"></span>
+        <span>Your Profile</span>
+        <span id="dossier-label"></span>
       </div>
       <div class="m-section-body">
-        <div id="status-badge" class="free">MEMBER</div>
+        <div id="status-badge" class="free">FREE MEMBER</div>
 
         <div class="m-field">
           <label class="m-label">Username</label>
@@ -460,57 +471,82 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
         </div>
         <div class="m-btn-row">
           <button class="m-btn" onclick="saveUsername()">Save username</button>
-          <a href="/" class="m-btn">← Back to player</a>
           <button class="m-btn danger" onclick="signOut()">Sign out</button>
         </div>
         <div id="profile-msg" class="m-msg"></div>
       </div>
     </div>
 
-    <!-- ── VVIP+ (free members only — minimal) ── -->
+    <!-- VVIP+ upgrade (shown only to free members) -->
     <div class="m-section" id="upgrade-section">
-      <div class="m-section-head">VVIP+</div>
-      <div class="m-section-body" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-        <div style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">
-          WAV downloads, HQ video, and more. One-time · lifetime.
+      <div class="m-section-head">VVIP+ Lifetime Access</div>
+      <div class="m-section-body">
+        <div id="upgrade-card">
+          <div class="upgrade-price"><sup>$</sup>50</div>
+          <div class="upgrade-sub">ONE-TIME · EARLY BIRD · LIFETIME</div>
+          <ul class="upgrade-perks">
+            <li>WAV downloads of every track</li>
+            <li>HQ video</li>
+            <li>Exclusive 'zine opportunities</li>
+            <li>Hidden secrets and Easter eggs</li>
+            <li>Lifetime merch repairs</li>
+          </ul>
+          <a id="stripe-btn" class="m-btn gold" href="https://buy.stripe.com/9B67sMgpveHocnJ58FcbC00" target="_blank" rel="noopener">
+            Upgrade to VVIP+ →
+          </a>
+          <p style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin:10px 0 0">
+            Secure payment via Stripe. One-time charge, no subscription.
+          </p>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-          <span style="font-family:'Times New Roman',Times,serif;font-size:22px;color:var(--gold-bg);font-weight:bold">$50</span>
-          <a id="stripe-btn" class="m-btn gold" href="https://buy.stripe.com/9B67sMgpveHocnJ58FcbC00" target="_blank" rel="noopener">Upgrade →</a>
+        <div id="stripe-check-wrap" style="margin-top:12px;font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">
+          Already paid? <button class="m-btn" onclick="recheckPremium()" style="padding:3px 10px;font-size:11px">Refresh status</button>
         </div>
-      </div>
-      <div style="padding:0 16px 10px;font-family:Arial,sans-serif;font-size:11px;color:var(--muted)">
-        Already paid? <button class="m-btn" onclick="recheckPremium()" style="padding:2px 8px;font-size:10px">Refresh status</button>
       </div>
     </div>
 
-    <!-- ── PRESTIGE / VVIP+ (premium members only) ── -->
+    <!-- Benefits (shown only to premium members) -->
     <div class="m-section" id="benefits-section" style="display:none">
-      <div class="m-section-head">VVIP+ Benefits</div>
+      <div class="m-section-head">Your VVIP+ Benefits</div>
       <div class="m-section-body">
         <div class="benefit-grid">
           <div class="benefit-tile">
             <div class="benefit-tile-icon">⬇</div>
             <div class="benefit-tile-label">WAV Downloads</div>
-            <div class="benefit-tile-desc">Every track in lossless WAV in the player.</div>
+            <div class="benefit-tile-desc">Every track in lossless WAV available in the player.</div>
           </div>
           <div class="benefit-tile">
             <div class="benefit-tile-icon">▶</div>
             <div class="benefit-tile-label">HQ Video</div>
-            <div class="benefit-tile-desc">Full-res video unlocked. <a id="vvip-archives-link" href="https://cdn.vvipmedia.net/VIDEOS/" target="_blank">VVIP Archives →</a></div>
+            <div class="benefit-tile-desc">Full-resolution video streams unlocked. <a id="vvip-archives-link" href="#" target="_blank">VVIP Archives →</a></div>
           </div>
           <div class="benefit-tile">
             <div class="benefit-tile-icon">🛍</div>
-            <div class="benefit-tile-label">Member Store</div>
-            <div class="benefit-tile-desc">
-              MP3 archive — <a href="mailto:vvipmedia@proton.me?subject=MP3+Archive" style="color:var(--link)">$10 OBO</a><br>
-              WAV archive — <a href="mailto:vvipmedia@proton.me?subject=WAV+Archive" style="color:var(--link)">$20 OBO</a>
-            </div>
+            <div class="benefit-tile-label">Merch &amp; Swag</div>
+            <div class="benefit-tile-desc">Become a VVIP partner. <a href="https://shoppe.vvipmedia.net" target="_blank">Visit the store →</a></div>
           </div>
           <div class="benefit-tile">
             <div class="benefit-tile-icon">✦</div>
-            <div class="benefit-tile-label">Coming Soon</div>
-            <div class="benefit-tile-desc">More perks on the way.</div>
+            <div class="benefit-tile-label">More to Come</div>
+            <div class="benefit-tile-desc">Be a VVIP.</div>
+          </div>
+        </div>
+
+        <!-- VVIP+ store items -->
+        <div style="margin-top:18px;border-top:1px solid var(--border-light);padding-top:14px">
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Member Store</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div style="border:1px solid var(--border);padding:12px 14px;background:var(--bg);font-family:Arial,sans-serif;font-size:12px;flex:1;min-width:180px">
+              <div style="font-weight:bold;margin-bottom:3px">All MP3s Download</div>
+              <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Complete archive — every track.</div>
+              <div style="font-size:15px;font-family:'Times New Roman',Times,serif;margin-bottom:8px">$10 <span style="font-size:11px;color:var(--muted)">OBO · CAD</span></div>
+              <a href="mailto:vvipmedia@proton.me?subject=MP3+Archive+Download" class="m-btn" style="font-size:11px;padding:5px 12px">Inquire →</a>
+            </div>
+            <div style="border:1px solid var(--border);padding:12px 14px;background:var(--bg);font-family:Arial,sans-serif;font-size:12px;flex:1;min-width:180px">
+              <div style="font-weight:bold;margin-bottom:3px">All WAVs Download</div>
+              <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Complete archive — lossless.</div>
+              <div style="font-size:15px;font-family:'Times New Roman',Times,serif;margin-bottom:8px">$20 <span style="font-size:11px;color:var(--muted)">OBO · CAD</span></div>
+              <a href="mailto:vvipmedia@proton.me?subject=WAV+Archive+Download" class="m-btn" style="font-size:11px;padding:5px 12px">Inquire →</a>
+            </div>
           </div>
         </div>
       </div>
@@ -702,7 +738,7 @@ let currentUser = null;
 let profile = null;
 let allTracks = []; // for admin editor
 
-// ── GEAR + DARK MODE ──
+// ── GEAR MENU ──
 function toggleGear(){
   const m=document.getElementById('gear-menu');
   const open=m.style.display==='none'||m.style.display==='';
@@ -718,6 +754,10 @@ function toggleDark(){
   localStorage.setItem('vvip25:dark',dark?'':'1');
   const el=document.getElementById('m-tog-dark');if(el)el.checked=!dark;
 }
+function savePref(key,val){
+  localStorage.setItem(key,val===true||val==='1'?'1':val===false||val==='0'?'0':val);
+}
+// Init gear toggles from localStorage
 (()=>{
   const dark=localStorage.getItem('vvip25:dark')==='1';
   if(dark)document.documentElement.setAttribute('data-theme','dark');
@@ -793,50 +833,58 @@ async function loadProfile(){
 function renderMember(){
   if(!currentUser || !profile) return;
 
-  // Email + username fields
+  // Email
   document.getElementById('inp-email').value = currentUser.email || '';
   document.getElementById('inp-username').value = profile.username || '';
 
-  // Dossier label
+  // Dossier label — username in profile section header
   updateDossierLabel(profile.username);
 
   // Status badge
   const badge = document.getElementById('status-badge');
   if(profile.is_admin){
     badge.className = 'admin';
-    badge.textContent = '⬡ Admin';
+    badge.textContent = '⬡ ADMIN';
   } else if(profile.is_premium){
     badge.className = 'premium';
     badge.textContent = '✦ VVIP+';
   } else {
     badge.className = 'free';
-    badge.textContent = 'Member';
+    badge.textContent = 'FREE MEMBER';
   }
 
-  // Upgrade section: only for free members (not premium, not admin)
-  const isFree = !profile.is_premium && !profile.is_admin;
-  document.getElementById('upgrade-section').style.display = isFree ? '' : 'none';
-  document.getElementById('benefits-section').style.display = (profile.is_premium || profile.is_admin) ? '' : 'none';
+  // Upgrade vs benefits
+  document.getElementById('upgrade-section').style.display = profile.is_premium ? 'none' : '';
+  document.getElementById('benefits-section').style.display = profile.is_premium ? '' : 'none';
 
-  // Nav state
+  // Nav state:
+  // - VVIP+: hide both join + vvip nav links; show account in utils
+  // - Free member: show VVIP+ link; hide join; show account in utils
+  // - Logged out: show Join Free + join in utils (handled in show('view-auth') path)
   const navJoin = document.getElementById('nav-join');
   const navVvip = document.getElementById('vvip-nav-link');
   const utilsJoin = document.getElementById('utils-join');
   const utilsAccount = document.getElementById('utils-account');
-  if(navJoin) navJoin.style.display = 'none';
-  if(navVvip) navVvip.style.display = (isFree) ? '' : 'none';
-  if(utilsJoin) utilsJoin.style.display = 'none';
-  if(utilsAccount) utilsAccount.style.display = 'block';
+
+  if(profile.is_premium || profile.is_admin){
+    navJoin.style.display = 'none';
+    navVvip.style.display = 'none';
+  } else {
+    navJoin.style.display = 'none';
+    navVvip.style.display = '';
+  }
+  utilsJoin.style.display = 'none';
+  utilsAccount.style.display = 'block';
+
+  // VVIP Archives link (set to CF bucket path — update URL as needed)
+  const archivesLink = document.getElementById('vvip-archives-link');
+  if(archivesLink) archivesLink.href = 'https://cdn.vvipmedia.net/MEDIA/video/';
 
   // Admin panel
   if(profile.is_admin){
     document.getElementById('admin-panel').style.display = '';
     loadTracksForEditor();
   }
-}
-function updateDossierLabel(username){
-  const el = document.getElementById('dossier-label');
-  if(el) el.textContent = username ? '@' + username : '';
 }
 
 async function signInGoogle(){
@@ -881,6 +929,12 @@ async function saveUsername(){
     .eq('id', currentUser.id);
   if(error) showProfileMsg('Error: ' + error.message, 'err');
   else { profile.username = val; showProfileMsg('✓ Saved.', 'ok'); updateDossierLabel(val); }
+}
+function updateDossierLabel(username){
+  const el = document.getElementById('dossier-label');
+  if(!el) return;
+  el.textContent = username ? '@' + username : '';
+}
 }
 function showProfileMsg(t, cls){
   const el = document.getElementById('profile-msg');
