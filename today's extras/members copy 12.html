@@ -1112,9 +1112,18 @@ function renderMember(){
   // - Logged out: show Join Free + join in utils (handled in show('view-auth') path)
   const navJoin = document.getElementById('nav-join');
   const navVvip = document.getElementById('vvip-nav-link');
+  const utilsJoin = document.getElementById('utils-join');
+  const utilsAccount = document.getElementById('utils-account');
 
-  if(navJoin) navJoin.style.display = 'none';
-  if(navVvip) navVvip.style.display = (profile.is_premium || profile.is_admin) ? 'none' : '';
+  if(profile.is_premium || profile.is_admin){
+    navJoin.style.display = 'none';
+    navVvip.style.display = 'none';
+  } else {
+    navJoin.style.display = 'none';
+    navVvip.style.display = '';
+  }
+  utilsJoin.style.display = 'none';
+  utilsAccount.style.display = 'block';
 
   // VVIP Archives link (set to CF bucket path — update URL as needed)
   const archivesLink = document.getElementById('vvip-archives-link');
