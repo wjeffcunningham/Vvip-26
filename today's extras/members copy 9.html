@@ -940,6 +940,11 @@ function setNavLoggedOut(){
   if(nv)nv.style.display='none';
 }
 
+ };
+    setTimeout(()=>document.addEventListener('click',close),10);
+  }
+}
+
 async function onSession(session){
   currentUser = session.user;
   await loadProfile();
