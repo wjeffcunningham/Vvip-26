@@ -440,14 +440,14 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
           Continue with Google
         </button>
 
-        <p style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin:6px 0 0;text-align:center">Google accounts are verified automatically.</p>
+        <p style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin:6px 0 0;text-align:center">Google account partner.</p>
         <div class="auth-divider">or</div>
 
         <!-- Auth mode tabs -->
         <div style="display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid var(--border)">
           <button class="auth-tab active" onclick="setAuthMode('signin',this)">Sign in</button>
           <button class="auth-tab" onclick="setAuthMode('signup',this)">Create account</button>
-          <button class="auth-tab" onclick="setAuthMode('magic',this)">Magic link</button>
+          <button class="auth-tab" onclick="setAuthMode('magic',this)">One-Time-Use Link</button>
         </div>
 
         <!-- Sign in -->
@@ -1063,53 +1063,26 @@ function setNavLoggedOut(){
 
 async function onSession(session){
   currentUser = session.user;
-  // Always set a fallback profile so renderMember() never dies on null profile
-  profile = { username: '', is_premium: false, is_admin: false };
-  try {
-    await loadProfile();
-  } catch(e) {
-    console.error('loadProfile error:', e);
-    showAuthDebug('Profile load error: ' + e.message + ' — showing basic member view.');
-  }
+  await loadProfile();
   renderMember();
   show('view-member');
 }
 
 async function loadProfile(){
   if(!supa || !currentUser) return;
-  const { data, error } = await supa
+  const { data } = await supa
     .from('profiles')
     .select('username, is_premium, is_admin')
     .eq('id', currentUser.id)
     .single();
 
-  if(error && error.code !== 'PGRST116'){
-    // PGRST116 = row not found (expected on first login); anything else is a real error
-    showAuthDebug('profiles query error: ' + error.message + ' (code: ' + error.code + ')');
-    return;
-  }
-
   if(!data){
-    // First login — create the profile row
-    const { error: insErr } = await supa.from('profiles').insert({ id: currentUser.id });
-    if(insErr) showAuthDebug('profiles insert error: ' + insErr.message);
+    // Create profile row if first login
+    await supa.from('profiles').insert({ id: currentUser.id });
     profile = { username: '', is_premium: false, is_admin: false };
   } else {
     profile = data;
   }
-}
-
-// Debug helper — shows a small banner so you can see exactly what's going wrong
-function showAuthDebug(msg){
-  let el = document.getElementById('auth-debug-banner');
-  if(!el){
-    el = document.createElement('div');
-    el.id = 'auth-debug-banner';
-    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#330000;color:#ff8888;font-family:monospace;font-size:11px;padding:6px 12px;z-index:9999;border-top:1px solid #660000';
-    document.body.appendChild(el);
-  }
-  el.textContent = '⚠ ' + msg;
-  console.warn('VVIP auth debug:', msg);
 }
 
 function renderMember(){
