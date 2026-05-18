@@ -78,11 +78,6 @@
   --gold-fg: #f0d080;
 }
 
-/* Animations disabled when user preference is set */
-html.no-anim *, html.no-anim *::before, html.no-anim *::after {
-  animation: none !important;
-  transition: none !important;
-}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{background:var(--bg);color:var(--fg);font-family:"Times New Roman",Times,serif;font-size:15px;line-height:1.4;transition:background .3s,color .3s}
@@ -774,7 +769,6 @@ function toggleTitles(on){
 (()=>{
   if(localStorage.getItem('vvip25:dark')==='1'){document.documentElement.setAttribute('data-theme','dark');const el=$('#tog-dark');if(el)el.checked=true}
   if(localStorage.getItem('vvip25:hideTitles')==='1'){document.body.classList.add('hide-titles');const el=$('#tog-titles');if(el)el.checked=false}
-  if(localStorage.getItem('vvip25:anim')==='0'){document.documentElement.classList.add('no-anim')}
   // Downloads: default ON unless user explicitly turned off
   const dlPref=localStorage.getItem('vvip25:downloads');
   const dlOn=(dlPref===null||dlPref==='1'); // null = never set = default on

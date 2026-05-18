@@ -330,12 +330,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
   #site-nav a,#site-nav button{margin-right:5px;font-size:10px}
 }
 
-/* ── ANIMATION DISABLE ── */
-.no-anim *, .no-anim *::before, .no-anim *::after {
-  animation: none !important;
-  transition: none !important;
-}
-
 /* ── SQUARE TOGGLE — 1995 panel style ── */
 .sq-toggle-wrap{
   display:inline-flex;align-items:center;gap:8px;cursor:pointer;
@@ -440,7 +434,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
           Continue with Google
         </button>
 
-        <p style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin:6px 0 0;text-align:center">Google accounts are verified automatically.</p>
         <div class="auth-divider">or</div>
 
         <!-- Auth mode tabs -->
@@ -537,73 +530,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
           <button class="m-btn danger" onclick="signOut()">Sign out</button>
         </div>
         <div id="profile-msg" class="m-msg"></div>
-
-        <!-- Animations toggle (all members) -->
-        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light)">
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Preferences</div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg)">
-            <label for="mem-tog-anim" style="cursor:pointer">Animations</label>
-            <label class="sq-toggle-wrap">
-              <input type="checkbox" id="mem-tog-anim" checked onchange="setAnimPref(this.checked)">
-              <span class="sq-toggle-track"></span>
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- VVIP+ ruleset (always visible once logged in) -->
-    <div class="m-section" id="vvip-ruleset-section">
-      <div class="m-section-head">VVIP+ — What It Is</div>
-      <div class="m-section-body">
-        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">VVIP+ is a one-time lifetime upgrade. Here's what it unlocks:</p>
-        <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:12px">
-          <thead>
-            <tr style="background:linear-gradient(90deg,var(--sec-ga),var(--sec-gb));color:var(--tag-fg)">
-              <th style="padding:6px 10px;text-align:left;letter-spacing:.05em;font-size:10px;text-transform:uppercase">Feature</th>
-              <th style="padding:6px 10px;text-align:center;letter-spacing:.05em;font-size:10px;text-transform:uppercase;width:80px">Free</th>
-              <th style="padding:6px 10px;text-align:center;letter-spacing:.05em;font-size:10px;text-transform:uppercase;width:80px;color:var(--gold-hi)">VVIP+</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--border-light)">
-              <td style="padding:7px 10px;color:var(--fg)">Stream all MP3s</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--fg)">✓</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--gold-bg)">✓</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border-light)">
-              <td style="padding:7px 10px;color:var(--fg)">MP3 downloads</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--fg)">✓</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--gold-bg)">✓</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border-light)">
-              <td style="padding:7px 10px;color:var(--fg)">WAV downloads</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--muted)">—</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--gold-bg)">✦</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border-light)">
-              <td style="padding:7px 10px;color:var(--fg)">Lo-fi YouTube video</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--fg)">✓</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--gold-bg)">✓</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border-light)">
-              <td style="padding:7px 10px;color:var(--fg)">HQ video streams</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--muted)">—</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--gold-bg)">✦</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border-light)">
-              <td style="padding:7px 10px;color:var(--fg)">Gems (bonus media)</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--muted)">—</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--gold-bg)">✦</td>
-            </tr>
-            <tr>
-              <td style="padding:7px 10px;color:var(--fg)">Merch repairs + partner perks</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--muted)">—</td>
-              <td style="padding:7px 10px;text-align:center;color:var(--gold-bg)">✦</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin:10px 0 0">One-time payment · No subscription · Lifetime access</p>
       </div>
     </div>
 
@@ -642,12 +568,12 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
           <div class="benefit-tile">
             <div class="benefit-tile-icon">⬇</div>
             <div class="benefit-tile-label">WAV Downloads</div>
-            <div class="benefit-tile-desc">Every track in lossless WAV. Hit the WAV button in the player, or <a href="https://cdn.vvipmedia.net/WAV/" target="_blank" rel="noopener">browse the WAV library →</a></div>
+            <div class="benefit-tile-desc">Every track in lossless WAV available in the player.</div>
           </div>
           <div class="benefit-tile">
             <div class="benefit-tile-icon">▶</div>
             <div class="benefit-tile-label">HQ Video</div>
-            <div class="benefit-tile-desc">Full-resolution video streams unlocked in the player. <a id="vvip-archives-link" href="https://cdn.vvipmedia.net/VIDEOS/" target="_blank" rel="noopener">VVIP Archives →</a></div>
+            <div class="benefit-tile-desc">Full-resolution video streams unlocked. <a id="vvip-archives-link" href="#" target="_blank">VVIP Archives →</a></div>
           </div>
           <div class="benefit-tile">
             <div class="benefit-tile-icon">🛍</div>
@@ -694,7 +620,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
         <button class="admin-tab" onclick="adminTab('edit',this)">Edit Song Info</button>
         <button class="admin-tab" onclick="adminTab('thumb',this)">Thumbnails</button>
         <button class="admin-tab" onclick="adminTab('users',this)">Users</button>
-        <button class="admin-tab" onclick="adminTab('audit',this)">Audit</button>
       </div>
 
       <!-- Upload pane -->
@@ -841,26 +766,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
         </div>
       </div>
 
-      <!-- Audit pane -->
-      <div class="admin-pane" id="pane-audit">
-        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">
-          Checks the manifest for tracks that may have issues. Useful for diagnosing missing files like those that appear in the CDN but not in the manifest.
-        </p>
-        <div class="m-btn-row" style="margin-bottom:14px">
-          <button class="m-btn gold" onclick="runAudit()">Run Audit</button>
-        </div>
-        <div id="audit-search-wrap" style="margin-bottom:12px">
-          <label class="m-label">Search manifest by filename or title</label>
-          <input class="m-input" type="text" id="audit-search" placeholder="e.g. 24.07.22.89" oninput="auditSearch(this.value)" style="max-width:320px">
-          <div id="audit-search-results" style="margin-top:6px;font-family:Arial,sans-serif;font-size:12px;color:var(--fg)"></div>
-        </div>
-        <div id="audit-results" style="font-family:Arial,sans-serif;font-size:12px"></div>
-        <div style="margin-top:16px;padding:10px 12px;background:var(--card);border:1px solid var(--border);font-family:Arial,sans-serif;font-size:11px;color:var(--muted)">
-          <strong style="color:var(--fg)">About missing MP3s</strong><br>
-          Tracks only appear in the player if they're listed in <code>manifest.json</code>. If a file exists on the CDN but isn't in the manifest, it's invisible. To restore a missing track, use the Edit Song Info tab to confirm it's in the manifest, or re-add it via Upload Track. Filename format: <code>YY.MM.DD.BPM.mp3</code> (e.g. <code>24.07.22.89.mp3</code> = 2024-07-22, 89 BPM).
-        </div>
-      </div>
-
     </div>
   </div><!-- /admin-panel -->
 
@@ -947,16 +852,8 @@ async function signInEmail(){
   const password=document.getElementById('si-password').value;
   if(!email||!password){authMsg('Enter your email and password.');return;}
   authMsg('Signing in…');
-  const{data,error}=await supa.auth.signInWithPassword({email,password});
-  if(error){
-    // Supabase returns 'Email not confirmed' if the user hasn't verified yet
-    if(error.message && error.message.toLowerCase().includes('not confirmed')){
-      authMsg('Please confirm your email first. Check your inbox for the link.',false);
-    } else {
-      authMsg('Error: '+error.message);
-    }
-    return;
-  }
+  const{error}=await supa.auth.signInWithPassword({email,password});
+  if(error)authMsg('Error: '+error.message);
   // success handled by onAuthStateChange
 }
 async function signUpEmail(){
@@ -965,21 +862,15 @@ async function signUpEmail(){
   const pw=document.getElementById('su-password').value;
   const pw2=document.getElementById('su-password2').value;
   if(!email||!pw){authMsg('Enter your email and a password.');return;}
-  if(pw!==pw2){authMsg("Passwords don't match.");return;}
+  if(pw!==pw2){authMsg('Passwords don\'t match.');return;}
   if(pw.length<6){authMsg('Password must be at least 6 characters.');return;}
   authMsg('Creating account…');
-  const{data,error}=await supa.auth.signUp({
+  const{error}=await supa.auth.signUp({
     email,password:pw,
     options:{emailRedirectTo:SITE_URL+'/members.html'}
   });
-  if(error){authMsg('Error: '+error.message);return;}
-  // If Supabase returns a session, email confirmation is disabled — user is in.
-  // If no session, a confirmation email was sent; do NOT treat them as logged in yet.
-  if(data?.session){
-    authMsg('✓ Account created. Welcome!',true);
-  } else {
-    authMsg('✓ Check your email and click the confirmation link before signing in.',true);
-  }
+  if(error)authMsg('Error: '+error.message);
+  else authMsg('✓ Check your email to confirm your account.',true);
 }
 async function sendPasswordReset(){
   if(!supa)return;
@@ -1094,10 +985,8 @@ function renderMember(){
   }
 
   // Upgrade vs benefits
-  // Admins inherit all VVIP+ privileges, so show them the benefits section too
-  const hasPremiumAccess = profile.is_premium || profile.is_admin;
-  document.getElementById('upgrade-section').style.display = hasPremiumAccess ? 'none' : '';
-  document.getElementById('benefits-section').style.display = hasPremiumAccess ? '' : 'none';
+  document.getElementById('upgrade-section').style.display = profile.is_premium ? 'none' : '';
+  document.getElementById('benefits-section').style.display = profile.is_premium ? '' : 'none';
 
   // Nav state:
   // - VVIP+: hide both join + vvip nav links; show account in utils
@@ -1140,8 +1029,8 @@ async function signInGoogle(){
 async function signInMagic(){
   if(!supa) return alert('Auth not configured.');
   const email = document.getElementById('magic-email').value.trim();
-  if(!email){ authMsg('Please enter your email.'); return; }
-  authMsg('Sending… ◌');
+  if(!email){ showMagicMsg('Please enter your email.'); return; }
+  showMagicMsg('Sending… ◌');
   const { error } = await supa.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: SITE_URL + '/members.html' }
@@ -1185,25 +1074,6 @@ async function recheckPremium(){
   if(profile.is_premium) showProfileMsg('✓ VVIP+ activated!', 'ok');
   else showProfileMsg('Not yet activated. Contact support if you\'ve paid.', 'err');
 }
-
-// ── ANIMATIONS PREF ──
-function setAnimPref(on){
-  localStorage.setItem('vvip25:anim', on ? '1' : '0');
-  // Communicate to index.html if open in same origin (e.g. via storage event)
-  // The main page reads this on load; toggling here affects next visit.
-  document.documentElement.classList.toggle('no-anim', !on);
-}
-// Restore anim pref on load
-(()=>{
-  const anim = localStorage.getItem('vvip25:anim');
-  const el = document.getElementById('mem-tog-anim');
-  if(anim === '0'){
-    document.documentElement.classList.add('no-anim');
-    if(el) el.checked = false;
-  } else {
-    if(el) el.checked = true;
-  }
-})();
 
 // ── ADMIN: LOAD TRACKS ──
 async function loadTracksForEditor(){
@@ -1505,98 +1375,6 @@ async function loadUserList(){
 
 // ── STRIPE LINK ──
 document.getElementById('stripe-btn').href = STRIPE_LINK;
-
-// ── AUDIT ──
-function auditSearch(q){
-  const res = document.getElementById('audit-search-results');
-  if(!q || q.length < 2){ res.innerHTML=''; return; }
-  const ql = q.toLowerCase();
-  const matches = allTracks.filter(t =>
-    (t.name||'').toLowerCase().includes(ql) ||
-    (t.title||'').toLowerCase().includes(ql)
-  );
-  if(!matches.length){
-    res.innerHTML = '<span style="color:var(--muted)">No tracks found matching "'+q+'" in manifest.</span>';
-    return;
-  }
-  res.innerHTML = matches.map(t => `
-    <div style="padding:5px 8px;border:1px solid var(--border);margin-bottom:3px;background:var(--bg)">
-      <strong>${t.name}</strong>
-      ${t.title ? '<span style="color:var(--muted)"> — '+t.title+'</span>' : ''}
-      ${t.bpm ? '<span style="color:var(--muted)"> · '+t.bpm+' BPM</span>' : ''}
-      ${t.date ? '<span style="color:var(--muted)"> · '+t.date.slice(0,10)+'</span>' : ''}
-      ${t.unavailable ? '<span style="color:#f88;margin-left:6px">⚠ marked unavailable</span>' : ''}
-    </div>`).join('');
-}
-
-async function runAudit(){
-  const el = document.getElementById('audit-results');
-  el.innerHTML = '<span style="color:var(--muted)">Running audit…</span>';
-
-  // Reload manifest fresh
-  try {
-    const r = await fetch(MANIFEST_URL, { cache: 'no-store' });
-    const data = await r.json();
-    allTracks = Array.isArray(data) ? data : (data.tracks || []);
-  } catch(e) {
-    el.innerHTML = '<span style="color:#f88">Could not load manifest: '+e.message+'</span>';
-    return;
-  }
-
-  const issues = [];
-  const dupes = {};
-  const noName = [];
-  const noBpm = [];
-  const noDate = [];
-
-  allTracks.forEach((t, i) => {
-    const name = t.name || '';
-    if(!name){ noName.push(i); return; }
-    // Check for duplicates
-    const key = name.toLowerCase();
-    if(dupes[key]) dupes[key].push(i);
-    else dupes[key] = [i];
-    // Missing BPM
-    if(!t.bpm && !t.bpm_min) noBpm.push(name);
-    // Missing date
-    if(!t.date){ // try parsing from filename
-      const m = name.match(/^(\d{2})[._-](\d{2})[._-](\d{2})/);
-      if(!m) noDate.push(name);
-    }
-    // Unavailable flag
-    if(t.unavailable) issues.push({ name, msg: 'flagged as unavailable ✕' });
-  });
-
-  // Dupes
-  Object.entries(dupes).forEach(([key, idxs]) => {
-    if(idxs.length > 1) issues.push({ name: key, msg: 'duplicate entries (×'+idxs.length+')' });
-  });
-
-  let html = `<div style="margin-bottom:10px;color:var(--fg)"><strong>Manifest: ${allTracks.length} tracks</strong></div>`;
-
-  if(issues.length){
-    html += '<div style="margin-bottom:8px;font-weight:bold;color:var(--fg)">Issues found:</div>';
-    html += issues.map(i =>
-      `<div style="padding:4px 8px;border-left:3px solid #f88;margin-bottom:3px;font-size:11px;background:var(--card)">
-        <strong>${i.name}</strong> — ${i.msg}
-      </div>`
-    ).join('');
-  } else {
-    html += '<div style="color:#88ff88">✓ No issues found.</div>';
-  }
-
-  if(noBpm.length){
-    html += `<div style="margin-top:10px;color:var(--muted);font-size:11px">${noBpm.length} tracks missing BPM metadata.</div>`;
-  }
-  if(noDate.length){
-    html += `<div style="margin-top:4px;color:var(--muted);font-size:11px">${noDate.length} tracks with no parseable date.</div>`;
-  }
-  if(noName.length){
-    html += `<div style="margin-top:4px;color:#f88;font-size:11px">${noName.length} entries with no filename!</div>`;
-  }
-
-  el.innerHTML = html;
-}
 
 // ── GO ──
 init();
