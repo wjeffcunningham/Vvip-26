@@ -1,7 +1,7 @@
 [
   {
     "name": "26.05.06.104.mp3",
-    "title": "26.05.06.104.mp3",
+    "title": "2026-05-06 / 104 BPM",
     "bpm": 104,
     "bpm_min": null,
     "bpm_max": null,
@@ -14,7 +14,7 @@
   },
   {
     "name": "26.05.06.104 v2.mp3",
-    "title": "26.05.06.104 v2.mp3",
+    "title": "2026-05-06 / 104 BPM v2",
     "bpm": 104,
     "bpm_min": null,
     "bpm_max": null,
@@ -23,12 +23,11 @@
     "date": "2026-05-06",
     "year": 2026,
     "month": 5,
-    "day": 6,
-    "unavailable": true
+    "day": 6
   },
   {
     "name": "26.04.29.82.mp3",
-    "title": "26.04.29.82.mp3",
+    "title": "2026-04-29 / 82 BPM",
     "bpm": 82,
     "bpm_min": null,
     "bpm_max": null,
@@ -41,7 +40,7 @@
   },
   {
     "name": "26.04.27.117.mp3",
-    "title": "26.04.27.117.mp3",
+    "title": "2026-04-27 / 117 BPM",
     "bpm": 117,
     "bpm_min": null,
     "bpm_max": null,
@@ -54,7 +53,7 @@
   },
   {
     "name": "26.04.27.117 v3.mp3",
-    "title": "26.04.27.117 v3.mp3",
+    "title": "2026-04-27 / 117 BPM",
     "bpm": 117,
     "bpm_min": null,
     "bpm_max": null,
@@ -63,12 +62,11 @@
     "date": "2026-04-27",
     "year": 2026,
     "month": 4,
-    "day": 27,
-    "unavailable": true
+    "day": 27
   },
   {
     "name": "26.04.27.117 v2.mp3",
-    "title": "26.04.27.117 v2.mp3",
+    "title": "2026-04-27 / 117 BPM v2",
     "bpm": 117,
     "bpm_min": null,
     "bpm_max": null,
@@ -77,12 +75,11 @@
     "date": "2026-04-27",
     "year": 2026,
     "month": 4,
-    "day": 27,
-    "unavailable": true
+    "day": 27
   },
   {
     "name": "26.04.22.90.mp3",
-    "title": "26.04.22.90.mp3",
+    "title": "2026-04-22 / 90 BPM",
     "bpm": 90,
     "bpm_min": null,
     "bpm_max": null,
@@ -95,7 +92,7 @@
   },
   {
     "name": "26.04.14.93.mp3",
-    "title": "26.04.14.93.mp3",
+    "title": "2026-04-14 / 93 BPM",
     "bpm": 93,
     "bpm_min": null,
     "bpm_max": null,
@@ -108,7 +105,7 @@
   },
   {
     "name": "26.04.05.123.mp3",
-    "title": "26.04.05.123.mp3",
+    "title": "2026-04-05 / 123 BPM",
     "bpm": 123,
     "bpm_min": null,
     "bpm_max": null,
@@ -121,7 +118,7 @@
   },
   {
     "name": "26.03.24.108.mp3",
-    "title": "26.03.24.108.mp3",
+    "title": "2026-03-24 / 108 BPM",
     "bpm": 108,
     "bpm_min": null,
     "bpm_max": null,
@@ -134,7 +131,7 @@
   },
   {
     "name": "26.03.10.129.mp3",
-    "title": "26.03.10.129.mp3",
+    "title": "2026-03-10 / 129 BPM",
     "bpm": 129,
     "bpm_min": null,
     "bpm_max": null,
@@ -143,12 +140,11 @@
     "date": "2026-03-10",
     "year": 2026,
     "month": 3,
-    "day": 10,
-    "unavailable": true
+    "day": 10
   },
   {
     "name": "26.03.03.118.mp3",
-    "title": "26.03.03.118.mp3",
+    "title": "2026-03-03 / 118 BPM",
     "bpm": 118,
     "bpm_min": null,
     "bpm_max": null,
@@ -157,12 +153,11 @@
     "date": "2026-03-03",
     "year": 2026,
     "month": 3,
-    "day": 3,
-    "unavailable": true
+    "day": 3
   },
   {
     "name": "26.02.27.87.mp3",
-    "title": "26.02.27.87.mp3",
+    "title": "2026-02-27 / 87 BPM",
     "bpm": 87,
     "bpm_min": null,
     "bpm_max": null,
@@ -175,7 +170,7 @@
   },
   {
     "name": "26.02.21.103.mp3",
-    "title": "26.02.21.103.mp3",
+    "title": "2026-02-21 / 103 BPM",
     "bpm": 103,
     "bpm_min": null,
     "bpm_max": null,
@@ -188,7 +183,7 @@
   },
   {
     "name": "26.02.16.98.mp3",
-    "title": "26.02.16.98.mp3",
+    "title": "2026-02-16 / 98 BPM",
     "bpm": 98,
     "bpm_min": null,
     "bpm_max": null,
@@ -201,7 +196,7 @@
   },
   {
     "name": "25.11.20.114.mp3",
-    "title": "25.11.20.114.mp3",
+    "title": "2025-11-20 / 114 BPM",
     "bpm": 114,
     "bpm_min": null,
     "bpm_max": null,
@@ -214,7 +209,7 @@
   },
   {
     "name": "25.11.13.98.mp3",
-    "title": "25.11.13.98.mp3",
+    "title": "2025-11-13 / 98 BPM",
     "bpm": 98,
     "bpm_min": null,
     "bpm_max": null,
@@ -223,12 +218,11 @@
     "date": "2025-11-13",
     "year": 2025,
     "month": 11,
-    "day": 13,
-    "unavailable": true
+    "day": 13
   },
   {
     "name": "25.10.21.102.mp3",
-    "title": "25.10.21.102.mp3",
+    "title": "2025-10-21 / 102 BPM",
     "bpm": 102,
     "bpm_min": null,
     "bpm_max": null,
@@ -237,12 +231,11 @@
     "date": "2025-10-21",
     "year": 2025,
     "month": 10,
-    "day": 21,
-    "unavailable": true
+    "day": 21
   },
   {
     "name": "25.10.19.78.mp3",
-    "title": "25.10.19.78.mp3",
+    "title": "2025-10-12 / 78 BPM",
     "bpm": 78,
     "bpm_min": null,
     "bpm_max": null,
@@ -281,7 +274,7 @@
   },
   {
     "name": "25.10.05.120.mp3",
-    "title": "25.10.05.120.mp3",
+    "title": "2025-10-05 / 120 BPM",
     "bpm": 126,
     "bpm_min": null,
     "bpm_max": null,
@@ -294,7 +287,7 @@
   },
   {
     "name": "25.09.20.135.mp3",
-    "title": "25.09.20.135.mp3",
+    "title": "2025-09-20 / 135 BPM",
     "bpm": 135,
     "bpm_min": null,
     "bpm_max": null,
@@ -320,7 +313,7 @@
   },
   {
     "name": "25.09.08.188.mp3",
-    "title": "25.09.08.188.mp3",
+    "title": "2025-09-08 / 188 BPM",
     "bpm": 188,
     "bpm_min": null,
     "bpm_max": null,
@@ -359,7 +352,7 @@
   },
   {
     "name": "25.08.19.142.mp3",
-    "title": "25.08.19.142.mp3",
+    "title": "2025-08-19 / 142 BPM",
     "bpm": 142,
     "bpm_min": null,
     "bpm_max": null,
@@ -372,7 +365,7 @@
   },
   {
     "name": "25.08.19-2.112.mp3",
-    "title": "25.08.19-2.112.mp3",
+    "title": "2025-08-19 / 112 BPM",
     "bpm": 98,
     "bpm_min": null,
     "bpm_max": null,
@@ -463,7 +456,7 @@
   },
   {
     "name": "25.08.02.139.mp3",
-    "title": "25.08.02.139.mp3",
+    "title": "2025-08-02 / 139 BPM",
     "bpm": 139,
     "bpm_min": null,
     "bpm_max": null,
@@ -472,8 +465,7 @@
     "date": "2025-08-02",
     "year": 2025,
     "month": 8,
-    "day": 2,
-    "unavailable": true
+    "day": 2
   },
   {
     "name": "25.08.01.120.mp3",
@@ -490,7 +482,7 @@
   },
   {
     "name": "25.07.31.80.mp3",
-    "title": "25.07.31.80.mp3",
+    "title": "2025-07-31 / 80 BPM",
     "bpm": 80,
     "bpm_min": null,
     "bpm_max": null,
@@ -503,7 +495,7 @@
   },
   {
     "name": "25.07.26.132.mp3",
-    "title": "25.07.26.132.mp3",
+    "title": "2025-07-26 / 132 BPM",
     "bpm": 132,
     "bpm_min": null,
     "bpm_max": null,
@@ -529,7 +521,7 @@
   },
   {
     "name": "25.07.15.128.mp3",
-    "title": "25.07.15.128.mp3",
+    "title": "2025-07-15 / 128 BPM",
     "bpm": 128,
     "bpm_min": null,
     "bpm_max": null,
@@ -594,7 +586,7 @@
   },
   {
     "name": "25.07.07.136.mp3",
-    "title": "25.07.07.136.mp3",
+    "title": "2025-07-07 / 136 BPM",
     "bpm": 136,
     "bpm_min": null,
     "bpm_max": null,
@@ -633,7 +625,7 @@
   },
   {
     "name": "25.06.29.109.mp3",
-    "title": "25.06.29.109.mp3",
+    "title": "2025-06-29 / 109 BPM",
     "bpm": 109,
     "bpm_min": null,
     "bpm_max": null,
@@ -698,7 +690,7 @@
   },
   {
     "name": "25.06.14.138.mp3",
-    "title": "25.06.14.138.mp3",
+    "title": "2025-06-14 / 138 BPM",
     "bpm": 138,
     "bpm_min": null,
     "bpm_max": null,
@@ -711,7 +703,7 @@
   },
   {
     "name": "25.06.11.126.mp3",
-    "title": "25.06.11.126.mp3",
+    "title": "2025-06-11 / 126 BPM",
     "bpm": 126,
     "bpm_min": null,
     "bpm_max": null,
@@ -724,7 +716,7 @@
   },
   {
     "name": "25.06.10.119.mp3",
-    "title": "25.06.10.119.mp3",
+    "title": "2025-06-10 / 119 BPM",
     "bpm": 119,
     "bpm_min": null,
     "bpm_max": null,
@@ -737,7 +729,7 @@
   },
   {
     "name": "25.06.06.142.mp3",
-    "title": "25.06.06.142.mp3",
+    "title": "2025-06-06 / 142 BPM",
     "bpm": 142,
     "bpm_min": null,
     "bpm_max": null,
@@ -750,7 +742,7 @@
   },
   {
     "name": "25.06.04.129.mp3",
-    "title": "25.06.04.129.mp3",
+    "title": "2025-06-04 / 129 BPM",
     "bpm": 129,
     "bpm_min": null,
     "bpm_max": null,
@@ -776,7 +768,7 @@
   },
   {
     "name": "25.05.31.122.mp3",
-    "title": "25.05.31.122.mp3",
+    "title": "2025-05-31 / 122 BPM",
     "bpm": 122,
     "bpm_min": null,
     "bpm_max": null,
@@ -815,7 +807,7 @@
   },
   {
     "name": "25.05.27.127.mp3",
-    "title": "25.05.27.127.mp3",
+    "title": "2025-05-27 / 127 BPM",
     "bpm": 127,
     "bpm_min": null,
     "bpm_max": null,
@@ -854,7 +846,7 @@
   },
   {
     "name": "25.05.23.110.mp3",
-    "title": "25.05.23.110.mp3",
+    "title": "2025-05-23 / 110 BPM",
     "bpm": 110,
     "bpm_min": null,
     "bpm_max": null,
@@ -906,7 +898,7 @@
   },
   {
     "name": "25.05.17.99.mp3",
-    "title": "25.05.17.99.mp3",
+    "title": "2025-05-17 / 99 BPM",
     "bpm": 99,
     "bpm_min": null,
     "bpm_max": null,
@@ -919,7 +911,7 @@
   },
   {
     "name": "25.05.16.114.mp3",
-    "title": "25.05.16.114.mp3",
+    "title": "2025-05-16 / 114 BPM",
     "bpm": 114,
     "bpm_min": null,
     "bpm_max": null,
@@ -945,7 +937,7 @@
   },
   {
     "name": "25.05.13.190.mp3",
-    "title": "25.05.13.190.mp3",
+    "title": "2025-05-13 / 190 BPM",
     "bpm": 190,
     "bpm_min": null,
     "bpm_max": null,
@@ -1023,7 +1015,7 @@
   },
   {
     "name": "25.04.26.115.mp3",
-    "title": "25.04.26.115.mp3",
+    "title": "2025-04-26 / 115 BPM",
     "bpm": 115,
     "bpm_min": null,
     "bpm_max": null,
@@ -1075,7 +1067,7 @@
   },
   {
     "name": "25.04.10.120.mp3",
-    "title": "25.04.10.120.mp3",
+    "title": "2025-04-10 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -1088,7 +1080,7 @@
   },
   {
     "name": "25.04.09.111.mp3",
-    "title": "25.04.09.111.mp3",
+    "title": "2025-04-09 / 111 BPM",
     "bpm": 111,
     "bpm_min": null,
     "bpm_max": null,
@@ -1101,7 +1093,7 @@
   },
   {
     "name": "25.04.08.134.mp3",
-    "title": "25.04.08.134.mp3",
+    "title": "2025-04-08 / 134 BPM",
     "bpm": 134,
     "bpm_min": null,
     "bpm_max": null,
@@ -1114,7 +1106,7 @@
   },
   {
     "name": "25.04.07.103.mp3",
-    "title": "25.04.07.103.mp3",
+    "title": "2025-04-07 / 103 BPM",
     "bpm": 103,
     "bpm_min": null,
     "bpm_max": null,
@@ -1127,7 +1119,7 @@
   },
   {
     "name": "25.04.06.126.mp3",
-    "title": "25.04.06.126.mp3",
+    "title": "2025-04-06 / 126 BPM",
     "bpm": 126,
     "bpm_min": null,
     "bpm_max": null,
@@ -1179,7 +1171,7 @@
   },
   {
     "name": "25.03.30.104.mp3",
-    "title": "25.03.30.104.mp3",
+    "title": "2025-03-30 / 104 BPM",
     "bpm": 104,
     "bpm_min": null,
     "bpm_max": null,
@@ -1192,7 +1184,7 @@
   },
   {
     "name": "25.03.28.136.mp3",
-    "title": "25.03.28.136.mp3",
+    "title": "2025-03-28 / 136 BPM",
     "bpm": 136,
     "bpm_min": null,
     "bpm_max": null,
@@ -1218,7 +1210,7 @@
   },
   {
     "name": "25.03.23.96.mp3",
-    "title": "25.03.23.96.mp3",
+    "title": "2025-03-23 / 96 BPM",
     "bpm": 96,
     "bpm_min": null,
     "bpm_max": null,
@@ -1283,7 +1275,7 @@
   },
   {
     "name": "25.03.10.120.mp3",
-    "title": "25.03.10.120.mp3",
+    "title": "2025-03-10 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -1322,7 +1314,7 @@
   },
   {
     "name": "25.03.08.97.mp3",
-    "title": "25.03.08.97.mp3",
+    "title": "2025-03-08 / 97 BPM",
     "bpm": 97,
     "bpm_min": null,
     "bpm_max": null,
@@ -1335,7 +1327,7 @@
   },
   {
     "name": "25.03.07.129.mp3",
-    "title": "25.03.07.129.mp3",
+    "title": "2025-03-07 / 129 BPM",
     "bpm": 129,
     "bpm_min": null,
     "bpm_max": null,
@@ -1348,7 +1340,7 @@
   },
   {
     "name": "25.03.06.96.mp3",
-    "title": "25.03.06.96.mp3",
+    "title": "2025-03-06 / 96 BPM",
     "bpm": 96,
     "bpm_min": null,
     "bpm_max": null,
@@ -1374,7 +1366,7 @@
   },
   {
     "name": "25.03.04.128.mp3",
-    "title": "25.03.04.128.mp3",
+    "title": "2025-03-04 / 128 BPM",
     "bpm": 128,
     "bpm_min": null,
     "bpm_max": null,
@@ -1478,7 +1470,7 @@
   },
   {
     "name": "25.02.20.120.mp3",
-    "title": "25.02.20.120.mp3",
+    "title": "2025-02-20 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -1517,7 +1509,7 @@
   },
   {
     "name": "25.02.18.120.mp3",
-    "title": "25.02.18.120.mp3",
+    "title": "2025-02-18 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -1569,7 +1561,7 @@
   },
   {
     "name": "25.02.13.109.mp3",
-    "title": "25.02.13.109.mp3",
+    "title": "2025-02-13 / 109 BPM",
     "bpm": 109,
     "bpm_min": null,
     "bpm_max": null,
@@ -1582,7 +1574,7 @@
   },
   {
     "name": "25.02.12.145.mp3",
-    "title": "25.02.12.145.mp3",
+    "title": "2025-02-12 / 145 BPM",
     "bpm": 145,
     "bpm_min": null,
     "bpm_max": null,
@@ -1595,7 +1587,7 @@
   },
   {
     "name": "25.02.10.124.mp3",
-    "title": "25.02.10.124.mp3",
+    "title": "2025-02-10 / 124 BPM",
     "bpm": 124,
     "bpm_min": null,
     "bpm_max": null,
@@ -1630,8 +1622,7 @@
     "date": "2025-02-05",
     "year": 2025,
     "month": 2,
-    "day": 5,
-    "unavailable": true
+    "day": 5
   },
   {
     "name": "25.02.04.116.mp3",
@@ -1687,7 +1678,7 @@
   },
   {
     "name": "25.01.30.150.mp3",
-    "title": "25.01.30.150.mp3",
+    "title": "2025-01-30 / 150 BPM",
     "bpm": 150,
     "bpm_min": null,
     "bpm_max": null,
@@ -1700,7 +1691,7 @@
   },
   {
     "name": "25.01.29.127.mp3",
-    "title": "25.01.29.127.mp3",
+    "title": "2025-01-29 / 127 BPM",
     "bpm": 127,
     "bpm_min": null,
     "bpm_max": null,
@@ -1713,7 +1704,7 @@
   },
   {
     "name": "25.01.28.120.mp3",
-    "title": "25.01.28.120.mp3",
+    "title": "2025-01-28 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -1726,7 +1717,7 @@
   },
   {
     "name": "25.01.15.93.mp3",
-    "title": "25.01.15.93.mp3",
+    "title": "2025-01-15 / 93 BPM",
     "bpm": 93,
     "bpm_min": null,
     "bpm_max": null,
@@ -1739,7 +1730,7 @@
   },
   {
     "name": "25.01.11.120.mp3",
-    "title": "25.01.11.120.mp3",
+    "title": "2025-01-11 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -1817,7 +1808,7 @@
   },
   {
     "name": "25.01.01.90.mp3",
-    "title": "25.01.01.90.mp3",
+    "title": "2025-01-01 / 90 BPM",
     "bpm": 90,
     "bpm_min": null,
     "bpm_max": null,
@@ -1943,8 +1934,7 @@
     "date": "2024-10-30",
     "year": 2024,
     "month": 10,
-    "day": 30,
-    "unavailable": true
+    "day": 30
   },
   {
     "name": "24.10.24.120.mp3",
@@ -1961,7 +1951,7 @@
   },
   {
     "name": "24.10.09.133.mp3",
-    "title": "24.10.09.133.mp3",
+    "title": "2024-10-09 / 133 BPM",
     "bpm": 133,
     "bpm_min": null,
     "bpm_max": null,
@@ -1974,7 +1964,7 @@
   },
   {
     "name": "24.10.06.118.mp3",
-    "title": "24.10.06.118.mp3",
+    "title": "2024-10-06 / 118 BPM",
     "bpm": 118,
     "bpm_min": null,
     "bpm_max": null,
@@ -2000,7 +1990,7 @@
   },
   {
     "name": "24.09.19.106.mp3",
-    "title": "24.09.19.106.mp3",
+    "title": "2024-09-19 / 106 BPM",
     "bpm": 106,
     "bpm_min": null,
     "bpm_max": null,
@@ -2026,7 +2016,7 @@
   },
   {
     "name": "24.09.18.126.mp3",
-    "title": "24.09.18.126.mp3",
+    "title": "2024-09-18 / 126 BPM",
     "bpm": 126,
     "bpm_min": null,
     "bpm_max": null,
@@ -2039,7 +2029,7 @@
   },
   {
     "name": "24.09.17.134.mp3",
-    "title": "24.09.17.134.mp3",
+    "title": "2024-09-17 / 134 BPM",
     "bpm": 134,
     "bpm_min": null,
     "bpm_max": null,
@@ -2052,7 +2042,7 @@
   },
   {
     "name": "24.09.15.117.mp3",
-    "title": "24.09.15.117.mp3",
+    "title": "2024-09-15 / 117 BPM",
     "bpm": 117,
     "bpm_min": null,
     "bpm_max": null,
@@ -2104,7 +2094,7 @@
   },
   {
     "name": "24.09.09.117.mp3",
-    "title": "24.09.09.117.mp3",
+    "title": "2024-09-09 / 117 BPM",
     "bpm": 117,
     "bpm_min": null,
     "bpm_max": null,
@@ -2117,7 +2107,7 @@
   },
   {
     "name": "24.09.08.104.mp3",
-    "title": "24.09.08.104.mp3",
+    "title": "2024-09-08 / 104 BPM",
     "bpm": 104,
     "bpm_min": null,
     "bpm_max": null,
@@ -2126,12 +2116,11 @@
     "date": "2024-09-08",
     "year": 2024,
     "month": 9,
-    "day": 8,
-    "unavailable": true
+    "day": 8
   },
   {
     "name": "24.09.06.120.mp3",
-    "title": "24.09.06.120.mp3",
+    "title": "2024-09-06 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -2209,7 +2198,7 @@
   },
   {
     "name": "24.09.04.94.mp3",
-    "title": "24.09.04.94.mp3",
+    "title": "2024-09-04 / 94 BPM",
     "bpm": 94,
     "bpm_min": null,
     "bpm_max": null,
@@ -2218,8 +2207,7 @@
     "date": "2024-09-04",
     "year": 2024,
     "month": 9,
-    "day": 4,
-    "unavailable": true
+    "day": 4
   },
   {
     "name": "24.09.04-2.101.mp3",
@@ -2236,7 +2224,7 @@
   },
   {
     "name": "24.09.03.122.mp3",
-    "title": "24.09.03.122.mp3",
+    "title": "2024-09-03 / 122 BPM",
     "bpm": 122,
     "bpm_min": null,
     "bpm_max": null,
@@ -2249,7 +2237,7 @@
   },
   {
     "name": "24.08.22.130.mp3",
-    "title": "24.08.22.130.mp3",
+    "title": "2024-08-22 / 130 BPM",
     "bpm": 130,
     "bpm_min": null,
     "bpm_max": null,
@@ -2258,12 +2246,11 @@
     "date": "2024-08-22",
     "year": 2024,
     "month": 8,
-    "day": 22,
-    "unavailable": true
+    "day": 22
   },
   {
     "name": "24.08.22-3.120.mp3",
-    "title": "24.08.22-3.120.mp3",
+    "title": "2024-08-22 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -2272,12 +2259,11 @@
     "date": "2024-08-22",
     "year": 2024,
     "month": 8,
-    "day": 22,
-    "unavailable": true
+    "day": 22
   },
   {
     "name": "24.08.22-2.135.mp3",
-    "title": "24.08.22-2.135.mp3",
+    "title": "2024-08-22 / 135 BPM",
     "bpm": 135,
     "bpm_min": null,
     "bpm_max": null,
@@ -2286,12 +2272,11 @@
     "date": "2024-08-22",
     "year": 2024,
     "month": 8,
-    "day": 22,
-    "unavailable": true
+    "day": 22
   },
   {
     "name": "24.08.21.127.mp3",
-    "title": "24.08.21.127.mp3",
+    "title": "2024-08-21 / 127 BPM",
     "bpm": 127,
     "bpm_min": null,
     "bpm_max": null,
@@ -2300,12 +2285,11 @@
     "date": "2024-08-21",
     "year": 2024,
     "month": 8,
-    "day": 21,
-    "unavailable": true
+    "day": 21
   },
   {
     "name": "24.08.15.114.mp3",
-    "title": "24.08.15.114.mp3",
+    "title": "2024-08-15 / 114 BPM",
     "bpm": 114,
     "bpm_min": null,
     "bpm_max": null,
@@ -2318,7 +2302,7 @@
   },
   {
     "name": "24.08.15-2.111.mp3",
-    "title": "24.08.15-2.111.mp3",
+    "title": "2024-08-15 / 111 BPM",
     "bpm": 111,
     "bpm_min": null,
     "bpm_max": null,
@@ -2327,12 +2311,11 @@
     "date": "2024-08-15",
     "year": 2024,
     "month": 8,
-    "day": 15,
-    "unavailable": true
+    "day": 15
   },
   {
     "name": "24.08.14.123.mp3",
-    "title": "24.08.14.123.mp3",
+    "title": "2024-08-14 / 123 BPM",
     "bpm": 123,
     "bpm_min": null,
     "bpm_max": null,
@@ -2341,12 +2324,11 @@
     "date": "2024-08-14",
     "year": 2024,
     "month": 8,
-    "day": 14,
-    "unavailable": true
+    "day": 14
   },
   {
     "name": "24.08.12.117.mp3",
-    "title": "24.08.12.117.mp3",
+    "title": "2024-08-12 / 117 BPM",
     "bpm": 117,
     "bpm_min": null,
     "bpm_max": null,
@@ -2355,12 +2337,11 @@
     "date": "2024-08-12",
     "year": 2024,
     "month": 8,
-    "day": 12,
-    "unavailable": true
+    "day": 12
   },
   {
     "name": "24.08.11.109.mp3",
-    "title": "24.08.11.109.mp3",
+    "title": "2024-08-11 / 109 BPM",
     "bpm": 109,
     "bpm_min": null,
     "bpm_max": null,
@@ -2369,12 +2350,11 @@
     "date": "2024-08-11",
     "year": 2024,
     "month": 8,
-    "day": 11,
-    "unavailable": true
+    "day": 11
   },
   {
     "name": "24.08.10.128.mp3",
-    "title": "24.08.10.128.mp3",
+    "title": "2024-08-10 / 128 BPM",
     "bpm": 128,
     "bpm_min": null,
     "bpm_max": null,
@@ -2383,12 +2363,11 @@
     "date": "2024-08-10",
     "year": 2024,
     "month": 8,
-    "day": 10,
-    "unavailable": true
+    "day": 10
   },
   {
     "name": "24.08.09.111.mp3",
-    "title": "24.08.09.111.mp3",
+    "title": "2024-08-09 / 111 BPM",
     "bpm": 111,
     "bpm_min": null,
     "bpm_max": null,
@@ -2397,12 +2376,11 @@
     "date": "2024-08-09",
     "year": 2024,
     "month": 8,
-    "day": 9,
-    "unavailable": true
+    "day": 9
   },
   {
     "name": "24.08.08.104.mp3",
-    "title": "24.08.08.104.mp3",
+    "title": "2024-08-08 / 104 BPM",
     "bpm": 104,
     "bpm_min": null,
     "bpm_max": null,
@@ -2411,12 +2389,11 @@
     "date": "2024-08-08",
     "year": 2024,
     "month": 8,
-    "day": 8,
-    "unavailable": true
+    "day": 8
   },
   {
     "name": "24.08.07.116.mp3",
-    "title": "24.08.07.116.mp3",
+    "title": "2024-08-07 / 116 BPM",
     "bpm": 116,
     "bpm_min": null,
     "bpm_max": null,
@@ -2425,12 +2402,11 @@
     "date": "2024-08-07",
     "year": 2024,
     "month": 8,
-    "day": 7,
-    "unavailable": true
+    "day": 7
   },
   {
     "name": "24.08.07-2.120.mp3",
-    "title": "24.08.07-2.120.mp3",
+    "title": "2024-08-07 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -2439,12 +2415,11 @@
     "date": "2024-08-07",
     "year": 2024,
     "month": 8,
-    "day": 7,
-    "unavailable": true
+    "day": 7
   },
   {
     "name": "24.08.06.114.mp3",
-    "title": "24.08.06.114.mp3",
+    "title": "2024-08-06 / 114 BPM",
     "bpm": 114,
     "bpm_min": null,
     "bpm_max": null,
@@ -2453,12 +2428,11 @@
     "date": "2024-08-06",
     "year": 2024,
     "month": 8,
-    "day": 6,
-    "unavailable": true
+    "day": 6
   },
   {
     "name": "24.08.06-2.110.mp3",
-    "title": "24.08.06-2.110.mp3",
+    "title": "2024-08-06 / 110 BPM",
     "bpm": 110,
     "bpm_min": null,
     "bpm_max": null,
@@ -2467,12 +2441,11 @@
     "date": "2024-08-06",
     "year": 2024,
     "month": 8,
-    "day": 6,
-    "unavailable": true
+    "day": 6
   },
   {
     "name": "24.08.05.99.mp3",
-    "title": "24.08.05.99.mp3",
+    "title": "2024-08-05 / 99 BPM",
     "bpm": 99,
     "bpm_min": null,
     "bpm_max": null,
@@ -2481,12 +2454,11 @@
     "date": "2024-08-05",
     "year": 2024,
     "month": 8,
-    "day": 5,
-    "unavailable": true
+    "day": 5
   },
   {
     "name": "24.08.04.86.mp3",
-    "title": "24.08.04.86.mp3",
+    "title": "2024-08-04 / 86 BPM",
     "bpm": 86,
     "bpm_min": null,
     "bpm_max": null,
@@ -2495,12 +2467,11 @@
     "date": "2024-08-04",
     "year": 2024,
     "month": 8,
-    "day": 4,
-    "unavailable": true
+    "day": 4
   },
   {
     "name": "24.08.03.120.mp3",
-    "title": "24.08.03.120.mp3",
+    "title": "2024-08-03 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -2509,12 +2480,11 @@
     "date": "2024-08-03",
     "year": 2024,
     "month": 8,
-    "day": 3,
-    "unavailable": true
+    "day": 3
   },
   {
     "name": "24.08.02.74.mp3",
-    "title": "24.08.02.74.mp3",
+    "title": "2024-08-02 / 74 BPM",
     "bpm": 74,
     "bpm_min": null,
     "bpm_max": null,
@@ -2523,8 +2493,7 @@
     "date": "2024-08-02",
     "year": 2024,
     "month": 8,
-    "day": 2,
-    "unavailable": true
+    "day": 2
   },
   {
     "name": "24.07.31.127.mp3",
@@ -2554,7 +2523,7 @@
   },
   {
     "name": "24.07.22.89.mp3",
-    "title": "24.07.22.89.mp3",
+    "title": "2024-07-22 / 89 BPM",
     "bpm": 89,
     "bpm_min": null,
     "bpm_max": null,
@@ -2563,8 +2532,7 @@
     "date": "2024-07-22",
     "year": 2024,
     "month": 7,
-    "day": 22,
-    "unavailable": true
+    "day": 22
   },
   {
     "name": "24.07.22-3.97.mp3",
@@ -2685,7 +2653,7 @@
   },
   {
     "name": "24.07.11.106.mp3",
-    "title": "24.07.11.106.mp3",
+    "title": "2024-07-11 / 106 BPM",
     "bpm": 106,
     "bpm_min": null,
     "bpm_max": null,
@@ -2737,7 +2705,7 @@
   },
   {
     "name": "24.07.05.120.mp3",
-    "title": "24.07.05.120.mp3",
+    "title": "2024-07-05 / 120 BPM",
     "bpm": 120,
     "bpm_min": null,
     "bpm_max": null,
@@ -2750,7 +2718,7 @@
   },
   {
     "name": "24.07.04.132.mp3",
-    "title": "24.07.04.132.mp3",
+    "title": "2024-07-04 / 132 BPM",
     "bpm": 132,
     "bpm_min": null,
     "bpm_max": null,
@@ -2776,7 +2744,7 @@
   },
   {
     "name": "24.07.01.88.mp3",
-    "title": "24.07.01.88.mp3",
+    "title": "2024-07-01 / 88 BPM",
     "bpm": 88,
     "bpm_min": null,
     "bpm_max": null,
@@ -2867,7 +2835,7 @@
   },
   {
     "name": "24.06.24.100.mp3",
-    "title": "24.06.24.100.mp3",
+    "title": "2024-06-24 / 100 BPM",
     "bpm": 100,
     "bpm_min": null,
     "bpm_max": null,
@@ -2919,7 +2887,7 @@
   },
   {
     "name": "24.06.19.125.mp3",
-    "title": "24.06.19.125.mp3",
+    "title": "2024-06-19 / 125 BPM",
     "bpm": 125,
     "bpm_min": null,
     "bpm_max": null,
@@ -2932,7 +2900,7 @@
   },
   {
     "name": "24.06.17.89.mp3",
-    "title": "24.06.17.89.mp3",
+    "title": "2024-06-17 / 89 BPM",
     "bpm": 89,
     "bpm_min": null,
     "bpm_max": null,
@@ -2971,7 +2939,7 @@
   },
   {
     "name": "24.06.09.115.mp3",
-    "title": "24.06.09.115.mp3",
+    "title": "2024-06-09 / 115 BPM",
     "bpm": 115,
     "bpm_min": null,
     "bpm_max": null,
@@ -3075,7 +3043,7 @@
   },
   {
     "name": "24.05.24.96.mp3",
-    "title": "24.05.24.96.mp3",
+    "title": "2024-05-24 / 96 BPM",
     "bpm": 96,
     "bpm_min": null,
     "bpm_max": null,
@@ -3088,7 +3056,7 @@
   },
   {
     "name": "24.05.23.118.mp3",
-    "title": "24.05.23.118.mp3",
+    "title": "2024-05-23 / 118 BPM",
     "bpm": 118,
     "bpm_min": null,
     "bpm_max": null,
@@ -3101,7 +3069,7 @@
   },
   {
     "name": "24.05.22.118.mp3",
-    "title": "24.05.22.118.mp3",
+    "title": "2024-05-22 / 118 BPM",
     "bpm": 118,
     "bpm_min": null,
     "bpm_max": null,
@@ -3114,7 +3082,7 @@
   },
   {
     "name": "24.05.21.101.mp3",
-    "title": "24.05.21.101.mp3",
+    "title": "2024-05-21 / 101 BPM",
     "bpm": 101,
     "bpm_min": null,
     "bpm_max": null,
@@ -3127,7 +3095,7 @@
   },
   {
     "name": "24.05.16.103.mp3",
-    "title": "24.05.16.103.mp3",
+    "title": "2024-05-16 / 103 BPM",
     "bpm": 103,
     "bpm_min": null,
     "bpm_max": null,
@@ -3153,7 +3121,7 @@
   },
   {
     "name": "24.05.06.98.mp3",
-    "title": "24.05.06.98.mp3",
+    "title": "2024-05-06 / 98 BPM",
     "bpm": 98,
     "bpm_min": null,
     "bpm_max": null,
@@ -3179,7 +3147,7 @@
   },
   {
     "name": "24.04.20.105.mp3",
-    "title": "24.04.20.105.mp3",
+    "title": "2024-04-20 / 105 BPM",
     "bpm": 105,
     "bpm_min": null,
     "bpm_max": null,
@@ -3244,7 +3212,7 @@
   },
   {
     "name": "24.04.06.126.mp3",
-    "title": "24.04.06.126.mp3",
+    "title": "2024-04-06 / 126 BPM",
     "bpm": 126,
     "bpm_min": null,
     "bpm_max": null,
@@ -3257,7 +3225,7 @@
   },
   {
     "name": "24.04.01.95.mp3",
-    "title": "24.04.01.95.mp3",
+    "title": "2024-04-01 / 95 BPM",
     "bpm": 95,
     "bpm_min": null,
     "bpm_max": null,
@@ -3270,7 +3238,7 @@
   },
   {
     "name": "24.03.31.130.mp3",
-    "title": "24.03.31.130.mp3",
+    "title": "2024-03-31 / 130 BPM",
     "bpm": 130,
     "bpm_min": null,
     "bpm_max": null,
@@ -3309,7 +3277,7 @@
   },
   {
     "name": "24.03.29.112.mp3",
-    "title": "24.03.29.112.mp3",
+    "title": "2024-03-29 / 112 BPM",
     "bpm": 112,
     "bpm_min": null,
     "bpm_max": null,
@@ -3335,7 +3303,7 @@
   },
   {
     "name": "24.03.24.110.mp3",
-    "title": "24.03.24.110.mp3",
+    "title": "2024-03-24 / 110 BPM",
     "bpm": 110,
     "bpm_min": null,
     "bpm_max": null,
