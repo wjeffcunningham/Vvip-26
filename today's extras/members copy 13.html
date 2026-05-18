@@ -1001,48 +1001,36 @@ async function init(){
   // Handle password reset redirect (?reset=1)
   const params = new URLSearchParams(window.location.search);
   if(params.get('reset')==='1'){
-    // Let onAuthStateChange handle the session from the URL hash
     show('view-auth');
-    supa.auth.onAuthStateChange(async (event, s) => {
-      if(event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && s)){
-        document.getElementById('auth-panel').innerHTML = `
-          <h2 style="font-family:'Times New Roman',Times,serif;font-size:20px;margin:0 0 16px">Set new password</h2>
-          <div class="m-field"><label class="m-label">New password</label>
-            <input class="m-input" type="password" id="new-pw" placeholder="min. 6 characters" autocomplete="new-password">
-          </div>
-          <div class="m-btn-row" style="justify-content:center">
-            <button class="m-btn gold" onclick="updatePassword()">Update password</button>
-          </div>
-          <div id="auth-msg" style="font-family:Arial,sans-serif;font-size:12px;margin-top:12px;color:var(--muted);text-align:center"></div>`;
-      }
-    });
+    // Supabase sets session automatically from the URL hash
+    const { data:{session} } = await supa.auth.getSession();
+    if(session){
+      // Show password update form
+      document.getElementById('auth-panel').innerHTML = `
+        <h2 style="font-family:'Times New Roman',Times,serif;font-size:20px;margin:0 0 16px">Set new password</h2>
+        <div class="m-field"><label class="m-label">New password</label>
+          <input class="m-input" type="password" id="new-pw" placeholder="min. 6 characters" autocomplete="new-password">
+        </div>
+        <div class="m-btn-row" style="justify-content:center">
+          <button class="m-btn gold" onclick="updatePassword()">Update password</button>
+        </div>
+        <div id="auth-msg" style="font-family:Arial,sans-serif;font-size:12px;margin-top:12px;color:var(--muted);text-align:center"></div>`;
+    }
     return;
   }
 
-  // Register onAuthStateChange FIRST — this fires for both existing sessions
-  // and fresh OAuth redirects (which come back via URL hash, not getSession).
-  // hasHandled prevents double-rendering when getSession() also finds a session.
-  let hasHandled = false;
-  supa.auth.onAuthStateChange(async (event, s) => {
-    if(s && !hasHandled){
-      hasHandled = true;
-      await onSession(s);
-    } else if(!s){
-      hasHandled = false;
-      currentUser = null; profile = null;
-      setNavLoggedOut(); show('view-auth');
-    }
-  });
-
-  // Also check for an existing session (e.g. returning visitor, not a fresh OAuth redirect)
   const { data: { session } } = await supa.auth.getSession();
-  if(session && !hasHandled){
-    hasHandled = true;
+  if(session){
     await onSession(session);
-  } else if(!session && !hasHandled){
+  } else {
     setNavLoggedOut();
     show('view-auth');
   }
+
+  supa.auth.onAuthStateChange(async (_, s) => {
+    if(s) await onSession(s);
+    else { currentUser = null; profile = null; setNavLoggedOut(); show('view-auth'); }
+  });
 }
 
 async function updatePassword(){
