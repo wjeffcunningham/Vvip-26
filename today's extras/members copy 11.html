@@ -1080,13 +1080,6 @@ function renderMember(){
   document.getElementById('inp-email').value = currentUser.email || '';
   document.getElementById('inp-username').value = profile.username || '';
 
-  // Restore animations toggle from localStorage
-  const animEl = document.getElementById('mem-tog-anim');
-  if(animEl){
-    const animPref = localStorage.getItem('vvip25:anim');
-    animEl.checked = (animPref !== '0');
-  }
-
   // Status badge
   const badge = document.getElementById('status-badge');
   if(profile.is_admin){
