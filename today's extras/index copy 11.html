@@ -125,10 +125,36 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .gear-item{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px;color:var(--fg)}
 .gear-item:last-child{border-bottom:none}
 .gear-item label{cursor:pointer}
-.gear-toggle{appearance:none;width:34px;height:17px;background:var(--scrub-bg);border:1px inset var(--btn-sh);border-radius:9px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
-.gear-toggle:checked{background:#0044cc}
-.gear-toggle::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:var(--btn-bg);top:1px;left:1px;transition:left .2s;border:1px solid var(--btn-sh)}
-.gear-toggle:checked::after{left:18px}
+.gear-toggle{
+  -webkit-appearance:none;appearance:none;
+  width:36px;height:16px;
+  background:var(--btn-bg);
+  border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
+  border-radius:0;
+  position:relative;cursor:pointer;flex-shrink:0;
+  transition:background .12s;
+}
+.gear-toggle:checked{
+  background:#1a3a8a;
+  border-color:#0a1a5a #3a5acc #3a5acc #0a1a5a;
+}
+[data-theme="dark"] .gear-toggle:checked{
+  background:#1a2e7a;
+  border-color:#080f40 #2244bb #2244bb #080f40;
+}
+.gear-toggle::after{
+  content:'';position:absolute;
+  width:10px;height:10px;
+  background:var(--btn-sh);
+  border:1px solid;border-color:var(--btn-dk) var(--btn-hi) var(--btn-hi) var(--btn-dk);
+  top:2px;left:2px;
+  transition:left .1s,background .12s;
+}
+.gear-toggle:checked::after{
+  left:22px;
+  background:var(--btn-hi);
+  border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
+}
 
 /* Nav items that yield space first on narrow screens */
 @media(max-width:480px){
@@ -515,13 +541,6 @@ body.hide-titles .t-title-file{display:inline !important}
       <label for="tog-fx">Text Effects</label>
       <input type="checkbox" id="tog-fx" class="gear-toggle" checked onchange="toggleTextFx(this.checked)">
     </div>
-    <!-- Auth items — shown when logged in -->
-    <div class="gear-item" id="gear-account" style="display:none;border-top:1px solid var(--border-light);margin-top:4px;padding-top:4px">
-      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;color:var(--fg);text-decoration:none" id="gear-account-label">My Account</a>
-    </div>
-    <div class="gear-item" id="gear-signout" style="display:none">
-      <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:12px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted);text-align:left">Sign out</button>
-    </div>
   </div>
 </div>
 
@@ -691,13 +710,7 @@ async function onSession(session){
   renderNowActions();
   showMemberGearItems();
 }
-function clearSession(){
-  vvipUser=null;isPremium=false;isAdmin=false;
-  renderAuthNav();
-  ['gear-gems','gear-fx','gear-account','gear-signout'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.style.display='none';
-  });
-}
+function clearSession(){ vvipUser=null;isPremium=false;isAdmin=false;renderAuthNav(); }
 function renderAuthNav(){
   const joinEl=document.getElementById('nav-join-free');
   const vvipEl=document.getElementById('vvip-login-btn');
@@ -739,6 +752,13 @@ const state={
   displayRules:null,
   showGems:true,showTextFx:true,
 };
+
+// titles.json retired — titles come from manifest directly
+function pickTitle(raw){
+  if(!raw)return raw;
+  const parts=raw.split('//').map(s=>s.trim()).filter(Boolean);
+  return parts.length>1?parts[Math.floor(Math.random()*parts.length)]:raw.trim();
+}
 
 const pf=$('#vvip-player-frame');
 function send(d){pf?.contentWindow?.postMessage(d,'*')}
@@ -784,14 +804,6 @@ function toggleTextFx(on){
 function showMemberGearItems(){
   document.getElementById('gear-gems').style.display='';
   document.getElementById('gear-fx').style.display='';
-  document.getElementById('gear-account').style.display='';
-  document.getElementById('gear-signout').style.display='';
-  // Label with email or role
-  const lbl=document.getElementById('gear-account-label');
-  if(lbl&&vvipUser){
-    const display=isAdmin?'⬡ Admin':isPremium?'✦ VVIP+':'My Account';
-    lbl.textContent=display;
-  }
   // Restore saved prefs
   const gems=localStorage.getItem('vvip25:gems');
   const fx=localStorage.getItem('vvip25:textfx');
@@ -885,7 +897,6 @@ document.addEventListener('DOMContentLoaded',async()=>{
     console.error(err);
   }
 });
-
 
 async function fetchThumbs(){
   try{
@@ -1125,7 +1136,9 @@ function rowHTML(t,i){
   right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
   let vTag='';
   if(t.versions&&t.versions.length){
+    // Sort all versions oldest→newest: v1, v2, v3...
     const allVers=[...t.versions,t].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
+    // Build one button per version, labelled v1 v2 v3...
     vTag=allVers.map((v,vi)=>{
       const label='v'+(vi+1);
       const isCurrent=v.id===t.id;
@@ -1133,7 +1146,9 @@ function rowHTML(t,i){
         +'onclick="loadVersion(event,'+v.id+','+t.id+')" '
         +'title="'+escHtml(v.title||v.name)+'" '
         +'style="font-family:Arial,sans-serif;font-size:9px;'
-        +(isCurrent?'background:var(--gold-bg);color:var(--gold-fg);':'background:var(--tag-bg);color:var(--tag-fg);')
+        +(isCurrent
+          ?'background:var(--gold-bg);color:var(--gold-fg);'
+          :'background:var(--tag-bg);color:var(--tag-fg);')
         +'border:none;padding:0 5px;margin-left:3px;cursor:pointer;vertical-align:middle;height:16px">'
         +label+'</button>';
     }).join('');
@@ -1196,39 +1211,12 @@ function play(){if(state.i<0)return;send({cmd:'load',src:state.filtered[state.i]
 function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');}
 
 // Display Rules — returns HTML string for a title, or null if no rule applies
-// Per-load random seed for title variants (shared across same-named tracks)
-const _titleRng={};
-function titleRng(key){
-  if(_titleRng[key]===undefined)_titleRng[key]=Math.random();
-  return _titleRng[key];
-}
-
 function applyDisplayRule(title){
   if(!state.showTextFx||!state.displayRules||!title)return null;
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   const tl=title.toLowerCase();
-
-  // ── Special case: Lit(e) Rail ──────────────────────────────
-  // Match "lit(e) rail" or "lit rail" or "lite rail" in the title
-  if(tl.includes('lit') && tl.includes('rail')){
-    // 50/50 per load: "Lit Rail" vs "Lite Rail"
-    const useLite = titleRng('lit-rail') >= 0.5;
-    if(useLite && isDark){
-      // "Lite Rail" — the e glows
-      return 'Lit<span style="color:#ffe066;text-shadow:0 0 6px #ffcc00,0 0 12px #ffaa00,0 0 2px #fff8c0">e</span> Rail';
-    } else if(useLite){
-      // "Lite Rail" — light mode, no glow
-      return 'Lite Rail';
-    } else {
-      // "Lit Rail" — no effect
-      return 'Lit Rail';
-    }
-  }
-
   for(const[key,rule] of Object.entries(state.displayRules)){
     if(key.startsWith('_'))continue;
-    // Skip lit rail keys — handled above
-    if(key==='lit(e) rail'||key==='lit rail'||key==='lite rail')continue;
     if(!tl.includes(key.toLowerCase()))continue;
     const mode=rule.modes||'both';
     if(mode==='dark'&&!isDark)continue;
@@ -1321,25 +1309,37 @@ function openPlayerGems(){
   document.body.appendChild(overlay);
 }
 
-function loadVersion(e,verId,primaryId){
+// Load a specific version by its track id.
+// primaryId = the id of the track object currently shown in the list row.
+function loadVersion(e, verId, primaryId){
   e.stopPropagation();
+  // Find the group — primary track holds the versions array
   const primary=state.tracks.find(t=>t.id===primaryId);
-  if(!primary)return;
-  const allVers=[...primary.versions,primary].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
+  if(!primary) return;
+  const allVers=[...primary.versions, primary].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
   const target=allVers.find(v=>v.id===verId);
-  if(!target)return;
-  const fi=state.filtered.findIndex(t=>t.id===primaryId);
-  if(fi<0)return;
+  if(!target) return;
+
+  // Insert into filtered if not present, play it
+  let fi=state.filtered.findIndex(t=>t.id===primaryId);
+  if(fi<0) return;
+  // Load the target version audio
   const thumbRel=getThumb(target);
   const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
   send({cmd:'load',src:target.src,play:true,meta:{title:target.title||target.name,thumb:thumbAbs}});
-  state.playing=true;state.i=fi;
+  state.playing=true;
   const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');
-  document.querySelectorAll('.track-row[data-id="'+primaryId+'"] .ver-btn').forEach((btn,bi)=>{
-    const isThis=bi===(allVers.indexOf(target));
+
+  // Update now-playing display to show the version being played
+  // but keep the primary row in the list — just update the button highlights
+  $$('.track-row[data-id="'+primaryId+'"] .ver-btn').forEach(btn=>{
+    const isThis=btn.textContent==='v'+(allVers.indexOf(target)+1);
     btn.style.background=isThis?'var(--gold-bg)':'var(--tag-bg)';
     btn.style.color=isThis?'var(--gold-fg)':'var(--tag-fg)';
   });
+
+  // Update now-playing bar
+  state.i=fi;
   updateNow();
 }
 function playVersion(id){
