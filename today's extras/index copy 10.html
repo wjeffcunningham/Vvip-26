@@ -125,36 +125,10 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .gear-item{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px;color:var(--fg)}
 .gear-item:last-child{border-bottom:none}
 .gear-item label{cursor:pointer}
-.gear-toggle{
-  -webkit-appearance:none;appearance:none;
-  width:36px;height:16px;
-  background:var(--btn-bg);
-  border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
-  border-radius:0;
-  position:relative;cursor:pointer;flex-shrink:0;
-  transition:background .12s;
-}
-.gear-toggle:checked{
-  background:#1a3a8a;
-  border-color:#0a1a5a #3a5acc #3a5acc #0a1a5a;
-}
-[data-theme="dark"] .gear-toggle:checked{
-  background:#1a2e7a;
-  border-color:#080f40 #2244bb #2244bb #080f40;
-}
-.gear-toggle::after{
-  content:'';position:absolute;
-  width:10px;height:10px;
-  background:var(--btn-sh);
-  border:1px solid;border-color:var(--btn-dk) var(--btn-hi) var(--btn-hi) var(--btn-dk);
-  top:2px;left:2px;
-  transition:left .1s,background .12s;
-}
-.gear-toggle:checked::after{
-  left:22px;
-  background:var(--btn-hi);
-  border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
-}
+.gear-toggle{appearance:none;width:34px;height:17px;background:var(--scrub-bg);border:1px inset var(--btn-sh);border-radius:9px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.gear-toggle:checked{background:#0044cc}
+.gear-toggle::after{content:'';position:absolute;width:13px;height:13px;border-radius:50%;background:var(--btn-bg);top:1px;left:1px;transition:left .2s;border:1px solid var(--btn-sh)}
+.gear-toggle:checked::after{left:18px}
 
 /* Nav items that yield space first on narrow screens */
 @media(max-width:480px){
@@ -515,8 +489,7 @@ body.hide-titles .t-title-file{display:inline !important}
     <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
-    <a id="nav-join-free" href="/members.html">Join Free</a>
-    <a id="vvip-login-btn" href="/members.html" style="display:none">VVIP+</a>
+    <a id="vvip-login-btn" href="/members.html">VVIP+</a>
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
   <div id="gear-menu">
@@ -619,7 +592,6 @@ const ASSET_VERSION=20;
 // ── Supabase config ── fill in your project URL + anon key ──
 const SUPA_URL='https://fyyfiimnltaktrsczjdq.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
-const SITE_URL='https://vvipmedia.net';
 let supa=null,vvipUser=null,isPremium=false,isAdmin=false;
 try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 const PREFERRED_TAG='bestvvip';
@@ -686,7 +658,6 @@ const $$=s=>document.querySelectorAll(s);
 function fmtDur(s){s=Number(s||0);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')}
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
 const stripExt=s=>String(s).replace(/\.[a-z0-9]+$/i,'');
-function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function deriveName(n){const b=stripExt(n).replace(/^[\d._-]+/,'').replace(/[_-]+/g,' ').trim();return b||stripExt(n)}
 const DATE_RX=/^\s*(\d{2})[.\-_](\d{2})[.\-_](\d{2})/;
 function dateFromName(n){const m=n.match(DATE_RX);if(!m)return null;const y=+m[1];return new Date(Date.UTC(y>=70?1900+y:2000+y,+m[2]-1,+m[3]))}
@@ -712,25 +683,19 @@ async function onSession(session){
 }
 function clearSession(){ vvipUser=null;isPremium=false;isAdmin=false;renderAuthNav(); }
 function renderAuthNav(){
-  const joinEl=document.getElementById('nav-join-free');
-  const vvipEl=document.getElementById('vvip-login-btn');
-  if(!joinEl||!vvipEl)return;
+  const el=document.getElementById('member-nav-item');
+  if(!el)return; // no longer in nav
   if(vvipUser){
-    joinEl.style.display='none';
-    if(isPremium||isAdmin){
-      vvipEl.style.display='none';
-    } else {
-      vvipEl.style.display='';
-      vvipEl.textContent='VVIP+';
-    }
+    el.innerHTML='<a href="/members.html">'+
+      (isAdmin?'&#9965; Admin':'&#10003; VVIP+')+'</a>'+
+      ' <button onclick="signOut()" style="background:none;border:none;cursor:pointer;font-family:Arial,sans-serif;font-size:12px;color:var(--muted);padding:0">sign out</button>';
   } else {
-    joinEl.style.display='';
-    vvipEl.style.display='none';
+    el.innerHTML='<button id="vvip-login-btn" onclick="signIn()">VVIP+ login</button>';
   }
 }
 async function signIn(){
   if(!supa)return alert('Auth not configured.');
-  await supa.auth.signInWithOAuth({provider:'google',options:{redirectTo:SITE_URL}});
+  await supa.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin}});
 }
 async function signOut(){
   if(!supa)return;
@@ -748,17 +713,10 @@ const state={
   favorites:new Set(JSON.parse(localStorage.getItem('vvip25:favs')||'[]')),
   favOrder:JSON.parse(localStorage.getItem('vvip25:favOrder')||'[]'),
   searchQuery:'',viewMode:'hashtags',sortMode:'date_desc',
-  extras:{},showDownloads:true,filterVideo:false,hiddenIds:new Set(),
+  extras:{},showDownloads:true,filterVideo:false,hiddenIds:new Set(),titles:null,
   displayRules:null,
   showGems:true,showTextFx:true,
 };
-
-// titles.json retired — titles come from manifest directly
-function pickTitle(raw){
-  if(!raw)return raw;
-  const parts=raw.split('//').map(s=>s.trim()).filter(Boolean);
-  return parts.length>1?parts[Math.floor(Math.random()*parts.length)]:raw.trim();
-}
 
 const pf=$('#vvip-player-frame');
 function send(d){pf?.contentWindow?.postMessage(d,'*')}
@@ -867,7 +825,10 @@ document.addEventListener('DOMContentLoaded',async()=>{
       const tags=extractTags(t.details||'');
       const vm=name.match(/\s*v(\d+)\.mp3$/i);
       const varNum=vm?parseInt(vm[1]):null;
-      return{id:idx,name,base,baseLower,title:pickTitle(t.title||deriveName(name)),thumb:t.thumb||null,details:t.details||'',
+      return{id:idx,name,base,baseLower,
+        title:pickTitle(t.title||deriveName(name)),
+        thumb:t.thumb||null,
+        details:t.details||'',
         bpm:t.bpm,bpm_min:t.bpm_min,bpm_max:t.bpm_max,length:t.length||0,
         src:BASE_MP3+encodeURIComponent(name),date,tags,varNum,versions:[]};
     });
@@ -889,6 +850,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     }
 
     await fetchThumbs();computeThumbCascade();
+    // titles now come directly from manifest (titles.json retired)
     try{const dr=await fetch('/display-rules.json?v='+ASSET_VERSION,{cache:'no-store'});state.displayRules=await dr.json()}catch{}
     state.viewMode='hashtags';updateToolbarVisibility();applyFilterSort();
     try{const er=await fetch('/extras.json?v='+ASSET_VERSION,{cache:'no-store'});state.extras=await er.json()}catch{}
@@ -897,6 +859,13 @@ document.addEventListener('DOMContentLoaded',async()=>{
     console.error(err);
   }
 });
+
+// titles.json retired — titles come from manifest directly
+function pickTitle(raw){
+  if(!raw)return raw;
+  const parts=raw.split('//').map(s=>s.trim()).filter(Boolean);
+  return parts.length>1?parts[Math.floor(Math.random()*parts.length)]:raw.trim();
+}
 
 async function fetchThumbs(){
   try{
@@ -918,7 +887,7 @@ function computeThumbCascade(){
   }
 }
 function getThumb(t){
-  if((t.details||'').toLowerCase().includes('#ij')) return BASE_THUMB+'IJPAUCthumb.png';
+  if((t.details||'').toLowerCase().includes('#ij')) return BASE_THUMB+'IJPAUCthumb.jpg';
   if(t.thumb) return BASE_POOL+encodeURIComponent(t.thumb);
   return state.resolvedThumb.get(t.id)||DEFAULT_THUMB;
 }
@@ -1136,22 +1105,13 @@ function rowHTML(t,i){
   right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
   let vTag='';
   if(t.versions&&t.versions.length){
-    // Sort all versions oldest→newest: v1, v2, v3...
-    const allVers=[...t.versions,t].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
-    // Build one button per version, labelled v1 v2 v3...
-    vTag=allVers.map((v,vi)=>{
-      const label='v'+(vi+1);
-      const isCurrent=v.id===t.id;
-      return '<button class="ver-btn'+(isCurrent?' ver-btn-active':'')+'" '
-        +'onclick="loadVersion(event,'+v.id+','+t.id+')" '
-        +'title="'+escHtml(v.title||v.name)+'" '
-        +'style="font-family:Arial,sans-serif;font-size:9px;'
-        +(isCurrent
-          ?'background:var(--gold-bg);color:var(--gold-fg);'
-          :'background:var(--tag-bg);color:var(--tag-fg);')
-        +'border:none;padding:0 5px;margin-left:3px;cursor:pointer;vertical-align:middle;height:16px">'
-        +label+'</button>';
-    }).join('');
+    // Show current version label + clickable cycle btn
+    const totalVers=1+t.versions.length;
+    // Find which version is currently active for this group
+    const allVers=[t,...t.versions].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
+    // The primary (t) is the newest; clicking cycles to next older
+    const nextVer=t.versions[0]; // oldest unheard version
+    vTag='<button class="ver-btn" data-track-id="'+t.id+'" onclick="cycleVersion(event,'+t.id+')" title="Cycle versions" style="font-family:Arial,sans-serif;font-size:9px;background:var(--tag-bg);color:var(--tag-fg);border:none;padding:0 4px;margin-left:4px;cursor:pointer;vertical-align:middle">v'+totalVers+' ↺</button>';
   }
   const ruled=applyDisplayRule(t.title);
   const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
@@ -1309,38 +1269,36 @@ function openPlayerGems(){
   document.body.appendChild(overlay);
 }
 
-// Load a specific version by its track id.
-// primaryId = the id of the track object currently shown in the list row.
-function loadVersion(e, verId, primaryId){
+function cycleVersion(e,id){
   e.stopPropagation();
-  // Find the group — primary track holds the versions array
-  const primary=state.tracks.find(t=>t.id===primaryId);
-  if(!primary) return;
-  const allVers=[...primary.versions, primary].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
-  const target=allVers.find(v=>v.id===verId);
-  if(!target) return;
-
-  // Insert into filtered if not present, play it
-  let fi=state.filtered.findIndex(t=>t.id===primaryId);
-  if(fi<0) return;
-  // Load the target version audio
-  const thumbRel=getThumb(target);
-  const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
-  send({cmd:'load',src:target.src,play:true,meta:{title:target.title||target.name,thumb:thumbAbs}});
-  state.playing=true;
-  const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');
-
-  // Update now-playing display to show the version being played
-  // but keep the primary row in the list — just update the button highlights
-  $$('.track-row[data-id="'+primaryId+'"] .ver-btn').forEach(btn=>{
-    const isThis=btn.textContent==='v'+(allVers.indexOf(target)+1);
-    btn.style.background=isThis?'var(--gold-bg)':'var(--tag-bg)';
-    btn.style.color=isThis?'var(--gold-fg)':'var(--tag-fg)';
-  });
-
-  // Update now-playing bar
-  state.i=fi;
-  updateNow();
+  const t=state.tracks.find(t=>t.id===id);if(!t||!t.versions||!t.versions.length)return;
+  // Rotate: swap primary track with first version
+  // t is currently playing as primary; t.versions[0] is next to play
+  const nextT=t.versions[0];
+  const rest=t.versions.slice(1);
+  // Swap: nextT becomes new primary, t goes to end of versions
+  nextT.versions=[...rest,t];
+  nextT.varNum=null; // make it appear in lists
+  t.versions=[];t.varNum=1; // demote current primary
+  // Update in state.tracks
+  const tIdx=state.tracks.findIndex(x=>x.id===id);
+  const nIdx=state.tracks.findIndex(x=>x.id===nextT.id);
+  if(tIdx>=0)state.tracks[tIdx]=nextT; // replace in array with same slot
+  if(nIdx>=0)state.tracks.splice(nIdx,1); // remove nextT from its old position
+  // Re-index state.filtered to point to nextT
+  const fi=state.filtered.findIndex(x=>x.id===id);
+  if(fi>=0)state.filtered[fi]=nextT;
+  // If this was playing, reload
+  const wasPlaying=state.playing&&state.i>=0&&state.filtered[state.i]?.id===nextT.id;
+  if(fi>=0&&fi===state.i){
+    const thumbRel=getThumb(nextT);
+    const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
+    send({cmd:'load',src:nextT.src,play:wasPlaying,meta:{title:nextT.title||nextT.name,thumb:thumbAbs}});
+    updateNow();
+  }
+  // Re-render just the affected row
+  const row=document.querySelector('.track-row[data-id="'+id+'"]');
+  if(row){row.outerHTML=rowHTML(nextT,state.filtered.indexOf(nextT));}
 }
 function playVersion(id){
   const t=state.tracks.find(t=>t.id===id);if(!t)return;
