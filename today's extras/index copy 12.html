@@ -669,17 +669,6 @@ function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>f
 const stripExt=s=>String(s).replace(/\.[a-z0-9]+$/i,'');
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function deriveName(n){const b=stripExt(n).replace(/^[\d._-]+/,'').replace(/[_-]+/g,' ').trim();return b||stripExt(n)}
-
-// Per-load random seed for title variants — shared across same-named tracks
-const _titleRng={};
-function titleRng(key){if(_titleRng[key]===undefined)_titleRng[key]=Math.random();return _titleRng[key];}
-
-// Split // titles randomly, stable per load
-function pickTitle(raw){
-  if(!raw)return raw;
-  const parts=raw.split('//').map(s=>s.trim()).filter(Boolean);
-  return parts.length>1?parts[Math.floor(titleRng(raw)*parts.length)]:raw.trim();
-}
 const DATE_RX=/^\s*(\d{2})[.\-_](\d{2})[.\-_](\d{2})/;
 function dateFromName(n){const m=n.match(DATE_RX);if(!m)return null;const y=+m[1];return new Date(Date.UTC(y>=70?1900+y:2000+y,+m[2]-1,+m[3]))}
 function bpmLabel(t){if(t.bpm!=null)return t.bpm+' BPM';if(t.bpm_min!=null&&t.bpm_max!=null)return t.bpm_min+'\u2013'+t.bpm_max+' BPM';return''}
@@ -1208,6 +1197,12 @@ function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle
 
 // Display Rules — returns HTML string for a title, or null if no rule applies
 // Per-load random seed for title variants (shared across same-named tracks)
+const _titleRng={};
+function titleRng(key){
+  if(_titleRng[key]===undefined)_titleRng[key]=Math.random();
+  return _titleRng[key];
+}
+
 function applyDisplayRule(title){
   if(!state.showTextFx||!state.displayRules||!title)return null;
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
