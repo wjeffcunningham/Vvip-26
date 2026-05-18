@@ -53,20 +53,21 @@
       },
       {
         "text": "V",
-        "style": "color:#76ff76;text-shadow:0 0 4px #00ff00,0 0 10px #00cc00,0 0 20px #004400"
       },
       {
-        "text": "|"
+        "text": "|",
+        "style": "color:#76ff76;text-shadow:0 0 4px #00ff00,0 0 10px #00cc00,0 0 20px #004400"
       },
       {
         "text": "D"
       },
       {
-        "text": "|"
+        "text": "|",
+        "style": "color:#76ff76;text-shadow:0 0 4px #00ff00,0 0 10px #00cc00,0 0 20px #004400"
       },
       {
         "text": "A",
-        "style": "color:#76ff76;text-shadow:0 0 4px #00ff00,0 0 10px #00cc00,0 0 20px #004400"
+        
       },
       {
         "text": " Rays"
