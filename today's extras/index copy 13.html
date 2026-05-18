@@ -866,7 +866,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       const tags=extractTags(t.details||'');
       const vm=name.match(/\s*v(\d+)\.mp3$/i);
       const varNum=vm?parseInt(vm[1]):null;
-      return{id:idx,name,base,baseLower,title:pickTitle(t.title||name),thumb:t.thumb||null,details:t.details||'',
+      return{id:idx,name,base,baseLower,title:pickTitle(t.title||deriveName(name)),thumb:t.thumb||null,details:t.details||'',
         bpm:t.bpm,bpm_min:t.bpm_min,bpm_max:t.bpm_max,length:t.length||0,
         src:BASE_MP3+encodeURIComponent(name),date,tags,varNum,versions:[]};
     });
