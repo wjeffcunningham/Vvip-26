@@ -32,7 +32,7 @@
     "bpm": 82,
     "bpm_min": null,
     "bpm_max": null,
-    "details": "#guitar; #slacker; #pavement; #optimistic; #kareoke; #beck; #memories",
+    "details": "#guitar; #slacker; #pavement; #optimistic; #kareoke; #beck; #memories;",
     "length": 0,
     "date": "2026-04-29",
     "year": 2026,
@@ -175,7 +175,7 @@
   },
   {
     "name": "26.02.21.103.mp3",
-    "title": "Last Skyway",
+    "title": "Skyway",
     "bpm": 103,
     "bpm_min": null,
     "bpm_max": null,
