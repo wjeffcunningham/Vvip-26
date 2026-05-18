@@ -5,14 +5,14 @@
     "segments": [
       {
         "text": "Display;",
-        "style": "color:#ff1a1a;text-shadow:0 0 8px #ff0000,0 0 2px #ff4444"
+        "style": "color:#f01a1a;text-shadow:0 0 8px #ff0000,0 0 2px #ff4444"
       },
       {
         "text": " "
       },
       {
         "text": "Flex;",
-        "style": "color:#00cfff;text-shadow:0 0 8px #00aaff,0 0 2px #00eeff"
+        "style": "color:#f0cfff;text-shadow:0 0 8px #00aaff,0 0 2px #00eeff"
       }
     ]
   },
