@@ -311,31 +311,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 .m-msg.err{background:#330000;color:#ff8888;border-color:#660000}
 .m-msg.info{background:var(--card);color:var(--muted);border-color:var(--border)}
 
-/* Thumbnail pool sub-tabs */
-.thumb-subtab{
-  font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.04em;
-  padding:5px 14px;background:var(--tab-inactive);border:1px solid var(--border);
-  border-bottom:none;cursor:pointer;color:var(--fg);margin-right:2px;
-  position:relative;top:1px;text-transform:uppercase;
-}
-.thumb-subtab.active{background:var(--bg)}
-.thumb-subtab:hover:not(.active){background:var(--hover)}
-
-/* Pool image grid tiles */
-.pool-tile{
-  position:relative;cursor:pointer;
-  border:2px solid transparent;
-  transition:border-color .1s;
-}
-.pool-tile:hover{border-color:var(--link)}
-.pool-tile.selected{border-color:var(--gold-bg)}
-.pool-tile img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
-.pool-tile-name{
-  font-family:Arial,sans-serif;font-size:9px;color:var(--muted);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  padding:2px 3px;background:var(--card);
-}
-
 /* Spinner */
 .spin{display:inline-block;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -655,88 +630,34 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
         </div>
       </div>
 
-      <!-- Thumbnail pane — Pool + Assign -->
+      <!-- Thumbnail pane -->
       <div class="admin-pane" id="pane-thumb">
-
-        <!-- Sub-tabs -->
-        <div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border)">
-          <button class="thumb-subtab active" onclick="thumbSubtab('pool',this)">Image Pool</button>
-          <button class="thumb-subtab" onclick="thumbSubtab('assign',this)">Assign to Track</button>
-        </div>
-
-        <!-- Pool sub-pane: upload images to shared pool -->
-        <div class="thumb-subpane active" id="tpane-pool">
-          <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">
-            Upload images to the shared pool. They live at <code style="font-size:11px">MEDIA/pool/</code> on R2 and can be assigned to any track. Square JPG/PNG ideal.
-          </p>
-          <div class="upload-grid">
-            <div class="m-field upload-full">
-              <label class="m-label">Image file(s) — select multiple to batch upload</label>
-              <input type="file" id="pool-files" accept=".jpg,.jpeg,.png,.webp" multiple class="m-file-input" onchange="previewPoolFiles(this)">
-            </div>
-            <div class="m-field">
-              <label class="m-label">Date tag (optional, YYYY-MM-DD)</label>
-              <input class="m-input" type="date" id="pool-date">
-            </div>
-            <div class="m-field">
-              <label class="m-label">Notes (optional)</label>
-              <input class="m-input" type="text" id="pool-notes" placeholder="e.g. live session aug 7">
-            </div>
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">
+          Upload a thumbnail override for any track. Overrides the cascade for that specific track only. JPG or PNG, ideally square.
+        </p>
+        <div class="upload-grid">
+          <div class="m-field upload-full">
+            <label class="m-label">Search track</label>
+            <input class="m-input" type="text" id="thumb-search" placeholder="e.g. analog tv" oninput="filterThumbTrack(this.value)">
+            <div id="thumb-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
+            <input type="hidden" id="thumb-track-name">
           </div>
-          <div id="pool-preview-strip" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"></div>
-          <div class="m-btn-row">
-            <button class="m-btn gold" onclick="uploadToPool()">Upload to Pool</button>
+          <div class="m-field upload-full" id="thumb-selected-wrap" style="display:none">
+            <label class="m-label">Selected</label>
+            <div id="thumb-selected-label" style="font-family:Arial,sans-serif;font-size:12px;padding:4px 8px;background:var(--card);border:1px solid var(--border)"></div>
           </div>
-          <div id="pool-status" class="m-msg"></div>
-
-          <!-- Pool browser -->
-          <div style="margin-top:18px;border-top:1px solid var(--border-light);padding-top:12px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <span style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Pool contents</span>
-              <button class="m-btn" onclick="loadPool()" style="font-size:10px;padding:2px 10px">↺ Refresh</button>
-            </div>
-            <div id="pool-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px">
-              <div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);padding:8px">Loading pool…</div>
-            </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Image (JPG / PNG)</label>
+            <input type="file" id="thumb-file" accept=".jpg,.jpeg,.png,.webp" class="m-file-input" onchange="previewThumb(this)">
+          </div>
+          <div class="m-field upload-full">
+            <img id="thumb-preview" style="display:none;width:120px;height:120px;object-fit:cover;border:2px solid var(--border)" alt="preview">
           </div>
         </div>
-
-        <!-- Assign sub-pane: pick track + pick from pool -->
-        <div class="thumb-subpane" id="tpane-assign" style="display:none">
-          <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">
-            Search for a track, then click an image from the pool to assign it as that track's thumbnail.
-          </p>
-
-          <!-- Track search -->
-          <div class="m-field">
-            <label class="m-label">Track</label>
-            <input class="m-input" type="text" id="assign-track-search" placeholder="search by title or filename…" oninput="filterAssignTrack(this.value)">
-            <div id="assign-track-results" style="border:1px solid var(--border);max-height:160px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
-          </div>
-          <div id="assign-selected-wrap" style="display:none;margin-bottom:12px">
-            <div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Selected track</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--card);border:1px solid var(--border)">
-              <img id="assign-current-thumb" src="" style="width:48px;height:48px;object-fit:cover;border:1px solid var(--border-light)" alt="">
-              <div>
-                <div id="assign-track-label" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold"></div>
-                <div id="assign-track-file" style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted)"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pool picker -->
-          <div style="margin-top:4px">
-            <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">
-              Click an image to assign →
-            </div>
-            <div id="assign-pool-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px">
-              <div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);padding:8px">Load pool first →</div>
-            </div>
-          </div>
-
-          <div id="assign-status" class="m-msg" style="margin-top:10px"></div>
+        <div class="m-btn-row">
+          <button class="m-btn gold" onclick="uploadThumb()">Upload Thumbnail</button>
         </div>
-
+        <div id="thumb-status" class="m-msg"></div>
       </div>
 
       <!-- Users pane -->
@@ -1138,179 +1059,37 @@ function adminTab(name, btn){
   document.querySelectorAll('.admin-pane').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('pane-'+name).classList.add('active');
-  if(name==='thumb') loadPool();
 }
 
-// ── ADMIN: THUMBNAILS — POOL + ASSIGN ──
-const CDN_POOL   = 'https://cdn.vvipmedia.net/MEDIA/pool/';
-const CDN_THUMBS = 'https://cdn.vvipmedia.net/MEDIA/thumbs/';
+// ── ADMIN: THUMBNAILS ──
+const THUMB_BASE = 'assets/thumbs/';
 const EDGE_THUMB = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/upload-thumb';
-const EDGE_POOL  = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/upload-pool';
 
-let poolImages = [];       // [{name, url, date}]
-let assignTrackName = '';  // currently selected track name for assign
-
-// ── Sub-tab switching ──
-function thumbSubtab(name, btn){
-  document.querySelectorAll('.thumb-subtab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.thumb-subpane').forEach(p=>p.style.display='none');
-  btn.classList.add('active');
-  document.getElementById('tpane-'+name).style.display='';
-  if(name==='assign' && !poolImages.length) loadPool();
-}
-
-// ── POOL: preview selected files ──
-function previewPoolFiles(input){
-  const strip = document.getElementById('pool-preview-strip');
-  strip.innerHTML = '';
-  Array.from(input.files).forEach(file => {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.style.cssText = 'width:64px;height:64px;object-fit:cover;border:1px solid var(--border)';
-    strip.appendChild(img);
-  });
-}
-
-// ── POOL: upload files to MEDIA/pool/ via edge function ──
-async function uploadToPool(){
-  const files = document.getElementById('pool-files').files;
-  const date  = document.getElementById('pool-date').value;
-  const notes = document.getElementById('pool-notes').value.trim();
-  const statusEl = document.getElementById('pool-status');
-  if(!files.length){ statusEl.textContent='Select at least one image.';statusEl.className='m-msg show err';return; }
-
-  statusEl.textContent=`Uploading ${files.length} file(s)…`;statusEl.className='m-msg show info';
-  const { data:{ session } } = await supa.auth.getSession();
-  let ok=0, fail=0;
-
-  for(const file of files){
-    const ext = file.name.split('.').pop().toLowerCase();
-    // preserve original filename; prefix date if provided
-    const baseName = date ? `${date}_${file.name}` : file.name;
-    const fd = new FormData();
-    fd.append('file', file, baseName);
-    fd.append('dest', 'pool');
-    if(date)  fd.append('date', date);
-    if(notes) fd.append('notes', notes);
-
-    try {
-      const res = await fetch(EDGE_POOL, {
-        method:'POST',
-        headers:{'Authorization':'Bearer '+session.access_token},
-        body: fd,
-      });
-      if(res.ok) ok++; else fail++;
-    } catch { fail++; }
-  }
-
-  statusEl.textContent = ok
-    ? `✓ ${ok} uploaded${fail?`, ${fail} failed`:''}. Refresh pool to see them.`
-    : `All ${fail} uploads failed — check console.`;
-  statusEl.className = `m-msg show ${fail&&!ok?'err':'ok'}`;
-  if(ok){
-    document.getElementById('pool-files').value='';
-    document.getElementById('pool-preview-strip').innerHTML='';
-    loadPool();
-  }
-}
-
-// ── POOL: load and render pool grid ──
-async function loadPool(){
-  poolImages = [];
-  const { data:{ session } } = await supa.auth.getSession();
-  try {
-    const res = await fetch(EDGE_POOL+'?action=list', {
-      headers:{'Authorization':'Bearer '+session.access_token}
-    });
-    if(res.ok){
-      const data = await res.json();
-      poolImages = data.files || [];
-    }
-  } catch(e){ console.error('loadPool error',e); }
-  renderPoolGrid('pool-grid', false);
-  renderPoolGrid('assign-pool-grid', true);
-}
-
-function renderPoolGrid(gridId, assignMode){
-  const grid = document.getElementById(gridId);
-  if(!grid) return;
-  if(!poolImages.length){
-    grid.innerHTML='<div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);padding:8px">Pool is empty — upload some images first.</div>';
-    return;
-  }
-  grid.innerHTML = poolImages.map(img => `
-    <div class="pool-tile" onclick="${assignMode?`assignThumbFromPool('${img.name.replace(/'/g,"\\'")}','${img.url.replace(/'/g,"\\'")}')`:''}" title="${img.name}">
-      <img src="${img.url}" alt="${img.name}" loading="lazy" onerror="this.parentElement.style.display='none'">
-      <div class="pool-tile-name">${img.name}</div>
-    </div>`).join('');
-}
-
-// ── ASSIGN: track search ──
-function filterAssignTrack(q){
-  const res = document.getElementById('assign-track-results');
+function filterThumbTrack(q){
+  const res = document.getElementById('thumb-track-results');
   if(!q||q.length<2){ res.style.display='none'; return; }
-  const matches = allTracks.filter(t=>
-    (t.title||t.name||'').toLowerCase().includes(q.toLowerCase())
-  ).slice(0,12);
+  const matches = allTracks.filter(t=>{
+    const title = (t.title||t.name||'').toLowerCase();
+    return title.includes(q.toLowerCase());
+  }).slice(0,12);
   if(!matches.length){ res.style.display='none'; return; }
   res.style.display='block';
   res.innerHTML = matches.map(t=>`
-    <div onclick="selectAssignTrack('${t.name.replace(/'/g,"\\'")}','${(t.title||t.name).replace(/'/g,"\\'")}','${t.thumb||''}')"
+    <div onclick="selectThumbTrack('${t.name.replace(/'/g,"\\'")}','${(t.title||t.name).replace(/'/g,"\\'")}'')"
       style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
       onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
       ${t.title||t.name}
-      <span style="color:var(--muted);font-size:10px;margin-left:6px">${t.name}</span>
     </div>`).join('');
 }
 
-function selectAssignTrack(name, title, currentThumb){
-  assignTrackName = name;
-  document.getElementById('assign-track-search').value = title;
-  document.getElementById('assign-track-results').style.display='none';
-  document.getElementById('assign-selected-wrap').style.display='';
-  document.getElementById('assign-track-label').textContent = title;
-  document.getElementById('assign-track-file').textContent = name;
-  const thumbEl = document.getElementById('assign-current-thumb');
-  thumbEl.src = currentThumb
-    ? CDN_THUMBS + currentThumb
-    : 'assets/thumbs/default_thumb.jpg';
-  // Highlight matching tile in pool grid
-  document.querySelectorAll('#assign-pool-grid .pool-tile').forEach(el=>{
-    el.classList.toggle('selected', el.querySelector('.pool-tile-name')?.textContent === currentThumb);
-  });
-  if(!poolImages.length) loadPool();
+function selectThumbTrack(name, title){
+  document.getElementById('thumb-track-name').value = name;
+  document.getElementById('thumb-search').value = title;
+  document.getElementById('thumb-track-results').style.display = 'none';
+  document.getElementById('thumb-selected-wrap').style.display = '';
+  document.getElementById('thumb-selected-label').textContent = name;
 }
 
-// ── ASSIGN: assign a pool image to the selected track ──
-async function assignThumbFromPool(imgName, imgUrl){
-  const statusEl = document.getElementById('assign-status');
-  if(!assignTrackName){ statusEl.textContent='Select a track first.';statusEl.className='m-msg show err';return; }
-
-  statusEl.textContent='Assigning…';statusEl.className='m-msg show info';
-
-  // Update manifest entry: set track.thumb = imgName
-  const idx = allTracks.findIndex(t=>t.name===assignTrackName);
-  if(idx<0){ statusEl.textContent='Track not found.';statusEl.className='m-msg show err';return; }
-
-  allTracks[idx].thumb = imgName;
-  const ok = await pushManifest();
-  if(ok){
-    statusEl.textContent=`✓ Assigned ${imgName} to ${assignTrackName}`;
-    statusEl.className='m-msg show ok';
-    // Update preview
-    document.getElementById('assign-current-thumb').src = imgUrl;
-    // Highlight in grid
-    document.querySelectorAll('#assign-pool-grid .pool-tile').forEach(el=>{
-      el.classList.toggle('selected', el.querySelector('.pool-tile-name')?.textContent===imgName);
-    });
-  } else {
-    statusEl.textContent='Manifest update failed.';
-    statusEl.className='m-msg show err';
-    allTracks[idx].thumb = undefined; // rollback
-  }
-}
-
-// ── Legacy single-upload (kept for direct track thumb upload) ──
 function previewThumb(input){
   const file = input.files[0]; if(!file) return;
   const img = document.getElementById('thumb-preview');
@@ -1319,26 +1098,47 @@ function previewThumb(input){
 }
 
 async function uploadThumb(){
-  const trackName = document.getElementById('thumb-track-name')?.value;
-  const file = document.getElementById('thumb-file')?.files[0];
+  const trackName = document.getElementById('thumb-track-name').value;
+  const file = document.getElementById('thumb-file').files[0];
   const statusEl = document.getElementById('thumb-status');
-  if(!statusEl) return;
+
   if(!trackName){ statusEl.textContent='Select a track first.';statusEl.className='m-msg show err';return; }
   if(!file){ statusEl.textContent='Choose an image file.';statusEl.className='m-msg show err';return; }
+
   statusEl.textContent='Uploading…';statusEl.className='m-msg show info';
+
+  // Derive thumb filename from track name: base + thumb.jpg
   const ext = file.name.split('.').pop().toLowerCase();
-  const base = trackName.replace(/\.[^.]+$/,'').toLowerCase();
-  const thumbName = base+'thumb.'+(ext==='png'?'png':'jpg');
+  const base = trackName.replace(/\.[^.]+$/, '').toLowerCase();
+  const thumbName = base + 'thumb.' + (ext==='png'?'png':'jpg');
+
   try {
     const { data:{ session } } = await supa.auth.getSession();
-    const fd = new FormData();
-    fd.append('file', file, thumbName);
-    fd.append('trackName', trackName);
-    fd.append('thumbName', thumbName);
-    const res = await fetch(EDGE_THUMB,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token},body:fd});
-    if(res.ok){ statusEl.textContent='✓ Uploaded as '+thumbName;statusEl.className='m-msg show ok'; }
-    else { statusEl.textContent='Error: '+(await res.text());statusEl.className='m-msg show err'; }
-  } catch(e){ statusEl.textContent='Upload failed: '+e.message;statusEl.className='m-msg show err'; }
+    const formData = new FormData();
+    formData.append('file', file, thumbName);
+    formData.append('trackName', trackName);
+    formData.append('thumbName', thumbName);
+
+    const res = await fetch(EDGE_THUMB, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + session.access_token },
+      body: formData,
+    });
+    if(res.ok){
+      statusEl.textContent = '✓ Thumbnail uploaded as ' + thumbName;
+      statusEl.className = 'm-msg show ok';
+      // Reset
+      document.getElementById('thumb-file').value = '';
+      document.getElementById('thumb-preview').style.display = 'none';
+    } else {
+      const txt = await res.text();
+      statusEl.textContent = 'Error: ' + txt;
+      statusEl.className = 'm-msg show err';
+    }
+  } catch(e) {
+    statusEl.textContent = 'Upload failed: ' + e.message;
+    statusEl.className = 'm-msg show err';
+  }
 }
 
 // ── ADMIN: USER MANAGEMENT ──

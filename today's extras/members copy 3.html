@@ -311,31 +311,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 .m-msg.err{background:#330000;color:#ff8888;border-color:#660000}
 .m-msg.info{background:var(--card);color:var(--muted);border-color:var(--border)}
 
-/* Thumbnail pool sub-tabs */
-.thumb-subtab{
-  font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.04em;
-  padding:5px 14px;background:var(--tab-inactive);border:1px solid var(--border);
-  border-bottom:none;cursor:pointer;color:var(--fg);margin-right:2px;
-  position:relative;top:1px;text-transform:uppercase;
-}
-.thumb-subtab.active{background:var(--bg)}
-.thumb-subtab:hover:not(.active){background:var(--hover)}
-
-/* Pool image grid tiles */
-.pool-tile{
-  position:relative;cursor:pointer;
-  border:2px solid transparent;
-  transition:border-color .1s;
-}
-.pool-tile:hover{border-color:var(--link)}
-.pool-tile.selected{border-color:var(--gold-bg)}
-.pool-tile img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
-.pool-tile-name{
-  font-family:Arial,sans-serif;font-size:9px;color:var(--muted);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  padding:2px 3px;background:var(--card);
-}
-
 /* Spinner */
 .spin{display:inline-block;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -343,50 +318,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 /* Responsive */
 @media(max-width:600px){
   #site-nav a,#site-nav button{margin-right:5px;font-size:10px}
-}
-
-/* ── SQUARE TOGGLE — 1995 panel style ── */
-.sq-toggle-wrap{
-  display:inline-flex;align-items:center;gap:8px;cursor:pointer;
-  font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg);
-  user-select:none;-webkit-user-select:none;
-}
-.sq-toggle-wrap input[type=checkbox]{
-  /* hide native */
-  position:absolute;opacity:0;width:0;height:0;pointer-events:none;
-}
-.sq-toggle-track{
-  position:relative;
-  width:36px;height:16px;
-  background:var(--btn-bg);
-  border:1px solid;
-  border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
-  flex-shrink:0;
-  transition:background .12s;
-}
-.sq-toggle-track::after{
-  content:'';
-  position:absolute;
-  top:2px;left:2px;
-  width:10px;height:10px;
-  background:var(--btn-sh);
-  border:1px solid;
-  border-color:var(--btn-dk) var(--btn-hi) var(--btn-hi) var(--btn-dk);
-  transition:left .1s,background .12s;
-}
-/* checked state */
-.sq-toggle-wrap input:checked + .sq-toggle-track{
-  background:#1a3a8a;
-  border-color:#0a1a5a #3a5acc #3a5acc #0a1a5a;
-}
-[data-theme="dark"] .sq-toggle-wrap input:checked + .sq-toggle-track{
-  background:#1a2e7a;
-  border-color:#080f40 #2244bb #2244bb #080f40;
-}
-.sq-toggle-wrap input:checked + .sq-toggle-track::after{
-  left:22px;
-  background:var(--btn-hi);
-  border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
 }
 </style>
 </head>
@@ -402,17 +333,7 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
     <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
-    <!-- nav-join: shown to logged-out visitors; nav-vvip: shown to free members; hidden for VVIP+ -->
-    <a id="nav-join" href="/members.html" style="display:none">Join Free</a>
-    <a id="vvip-nav-link" href="/members.html" style="display:none">VVIP+</a>
-    <!-- Utilities: small ▾ menu -->
-    <span id="utils-wrap" style="position:relative;margin-left:auto;flex-shrink:0">
-      <button id="utils-btn" onclick="toggleUtils()" style="font-family:Arial,sans-serif;font-size:11px;background:none;border:none;cursor:pointer;color:var(--muted);padding:0 2px;line-height:1.9">⋮</button>
-      <div id="utils-menu" style="display:none;position:absolute;right:0;top:100%;background:var(--card);border:1px solid var(--border);min-width:130px;z-index:99;font-family:Arial,sans-serif;font-size:11px;">
-        <a id="utils-join" href="/members.html" style="display:none;padding:7px 12px;color:var(--fg);text-decoration:none;display:block">Join Free</a>
-        <a id="utils-account" href="/members.html" style="display:none;padding:7px 12px;color:var(--fg);text-decoration:none;display:block">My Account</a>
-      </div>
-    </span>
+    <a id="vvip-nav-link" href="/members.html">VVIP+</a>
   </div>
   <button id="dark-btn" onclick="toggleDark()" title="Toggle dark mode">◑</button>
 </div>
@@ -514,7 +435,7 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
           <div class="benefit-tile">
             <div class="benefit-tile-icon">▶</div>
             <div class="benefit-tile-label">HQ Video</div>
-            <div class="benefit-tile-desc">Full-resolution video streams unlocked. <a id="vvip-archives-link" href="#" target="_blank">VVIP Archives →</a></div>
+            <div class="benefit-tile-desc">Full-resolution video streams unlocked in the player.</div>
           </div>
           <div class="benefit-tile">
             <div class="benefit-tile-icon">🛍</div>
@@ -523,27 +444,8 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
           </div>
           <div class="benefit-tile">
             <div class="benefit-tile-icon">✦</div>
-            <div class="benefit-tile-label">More to Come</div>
+            <div class="benefit-tile-label">More to Coming</div>
             <div class="benefit-tile-desc">Be a VVIP.</div>
-          </div>
-        </div>
-
-        <!-- VVIP+ store items -->
-        <div style="margin-top:18px;border-top:1px solid var(--border-light);padding-top:14px">
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Member Store</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <div style="border:1px solid var(--border);padding:12px 14px;background:var(--bg);font-family:Arial,sans-serif;font-size:12px;flex:1;min-width:180px">
-              <div style="font-weight:bold;margin-bottom:3px">All MP3s Download</div>
-              <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Complete archive — every track.</div>
-              <div style="font-size:15px;font-family:'Times New Roman',Times,serif;margin-bottom:8px">$10 <span style="font-size:11px;color:var(--muted)">OBO · CAD</span></div>
-              <a href="mailto:vvipmedia@proton.me?subject=MP3+Archive+Download" class="m-btn" style="font-size:11px;padding:5px 12px">Inquire →</a>
-            </div>
-            <div style="border:1px solid var(--border);padding:12px 14px;background:var(--bg);font-family:Arial,sans-serif;font-size:12px;flex:1;min-width:180px">
-              <div style="font-weight:bold;margin-bottom:3px">All WAVs Download</div>
-              <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Complete archive — lossless.</div>
-              <div style="font-size:15px;font-family:'Times New Roman',Times,serif;margin-bottom:8px">$20 <span style="font-size:11px;color:var(--muted)">OBO · CAD</span></div>
-              <a href="mailto:vvipmedia@proton.me?subject=WAV+Archive+Download" class="m-btn" style="font-size:11px;padding:5px 12px">Inquire →</a>
-            </div>
           </div>
         </div>
       </div>
@@ -639,12 +541,8 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
               <input class="m-input" type="text" id="edit-length">
             </div>
             <div class="m-field upload-full">
-              <label class="m-label">Tags / Details (e.g. #bestvvip #ambient)</label>
+              <label class="m-label">Tags / Details</label>
               <input class="m-input" type="text" id="edit-details">
-            </div>
-            <div class="m-field upload-full">
-              <label class="m-label">Hashtags (e.g. #moody #late-night)</label>
-              <input class="m-input" type="text" id="edit-hashtags" placeholder="#tag1 #tag2">
             </div>
           </div>
           <div class="m-btn-row">
@@ -655,88 +553,34 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
         </div>
       </div>
 
-      <!-- Thumbnail pane — Pool + Assign -->
+      <!-- Thumbnail pane -->
       <div class="admin-pane" id="pane-thumb">
-
-        <!-- Sub-tabs -->
-        <div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border)">
-          <button class="thumb-subtab active" onclick="thumbSubtab('pool',this)">Image Pool</button>
-          <button class="thumb-subtab" onclick="thumbSubtab('assign',this)">Assign to Track</button>
-        </div>
-
-        <!-- Pool sub-pane: upload images to shared pool -->
-        <div class="thumb-subpane active" id="tpane-pool">
-          <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">
-            Upload images to the shared pool. They live at <code style="font-size:11px">MEDIA/pool/</code> on R2 and can be assigned to any track. Square JPG/PNG ideal.
-          </p>
-          <div class="upload-grid">
-            <div class="m-field upload-full">
-              <label class="m-label">Image file(s) — select multiple to batch upload</label>
-              <input type="file" id="pool-files" accept=".jpg,.jpeg,.png,.webp" multiple class="m-file-input" onchange="previewPoolFiles(this)">
-            </div>
-            <div class="m-field">
-              <label class="m-label">Date tag (optional, YYYY-MM-DD)</label>
-              <input class="m-input" type="date" id="pool-date">
-            </div>
-            <div class="m-field">
-              <label class="m-label">Notes (optional)</label>
-              <input class="m-input" type="text" id="pool-notes" placeholder="e.g. live session aug 7">
-            </div>
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">
+          Upload a thumbnail override for any track. Overrides the cascade for that specific track only. JPG or PNG, ideally square.
+        </p>
+        <div class="upload-grid">
+          <div class="m-field upload-full">
+            <label class="m-label">Search track</label>
+            <input class="m-input" type="text" id="thumb-search" placeholder="e.g. analog tv" oninput="filterThumbTrack(this.value)">
+            <div id="thumb-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
+            <input type="hidden" id="thumb-track-name">
           </div>
-          <div id="pool-preview-strip" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"></div>
-          <div class="m-btn-row">
-            <button class="m-btn gold" onclick="uploadToPool()">Upload to Pool</button>
+          <div class="m-field upload-full" id="thumb-selected-wrap" style="display:none">
+            <label class="m-label">Selected</label>
+            <div id="thumb-selected-label" style="font-family:Arial,sans-serif;font-size:12px;padding:4px 8px;background:var(--card);border:1px solid var(--border)"></div>
           </div>
-          <div id="pool-status" class="m-msg"></div>
-
-          <!-- Pool browser -->
-          <div style="margin-top:18px;border-top:1px solid var(--border-light);padding-top:12px">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <span style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)">Pool contents</span>
-              <button class="m-btn" onclick="loadPool()" style="font-size:10px;padding:2px 10px">↺ Refresh</button>
-            </div>
-            <div id="pool-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px">
-              <div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);padding:8px">Loading pool…</div>
-            </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Image (JPG / PNG)</label>
+            <input type="file" id="thumb-file" accept=".jpg,.jpeg,.png,.webp" class="m-file-input" onchange="previewThumb(this)">
+          </div>
+          <div class="m-field upload-full">
+            <img id="thumb-preview" style="display:none;width:120px;height:120px;object-fit:cover;border:2px solid var(--border)" alt="preview">
           </div>
         </div>
-
-        <!-- Assign sub-pane: pick track + pick from pool -->
-        <div class="thumb-subpane" id="tpane-assign" style="display:none">
-          <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">
-            Search for a track, then click an image from the pool to assign it as that track's thumbnail.
-          </p>
-
-          <!-- Track search -->
-          <div class="m-field">
-            <label class="m-label">Track</label>
-            <input class="m-input" type="text" id="assign-track-search" placeholder="search by title or filename…" oninput="filterAssignTrack(this.value)">
-            <div id="assign-track-results" style="border:1px solid var(--border);max-height:160px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
-          </div>
-          <div id="assign-selected-wrap" style="display:none;margin-bottom:12px">
-            <div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">Selected track</div>
-            <div style="display:flex;align-items:center;gap:10px;padding:8px;background:var(--card);border:1px solid var(--border)">
-              <img id="assign-current-thumb" src="" style="width:48px;height:48px;object-fit:cover;border:1px solid var(--border-light)" alt="">
-              <div>
-                <div id="assign-track-label" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold"></div>
-                <div id="assign-track-file" style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted)"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pool picker -->
-          <div style="margin-top:4px">
-            <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">
-              Click an image to assign →
-            </div>
-            <div id="assign-pool-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:6px">
-              <div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);padding:8px">Load pool first →</div>
-            </div>
-          </div>
-
-          <div id="assign-status" class="m-msg" style="margin-top:10px"></div>
+        <div class="m-btn-row">
+          <button class="m-btn gold" onclick="uploadThumb()">Upload Thumbnail</button>
         </div>
-
+        <div id="thumb-status" class="m-msg"></div>
       </div>
 
       <!-- Users pane -->
@@ -776,9 +620,8 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 // ── CONFIG — same as index.html ──
 const SUPA_URL = 'https://fyyfiimnltaktrsczjdq.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
-const STRIPE_LINK = 'https://buy.stripe.com/9B67sMgpveHocnJ58FcbC00';
+const STRIPE_LINK = 'https://buy.stripe.com/9B67sMgpveHocnJ58FcbC00'; // e.g. https://buy.stripe.com/...
 const MANIFEST_URL = 'https://vvipmedia.net/manifest.json';
-const SITE_URL = 'https://vvipmedia.net'; // canonical — used for OAuth redirects
 // Supabase Edge Function URL for manifest updates (deploy separately)
 const EDGE_MANIFEST = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-manifest';
 
@@ -803,38 +646,19 @@ function toggleDark(){
 // ── AUTH ──
 async function init(){
   show('view-loading');
-  if(!supa){ setNavLoggedOut(); show('view-auth'); return; }
+  if(!supa){ show('view-auth'); return; }
 
   const { data: { session } } = await supa.auth.getSession();
   if(session){
     await onSession(session);
   } else {
-    setNavLoggedOut();
     show('view-auth');
   }
 
   supa.auth.onAuthStateChange(async (_, s) => {
     if(s) await onSession(s);
-    else { currentUser = null; profile = null; setNavLoggedOut(); show('view-auth'); }
+    else { currentUser = null; profile = null; show('view-auth'); }
   });
-}
-
-function setNavLoggedOut(){
-  document.getElementById('nav-join').style.display = '';
-  document.getElementById('vvip-nav-link').style.display = 'none';
-  const utilsJoin = document.getElementById('utils-join');
-  const utilsAccount = document.getElementById('utils-account');
-  utilsJoin.style.display = 'block';
-  utilsAccount.style.display = 'none';
-}
-
-function toggleUtils(){
-  const m = document.getElementById('utils-menu');
-  m.style.display = m.style.display === 'none' ? 'block' : 'none';
-  if(m.style.display === 'block'){
-    const close = (e)=>{ if(!document.getElementById('utils-wrap').contains(e.target)){ m.style.display='none'; document.removeEventListener('click',close); } };
-    setTimeout(()=>document.addEventListener('click',close),10);
-  }
 }
 
 async function onSession(session){
@@ -885,29 +709,6 @@ function renderMember(){
   document.getElementById('upgrade-section').style.display = profile.is_premium ? 'none' : '';
   document.getElementById('benefits-section').style.display = profile.is_premium ? '' : 'none';
 
-  // Nav state:
-  // - VVIP+: hide both join + vvip nav links; show account in utils
-  // - Free member: show VVIP+ link; hide join; show account in utils
-  // - Logged out: show Join Free + join in utils (handled in show('view-auth') path)
-  const navJoin = document.getElementById('nav-join');
-  const navVvip = document.getElementById('vvip-nav-link');
-  const utilsJoin = document.getElementById('utils-join');
-  const utilsAccount = document.getElementById('utils-account');
-
-  if(profile.is_premium || profile.is_admin){
-    navJoin.style.display = 'none';
-    navVvip.style.display = 'none';
-  } else {
-    navJoin.style.display = 'none';
-    navVvip.style.display = '';
-  }
-  utilsJoin.style.display = 'none';
-  utilsAccount.style.display = 'block';
-
-  // VVIP Archives link (set to CF bucket path — update URL as needed)
-  const archivesLink = document.getElementById('vvip-archives-link');
-  if(archivesLink) archivesLink.href = 'https://cdn.vvipmedia.net/MEDIA/video/';
-
   // Admin panel
   if(profile.is_admin){
     document.getElementById('admin-panel').style.display = '';
@@ -919,7 +720,7 @@ async function signInGoogle(){
   if(!supa) return alert('Auth not configured.');
   await supa.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: SITE_URL + '/members.html' }
+    options: { redirectTo: window.location.origin + '/members.html' }
   });
 }
 
@@ -930,7 +731,7 @@ async function signInMagic(){
   showMagicMsg('Sending… ◌');
   const { error } = await supa.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: SITE_URL + '/members.html' }
+    options: { emailRedirectTo: window.location.origin + '/members.html' }
   });
   if(error) showMagicMsg('Error: ' + error.message);
   else showMagicMsg('✓ Check your email for the link.');
@@ -940,7 +741,6 @@ function showMagicMsg(t){ document.getElementById('magic-msg').textContent = t; 
 async function signOut(){
   if(!supa) return;
   await supa.auth.signOut();
-  setNavLoggedOut();
   show('view-auth');
 }
 
@@ -1007,7 +807,6 @@ function openEditRow(i){
   document.getElementById('edit-date').value = t.date ? t.date.slice(0,10) : '';
   document.getElementById('edit-length').value = t.length ? fmtLen(t.length) : '';
   document.getElementById('edit-details').value = t.details || '';
-  document.getElementById('edit-hashtags').value = t.hashtags || '';
   const f = document.getElementById('song-edit-form');
   f.classList.add('open');
   f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1033,7 +832,6 @@ async function saveEdit(){
     date: document.getElementById('edit-date').value || undefined,
     length: lengthStr ? parseLenSec(lengthStr) : undefined,
     details: document.getElementById('edit-details').value.trim() || undefined,
-    hashtags: document.getElementById('edit-hashtags').value.trim() || undefined,
   };
   // Clean undefined
   Object.keys(updated).forEach(k => updated[k] === undefined && delete updated[k]);
@@ -1138,179 +936,37 @@ function adminTab(name, btn){
   document.querySelectorAll('.admin-pane').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('pane-'+name).classList.add('active');
-  if(name==='thumb') loadPool();
 }
 
-// ── ADMIN: THUMBNAILS — POOL + ASSIGN ──
-const CDN_POOL   = 'https://cdn.vvipmedia.net/MEDIA/pool/';
-const CDN_THUMBS = 'https://cdn.vvipmedia.net/MEDIA/thumbs/';
+// ── ADMIN: THUMBNAILS ──
+const THUMB_BASE = 'assets/thumbs/';
 const EDGE_THUMB = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/upload-thumb';
-const EDGE_POOL  = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/upload-pool';
 
-let poolImages = [];       // [{name, url, date}]
-let assignTrackName = '';  // currently selected track name for assign
-
-// ── Sub-tab switching ──
-function thumbSubtab(name, btn){
-  document.querySelectorAll('.thumb-subtab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.thumb-subpane').forEach(p=>p.style.display='none');
-  btn.classList.add('active');
-  document.getElementById('tpane-'+name).style.display='';
-  if(name==='assign' && !poolImages.length) loadPool();
-}
-
-// ── POOL: preview selected files ──
-function previewPoolFiles(input){
-  const strip = document.getElementById('pool-preview-strip');
-  strip.innerHTML = '';
-  Array.from(input.files).forEach(file => {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    img.style.cssText = 'width:64px;height:64px;object-fit:cover;border:1px solid var(--border)';
-    strip.appendChild(img);
-  });
-}
-
-// ── POOL: upload files to MEDIA/pool/ via edge function ──
-async function uploadToPool(){
-  const files = document.getElementById('pool-files').files;
-  const date  = document.getElementById('pool-date').value;
-  const notes = document.getElementById('pool-notes').value.trim();
-  const statusEl = document.getElementById('pool-status');
-  if(!files.length){ statusEl.textContent='Select at least one image.';statusEl.className='m-msg show err';return; }
-
-  statusEl.textContent=`Uploading ${files.length} file(s)…`;statusEl.className='m-msg show info';
-  const { data:{ session } } = await supa.auth.getSession();
-  let ok=0, fail=0;
-
-  for(const file of files){
-    const ext = file.name.split('.').pop().toLowerCase();
-    // preserve original filename; prefix date if provided
-    const baseName = date ? `${date}_${file.name}` : file.name;
-    const fd = new FormData();
-    fd.append('file', file, baseName);
-    fd.append('dest', 'pool');
-    if(date)  fd.append('date', date);
-    if(notes) fd.append('notes', notes);
-
-    try {
-      const res = await fetch(EDGE_POOL, {
-        method:'POST',
-        headers:{'Authorization':'Bearer '+session.access_token},
-        body: fd,
-      });
-      if(res.ok) ok++; else fail++;
-    } catch { fail++; }
-  }
-
-  statusEl.textContent = ok
-    ? `✓ ${ok} uploaded${fail?`, ${fail} failed`:''}. Refresh pool to see them.`
-    : `All ${fail} uploads failed — check console.`;
-  statusEl.className = `m-msg show ${fail&&!ok?'err':'ok'}`;
-  if(ok){
-    document.getElementById('pool-files').value='';
-    document.getElementById('pool-preview-strip').innerHTML='';
-    loadPool();
-  }
-}
-
-// ── POOL: load and render pool grid ──
-async function loadPool(){
-  poolImages = [];
-  const { data:{ session } } = await supa.auth.getSession();
-  try {
-    const res = await fetch(EDGE_POOL+'?action=list', {
-      headers:{'Authorization':'Bearer '+session.access_token}
-    });
-    if(res.ok){
-      const data = await res.json();
-      poolImages = data.files || [];
-    }
-  } catch(e){ console.error('loadPool error',e); }
-  renderPoolGrid('pool-grid', false);
-  renderPoolGrid('assign-pool-grid', true);
-}
-
-function renderPoolGrid(gridId, assignMode){
-  const grid = document.getElementById(gridId);
-  if(!grid) return;
-  if(!poolImages.length){
-    grid.innerHTML='<div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);padding:8px">Pool is empty — upload some images first.</div>';
-    return;
-  }
-  grid.innerHTML = poolImages.map(img => `
-    <div class="pool-tile" onclick="${assignMode?`assignThumbFromPool('${img.name.replace(/'/g,"\\'")}','${img.url.replace(/'/g,"\\'")}')`:''}" title="${img.name}">
-      <img src="${img.url}" alt="${img.name}" loading="lazy" onerror="this.parentElement.style.display='none'">
-      <div class="pool-tile-name">${img.name}</div>
-    </div>`).join('');
-}
-
-// ── ASSIGN: track search ──
-function filterAssignTrack(q){
-  const res = document.getElementById('assign-track-results');
+function filterThumbTrack(q){
+  const res = document.getElementById('thumb-track-results');
   if(!q||q.length<2){ res.style.display='none'; return; }
-  const matches = allTracks.filter(t=>
-    (t.title||t.name||'').toLowerCase().includes(q.toLowerCase())
-  ).slice(0,12);
+  const matches = allTracks.filter(t=>{
+    const title = (t.title||t.name||'').toLowerCase();
+    return title.includes(q.toLowerCase());
+  }).slice(0,12);
   if(!matches.length){ res.style.display='none'; return; }
   res.style.display='block';
   res.innerHTML = matches.map(t=>`
-    <div onclick="selectAssignTrack('${t.name.replace(/'/g,"\\'")}','${(t.title||t.name).replace(/'/g,"\\'")}','${t.thumb||''}')"
+    <div onclick="selectThumbTrack('${t.name.replace(/'/g,"\\'")}','${(t.title||t.name).replace(/'/g,"\\'")}'')"
       style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
       onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
       ${t.title||t.name}
-      <span style="color:var(--muted);font-size:10px;margin-left:6px">${t.name}</span>
     </div>`).join('');
 }
 
-function selectAssignTrack(name, title, currentThumb){
-  assignTrackName = name;
-  document.getElementById('assign-track-search').value = title;
-  document.getElementById('assign-track-results').style.display='none';
-  document.getElementById('assign-selected-wrap').style.display='';
-  document.getElementById('assign-track-label').textContent = title;
-  document.getElementById('assign-track-file').textContent = name;
-  const thumbEl = document.getElementById('assign-current-thumb');
-  thumbEl.src = currentThumb
-    ? CDN_THUMBS + currentThumb
-    : 'assets/thumbs/default_thumb.jpg';
-  // Highlight matching tile in pool grid
-  document.querySelectorAll('#assign-pool-grid .pool-tile').forEach(el=>{
-    el.classList.toggle('selected', el.querySelector('.pool-tile-name')?.textContent === currentThumb);
-  });
-  if(!poolImages.length) loadPool();
+function selectThumbTrack(name, title){
+  document.getElementById('thumb-track-name').value = name;
+  document.getElementById('thumb-search').value = title;
+  document.getElementById('thumb-track-results').style.display = 'none';
+  document.getElementById('thumb-selected-wrap').style.display = '';
+  document.getElementById('thumb-selected-label').textContent = name;
 }
 
-// ── ASSIGN: assign a pool image to the selected track ──
-async function assignThumbFromPool(imgName, imgUrl){
-  const statusEl = document.getElementById('assign-status');
-  if(!assignTrackName){ statusEl.textContent='Select a track first.';statusEl.className='m-msg show err';return; }
-
-  statusEl.textContent='Assigning…';statusEl.className='m-msg show info';
-
-  // Update manifest entry: set track.thumb = imgName
-  const idx = allTracks.findIndex(t=>t.name===assignTrackName);
-  if(idx<0){ statusEl.textContent='Track not found.';statusEl.className='m-msg show err';return; }
-
-  allTracks[idx].thumb = imgName;
-  const ok = await pushManifest();
-  if(ok){
-    statusEl.textContent=`✓ Assigned ${imgName} to ${assignTrackName}`;
-    statusEl.className='m-msg show ok';
-    // Update preview
-    document.getElementById('assign-current-thumb').src = imgUrl;
-    // Highlight in grid
-    document.querySelectorAll('#assign-pool-grid .pool-tile').forEach(el=>{
-      el.classList.toggle('selected', el.querySelector('.pool-tile-name')?.textContent===imgName);
-    });
-  } else {
-    statusEl.textContent='Manifest update failed.';
-    statusEl.className='m-msg show err';
-    allTracks[idx].thumb = undefined; // rollback
-  }
-}
-
-// ── Legacy single-upload (kept for direct track thumb upload) ──
 function previewThumb(input){
   const file = input.files[0]; if(!file) return;
   const img = document.getElementById('thumb-preview');
@@ -1319,26 +975,47 @@ function previewThumb(input){
 }
 
 async function uploadThumb(){
-  const trackName = document.getElementById('thumb-track-name')?.value;
-  const file = document.getElementById('thumb-file')?.files[0];
+  const trackName = document.getElementById('thumb-track-name').value;
+  const file = document.getElementById('thumb-file').files[0];
   const statusEl = document.getElementById('thumb-status');
-  if(!statusEl) return;
+
   if(!trackName){ statusEl.textContent='Select a track first.';statusEl.className='m-msg show err';return; }
   if(!file){ statusEl.textContent='Choose an image file.';statusEl.className='m-msg show err';return; }
+
   statusEl.textContent='Uploading…';statusEl.className='m-msg show info';
+
+  // Derive thumb filename from track name: base + thumb.jpg
   const ext = file.name.split('.').pop().toLowerCase();
-  const base = trackName.replace(/\.[^.]+$/,'').toLowerCase();
-  const thumbName = base+'thumb.'+(ext==='png'?'png':'jpg');
+  const base = trackName.replace(/\.[^.]+$/, '').toLowerCase();
+  const thumbName = base + 'thumb.' + (ext==='png'?'png':'jpg');
+
   try {
     const { data:{ session } } = await supa.auth.getSession();
-    const fd = new FormData();
-    fd.append('file', file, thumbName);
-    fd.append('trackName', trackName);
-    fd.append('thumbName', thumbName);
-    const res = await fetch(EDGE_THUMB,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token},body:fd});
-    if(res.ok){ statusEl.textContent='✓ Uploaded as '+thumbName;statusEl.className='m-msg show ok'; }
-    else { statusEl.textContent='Error: '+(await res.text());statusEl.className='m-msg show err'; }
-  } catch(e){ statusEl.textContent='Upload failed: '+e.message;statusEl.className='m-msg show err'; }
+    const formData = new FormData();
+    formData.append('file', file, thumbName);
+    formData.append('trackName', trackName);
+    formData.append('thumbName', thumbName);
+
+    const res = await fetch(EDGE_THUMB, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + session.access_token },
+      body: formData,
+    });
+    if(res.ok){
+      statusEl.textContent = '✓ Thumbnail uploaded as ' + thumbName;
+      statusEl.className = 'm-msg show ok';
+      // Reset
+      document.getElementById('thumb-file').value = '';
+      document.getElementById('thumb-preview').style.display = 'none';
+    } else {
+      const txt = await res.text();
+      statusEl.textContent = 'Error: ' + txt;
+      statusEl.className = 'm-msg show err';
+    }
+  } catch(e) {
+    statusEl.textContent = 'Upload failed: ' + e.message;
+    statusEl.className = 'm-msg show err';
+  }
 }
 
 // ── ADMIN: USER MANAGEMENT ──

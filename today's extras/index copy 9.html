@@ -597,8 +597,7 @@ try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 const PREFERRED_TAG='bestvvip';
 const BASE_MP3='https://cdn.vvipmedia.net/ACCESS/';
 const BASE_WAV='https://cdn.vvipmedia.net/WAV/';
-const BASE_THUMB='https://cdn.vvipmedia.net/MEDIA/thumbs/';
-const BASE_POOL='https://cdn.vvipmedia.net/MEDIA/pool/';
+const BASE_THUMB='assets/thumbs/';
 const DEFAULT_THUMB=BASE_THUMB+'default_thumb.jpg';
 const BASE_EXTRAS='https://cdn.vvipmedia.net/MEDIA/extras/';
 const BASE_VLO='https://cdn.vvipmedia.net/videos/';
@@ -825,10 +824,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
       const tags=extractTags(t.details||'');
       const vm=name.match(/\s*v(\d+)\.mp3$/i);
       const varNum=vm?parseInt(vm[1]):null;
-      return{id:idx,name,base,baseLower,
-        title:pickTitle(t.title||deriveName(name)),
-        thumb:t.thumb||null,
-        details:t.details||'',
+      return{id:idx,name,base,baseLower,title:t.title||deriveName(name),details:t.details||'',
         bpm:t.bpm,bpm_min:t.bpm_min,bpm_max:t.bpm_max,length:t.length||0,
         src:BASE_MP3+encodeURIComponent(name),date,tags,varNum,versions:[]};
     });
@@ -850,7 +846,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     }
 
     await fetchThumbs();computeThumbCascade();
-    // titles now come directly from manifest (titles.json retired)
+    await fetchTitles();applyTitles();
     try{const dr=await fetch('/display-rules.json?v='+ASSET_VERSION,{cache:'no-store'});state.displayRules=await dr.json()}catch{}
     state.viewMode='hashtags';updateToolbarVisibility();applyFilterSort();
     try{const er=await fetch('/extras.json?v='+ASSET_VERSION,{cache:'no-store'});state.extras=await er.json()}catch{}
@@ -860,12 +856,21 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }
 });
 
-// titles.json retired — titles come from manifest directly
+async function fetchTitles(){
+  try{
+    const r=await fetch('https://vvipmedia.net/titles.json',{cache:'no-store'});if(!r.ok)throw 0;
+    const raw=(await r.text()).trim().replace(/^\uFEFF/,'');
+    const json=JSON.parse(raw);const m=new Map();
+    for(const[k,v]of Object.entries(json||{}))m.set(stripExt(k).toLowerCase(),typeof v==='string'?v:v.title||'');
+    state.titles=m;
+  }catch{}
+}
 function pickTitle(raw){
   if(!raw)return raw;
   const parts=raw.split('//').map(s=>s.trim()).filter(Boolean);
   return parts.length>1?parts[Math.floor(Math.random()*parts.length)]:raw.trim();
 }
+function applyTitles(){if(!state.titles)return;for(const t of state.tracks){const n=state.titles.get(t.baseLower);if(n&&n.trim())t.title=pickTitle(n)}}
 
 async function fetchThumbs(){
   try{
@@ -886,11 +891,7 @@ function computeThumbCascade(){
     state.resolvedThumb.set(t.id,cur);
   }
 }
-function getThumb(t){
-  if((t.details||'').toLowerCase().includes('#ij')) return BASE_THUMB+'IJPAUCthumb.jpg';
-  if(t.thumb) return BASE_POOL+encodeURIComponent(t.thumb);
-  return state.resolvedThumb.get(t.id)||DEFAULT_THUMB;
-}
+function getThumb(t){if((t.details||'').toLowerCase().includes('#ij'))return BASE_THUMB+'IJPAUCthumb.jpg';return state.resolvedThumb.get(t.id)||DEFAULT_THUMB}
 
 function openVideo(hq){
   const t=state.filtered[state.i];if(!t)return;
