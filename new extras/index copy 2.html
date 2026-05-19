@@ -80,7 +80,7 @@
 
 html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !important;transition:none !important}
 html.no-anim #site-name{-webkit-text-fill-color:var(--fg);background:none}
-html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:none}
+html.no-anim #vvip-login-btn{-webkit-text-fill-color:var(--gold-bg);background:none}
 *,*::before,*::after{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{background:var(--bg);color:var(--fg);font-family:"Times New Roman",Times,serif;font-size:15px;line-height:1.4;transition:background .3s,color .3s}
@@ -538,15 +538,6 @@ body.hide-titles .t-title-file{display:inline !important}
 .t-right a,.t-right button{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px;cursor:pointer;display:inline-block;line-height:1.4}
 .t-right a:hover,.t-right button:hover{background:var(--hover)}
 .t-right a.wav-off{color:var(--muted);pointer-events:none;opacity:.45}
-.t-vid-badge{
-  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
-  display:inline-block;padding:1px 6px;margin-left:3px;
-  border:1px solid;cursor:pointer;
-  background:var(--tag-bg);color:var(--tag-fg);border-color:var(--tag-bg);
-  vertical-align:middle;line-height:1.5;
-}
-.t-vid-badge.hq{background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-sh)}
-.t-vid-badge.soundtrack{background:#2a0a3a;color:#cc88ff;border-color:#6622aa}
 .track-row.unavailable{opacity:.45;cursor:default}
 .track-row.unavailable .t-title-name::after{content:' ✕';font-size:9px;color:var(--muted);vertical-align:middle;margin-left:4px}
 .star-btn{background:none !important;border:none !important;font-size:14px !important;cursor:pointer;color:var(--muted);padding:1px 3px !important;margin-left:2px !important}
@@ -559,9 +550,6 @@ body.hide-titles .t-title-file{display:inline !important}
 @media(max-width:480px){
   .t-right{width:44px}
   .t-right a:not(.star-btn){display:none}
-  /* In video tab, show badges even on mobile */
-  body.view-video .t-right{width:auto}
-  body.view-video .t-right a:not(.star-btn){display:none}
 }
 @media(max-width:360px){
   .t-num{display:none}
@@ -1016,7 +1004,6 @@ $$('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
   $$('.view-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   state.viewMode=btn.dataset.view;
-  document.body.classList.toggle('view-video', btn.dataset.view==='video');
   updateToolbarVisibility();
   if(btn.dataset.view!=='shoppe') applyFilterSort();
 }));
@@ -1316,21 +1303,6 @@ function rowHTML(t,i){
   // Always render download link — toggling just shows/hides it without re-render
   const dlDisplay=state.showDownloads?'':'none';
   right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
-
-  // Video badges — shown in Video tab
-  if(state.viewMode==='video'){
-    const dl=(t.details||'').toLowerCase();
-    const isSoundtrack=dl.includes('#ij')||dl.includes('#yijpauc');
-    const loV=getLoVid(t),hqV=getHqVid(t);
-    if(isSoundtrack){
-      right='<span class="t-vid-badge soundtrack" onclick="event.stopPropagation();selectAndOpenVideo('+t.id+',false)" title="Soundtrack">🎵 Soundtrack</span>'+right;
-    } else if(hqV&&(isPremium||isAdmin)){
-      right='<span class="t-vid-badge hq" onclick="event.stopPropagation();selectAndOpenVideo('+t.id+',true)" title="HQ Video">▶ HQ</span>'+right;
-    } else if(loV){
-      right='<span class="t-vid-badge" onclick="event.stopPropagation();selectAndOpenVideo('+t.id+',false)" title="Video">▶ Video</span>'+right;
-    }
-  }
-
   let vTag='';
   if(t.versions&&t.versions.length){
     const allVers=[...t.versions,t].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
@@ -1391,6 +1363,7 @@ document.addEventListener('click',e=>{
 
 function select(i){
   state.i=i;const t=state.filtered[i];if(!t)return;
+  // Artwork must be absolute URL for iOS lock screen Media Session
   const thumbRel=getThumb(t);
   const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
   send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:thumbAbs}});
@@ -1398,26 +1371,6 @@ function select(i){
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
   document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
   updateNow();
-  // In video tab: auto-open the video for this track
-  if(state.viewMode==='video'){
-    const loV=getLoVid(t),hqV=getHqVid(t);
-    if(loV||hqV) setTimeout(()=>openVideo(!!(hqV&&(isPremium||isAdmin))),80);
-  }
-}
-
-// Select a track by ID and open its video — used by badge buttons
-function selectAndOpenVideo(id,preferHq){
-  const idx=state.filtered.findIndex(t=>t.id===id);
-  if(idx<0)return;
-  state.i=idx;
-  const t=state.filtered[idx];
-  const thumbRel=getThumb(t);
-  const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
-  send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:thumbAbs}});
-  $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
-  document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
-  updateNow();
-  setTimeout(()=>openVideo(preferHq&&!!(getHqVid(t))&&(isPremium||isAdmin)),80);
 }
 function play(){if(state.i<0)return;send({cmd:'load',src:state.filtered[state.i].src,play:true});state.playing=true;const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');}
 function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');}
