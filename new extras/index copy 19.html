@@ -533,56 +533,28 @@ body.hide-titles .t-title-name{display:none}
 body.hide-titles .t-title-file{display:inline !important}
 .t-title-file{display:none;color:var(--fg);font-weight:bold;font-style:normal}
 .t-meta{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* ── TRACK TILE GRID — fixed 3-slot right column, matches player nbtn ── */
-.t-right{
-  display:table-cell;vertical-align:middle;padding:0;
-  width:144px; /* 3 × 48px — always fixed */
-  border-left:1px solid var(--border-light);
-}
-.t-tiles{
-  display:grid;
-  grid-template-columns:repeat(3,48px);
-  grid-template-rows:1fr;
-  height:100%;min-height:70px;
-}
-/* Tile = nbtn but 1-row variant */
-.t-tile{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:bold;
-  color:var(--fg);background:var(--btn-bg);
-  border:none;border-right:1px solid var(--border-light);
-  cursor:pointer;padding:4px 2px;gap:2px;
-  text-decoration:none;touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
-  transition:background .1s;text-align:center;line-height:1.1;
-}
-.t-tile:last-child{border-right:none}
-.t-tile:hover{background:var(--hover)}
-.t-tile:active{background:var(--border)}
-.t-tile-icon{font-size:14px;line-height:1}
-.t-tile.disabled{color:var(--muted);pointer-events:none;opacity:.4}
-.t-tile.empty{pointer-events:none;background:var(--card);border-right:1px solid var(--border-light)}
-.t-tile.empty:last-child{border-right:none}
-.t-tile.gold{background:var(--gold-bg);color:var(--gold-fg)}
-.t-tile.gold:hover{background:var(--gold-hi)}
-.t-tile.star{background:none;font-size:16px;color:var(--muted);border-right:none}
-.t-tile.star.on{color:var(--star-on)}
+.t-right{display:table-cell;vertical-align:middle;padding:5px 8px 5px 4px;text-align:right;white-space:nowrap;width:90px}
+.t-right a,.t-right button{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px;cursor:pointer;display:inline-block;line-height:1.4}
+.t-right a:hover,.t-right button:hover{background:var(--hover)}
+.t-right a.wav-off{color:var(--muted);pointer-events:none;opacity:.45}
+/* Video tab badges — match nbtn tile style exactly */
 .track-row.unavailable{opacity:.45;cursor:default}
 .track-row.unavailable .t-title-name::after{content:' ✕';font-size:9px;color:var(--muted);vertical-align:middle;margin-left:4px}
-/* legacy star-btn kept for hashtag click handlers */
 .star-btn{background:none !important;border:none !important;font-size:14px !important;cursor:pointer;color:var(--muted);padding:1px 3px !important;margin-left:2px !important}
 .star-btn.on{color:var(--star-on)}
 .extras-row{display:table;width:100%;box-sizing:border-box}
 .extras-cell{display:table-cell;padding:6px 8px;border-top:1px solid var(--border-light);background:var(--card)}
 .extras-cell img{width:60px;height:60px;object-fit:cover;border:1px solid var(--border);margin-right:4px;vertical-align:top}
 #empty-msg{display:none;padding:20px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted);text-align:center;border:1px solid var(--border);border-top:none}
+
 @media(max-width:480px){
-  .t-right{width:96px} /* 2 slots on small screens */
-  .t-tiles{grid-template-columns:repeat(2,48px)}
-  body.view-video .t-right{width:144px}
-  body.view-video .t-tiles{grid-template-columns:repeat(3,48px)}
+  .t-right{width:44px}
+  .t-right a:not(.star-btn){display:none}
+  body.view-video .t-right{width:auto}
 }
-@media(max-width:360px){.t-num{display:none}}
+@media(max-width:360px){
+  .t-num{display:none}
+}
 </style>
 </head>
 <body>
@@ -1385,40 +1357,29 @@ function rowHTML(t,i){
   const sub=[bpmLabel(t),t.date?t.date.toISOString().slice(0,10):''].filter(Boolean).join('  /  ');
   const fav=state.favorites.has(t.name);
   const hasExtras=state.extras&&state.extras[t.baseLower];
-  const loV=getLoVid(t), hqV=getHqVid(t)&&state.showHqVideo;
-  const inVideoTab=state.viewMode==='video';
+  let right='<button class="star-btn'+(fav?' on':'')+'" data-fav="'+t.name+'">\u2605</button>';
+  if(hasExtras)right='<button class="gem-btn" data-gem="'+t.baseLower+'" style="background:none;border:none;cursor:pointer;font-size:11px;padding:1px 3px;margin-left:2px">\ud83d\udc8e</button>'+right;
+  // Always render download link — toggling just shows/hides it without re-render
+  const dlDisplay=state.showDownloads?'':'none';
+  right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
 
-  // Fixed 3-slot tile grid — slots: [action1] [action2] [★]
-  // Slot 1: Video (if available) or HQ (if only HQ) or MP3 download or empty
-  // Slot 2: HQ (if video also exists) or Gems or empty
-  // Slot 3: always ★
-  const tiles=[];
-
-  if(inVideoTab){
-    // Video tab: Video tile, HQ tile, star
-    tiles.push(loV
-      ? `<button class="t-tile" onclick="event.stopPropagation();selectAndPlay(${t.id},false)" title="Video"><span class="t-tile-icon">▶</span>Video</button>`
-      : `<span class="t-tile empty"></span>`);
-    tiles.push(hqV
-      ? `<button class="t-tile gold" onclick="event.stopPropagation();selectAndPlay(${t.id},true)" title="HQ Video"><span class="t-tile-icon">▶</span>HQ</button>`
-      : `<span class="t-tile empty"></span>`);
+  // Video tab: star + relevant video tiles
+  if(state.viewMode==='video'){
+    const loV=getLoVid(t), hqV=getHqVid(t);
+    const tileStyle='display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:8px;font-weight:bold;width:30px;height:30px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);margin-left:2px;vertical-align:middle;cursor:pointer;gap:1px;line-height:1';
+    const hqStyle='background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi)';
+    right='<button class="star-btn'+(fav?' on':'')+'" data-fav="'+t.name+'">\u2605</button>';
+    if(hqV&&state.showHqVideo) right='<button style="'+tileStyle+';'+hqStyle+'" onclick="event.stopPropagation();selectAndPlay('+t.id+',true)" title="HQ Video"><span style="font-size:11px">▶</span>HQ</button>'+right;
+    if(loV) right='<button style="'+tileStyle+'" onclick="event.stopPropagation();selectAndPlay('+t.id+',false)" title="Video"><span style="font-size:11px">▶</span>Video</button>'+right;
   } else {
-    // Normal view: MP3 download, then Video or HQ or Gems
-    const dlDisplay=state.showDownloads?'':'none';
-    tiles.push(`<a class="t-tile t-dl-link" href="${t.src}" download style="display:${dlDisplay}" title="Download MP3"><span class="t-tile-icon">⬇</span>MP3</a>`);
-    // Slot 2: Video > HQ > Gems > empty (priority order)
-    if(loV){
-      tiles.push(`<button class="t-tile" onclick="event.stopPropagation();selectAndPlay(${t.id},false)" title="Video"><span class="t-tile-icon">▶</span>Video</button>`);
-    } else if(hqV){
-      tiles.push(`<button class="t-tile gold" onclick="event.stopPropagation();selectAndPlay(${t.id},true)" title="HQ Video"><span class="t-tile-icon">▶</span>HQ</button>`);
-    } else if(hasExtras&&state.showGems){
-      tiles.push(`<button class="t-tile" onclick="event.stopPropagation();openPlayerGems()" title="Gems"><span class="t-tile-icon">💎</span>Gems</button>`);
-    } else {
-      tiles.push(`<span class="t-tile empty"></span>`);
-    }
+    // All other views: show small tiles for available features
+    const loV=getLoVid(t), hqV=getHqVid(t);
+    const tileStyle='display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:8px;font-weight:bold;width:30px;height:30px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);margin-left:2px;vertical-align:middle;cursor:pointer;gap:1px;line-height:1';
+    const hqStyle='background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi)';
+    if(hqV&&state.showHqVideo) right='<button style="'+tileStyle+';'+hqStyle+'" onclick="event.stopPropagation();selectAndPlay('+t.id+',true)" title="HQ Video"><span style="font-size:11px">▶</span>HQ</button>'+right;
+    if(loV) right='<button style="'+tileStyle+'" onclick="event.stopPropagation();selectAndPlay('+t.id+',false)" title="Video"><span style="font-size:11px">▶</span>Video</button>'+right;
+    if(hasExtras&&state.showGems) right='<button style="'+tileStyle+'" onclick="event.stopPropagation();openPlayerGems()" title="Gems"><span style="font-size:12px">💎</span></button>'+right;
   }
-  // Slot 3: always star
-  tiles.push(`<button class="t-tile star${fav?' on':''}" data-fav="${t.name}" onclick="event.stopPropagation();toggleFav(this,'${t.name.replace(/'/g,"\\'")}')">\u2605</button>`);
 
   let vTag='';
   if(t.versions&&t.versions.length){
@@ -1438,30 +1399,22 @@ function rowHTML(t,i){
   const ruled=applyDisplayRule(t.title);
   const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
   let thumbSrc=getThumb(t);
-  if(inVideoTab){
-    const loV2=getLoVid(t);
-    if(loV2&&loV2.startsWith('yt:'))
-      thumbSrc='https://img.youtube.com/vi/'+loV2.slice(3)+'/mqdefault.jpg';
+  if(state.viewMode==='video'){
+    const loV=getLoVid(t);
+    if(loV&&loV.startsWith('yt:'))
+      thumbSrc='https://img.youtube.com/vi/'+loV.slice(3)+'/mqdefault.jpg';
   }
   return '<div class="track-row'+(t.unavailable?' unavailable':'')+'" data-id="'+t.id+'">'
     +'<span class="t-num">'+String(i+1).padStart(3,'0')+'</span>'
     +'<span class="t-thumb-cell"><img class="t-thumb" src="'+thumbSrc+'" alt="" loading="lazy" onerror="this.src=\''+DEFAULT_THUMB+'\'"></span>'
     +'<span class="t-mid"><div class="t-title"><span class="t-title-name">'+titleDisplay+vTag+'</span><span class="t-title-file">'+t.name+'</span></div><div class="t-meta">'+sub+'</div></span>'
-    +'<span class="t-right"><div class="t-tiles">'+tiles.join('')+'</div></span>'
+    +'<span class="t-right">'+right+'</span>'
     +'</div>';
-}
-
-function toggleFav(btn, name){
-  const was=state.favorites.has(name);
-  was?state.favorites.delete(name):state.favorites.add(name);
-  localStorage.setItem('vvip25:favs',JSON.stringify([...state.favorites]));
-  btn.classList.toggle('on',!was);
-  if(state.viewMode==='favorites'&&was) applyFilterSort();
 }
 
 document.addEventListener('click',e=>{
   const row=e.target.closest('.track-row');
-  if(row&&!e.target.closest('a')&&!e.target.closest('button')){
+  if(row&&!e.target.closest('a')&&!e.target.closest('.star-btn')&&!e.target.closest('.gem-btn')){
     const id=Number(row.dataset.id);
     if(state.viewMode==='hashtags'){
       const body=row.closest('.htag-body');
@@ -1491,16 +1444,26 @@ document.addEventListener('click',e=>{
     }
     return;
   }
+  const star=e.target.closest('.star-btn');
+  if(star){
+    const name=star.dataset.fav,was=state.favorites.has(name);
+    was?state.favorites.delete(name):state.favorites.add(name);
+    localStorage.setItem('vvip25:favs',JSON.stringify([...state.favorites]));
+    star.classList.toggle('on',!was);
+    if(state.viewMode==='favorites'&&was)applyFilterSort();
+    return;
+  }
+  const gem=e.target.closest('.gem-btn');
+  if(gem){
+    e.preventDefault();
+    const key=gem.dataset.gem,files=state.extras[key];if(!files)return;
+    const row2=gem.closest('.track-row'),next=row2?.nextElementSibling;
+    if(next?.classList.contains('extras-row')){next.remove();return}
+    const d=document.createElement('div');d.className='extras-row';
+    d.innerHTML='<span class="extras-cell">'+files.map(f=>{const url=BASE_EXTRAS+encodeURIComponent(f);return/\.(jpg|jpeg|png|gif|webp)$/i.test(f)?'<a href="'+url+'" target="_blank"><img src="'+url+'" alt="" loading="lazy"></a>':'<a href="'+url+'" target="_blank" style="font-family:Arial,sans-serif;font-size:11px">'+f+'</a>'}).join('')+'</span>';
+    row2?.after(d);
+  }
 });
-
-// Gems overlay triggered from tile onclick
-function openGems(baseLower){
-  const files=state.extras[baseLower];if(!files)return;
-  // Find the row and toggle extras panel
-  const row=document.querySelector('.track-row .t-tile[onclick*="openGems"]')?.closest('.track-row');
-  const existing=document.getElementById('gems-overlay');if(existing){existing.remove();return;}
-  openPlayerGems();
-}
 
 function select(i){
   state.i=i;const t=state.filtered[i];if(!t)return;
