@@ -375,12 +375,13 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 /* SHOPPE PANEL */
 #shoppe-view{display:none}
 #shoppe-view.open{display:block}
-.shoppe-cats{display:flex;flex-wrap:wrap;margin-top:0;border-bottom:1px solid var(--border)}
-.shoppe-cat{font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:normal;
-  background:var(--tab-inactive);color:var(--fg);border:1px solid var(--border);border-bottom:none;
-  padding:3px 12px;cursor:pointer;position:relative;top:1px;margin-right:2px}
+.shoppe-cats{display:flex;flex-wrap:wrap;gap:4px;padding:8px 0 6px;border-bottom:1px solid var(--border);margin-bottom:0}
+.shoppe-cat{font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  background:var(--btn-bg);color:var(--fg);border:1px solid;
+  border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);
+  padding:3px 11px;cursor:pointer;letter-spacing:.03em}
 .shoppe-cat:hover{background:var(--hover)}
-.shoppe-cat.active{background:var(--bg);border-bottom-color:var(--bg);font-weight:bold}
+.shoppe-cat.active{background:var(--tag-bg);color:var(--tag-fg);border-color:var(--tag-bg)}
 .shoppe-items{border:1px solid var(--border);border-top:none}
 /* Each item is a block — inner .shoppe-item-row is the flex row */
 .shoppe-item{
@@ -550,7 +551,6 @@ body.hide-titles .t-title-file{display:inline !important}
 @media(max-width:480px){
   .t-right{width:44px}
   .t-right a:not(.star-btn){display:none}
-  body.view-video .t-right{width:auto}
 }
 @media(max-width:360px){
   .t-num{display:none}
