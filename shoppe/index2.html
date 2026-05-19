@@ -215,7 +215,17 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
   border:1px solid var(--border);border-top:none;
 }
 
-
+/* ── VVIP+ LOCKED NOTICE ── */
+#vvip-locked{
+  display:none;
+  border:2px solid var(--gold-bg);
+  background:linear-gradient(135deg,var(--bg) 55%,rgba(200,168,75,.06));
+  padding:14px 16px;margin-top:12px;
+  font-family:Arial,sans-serif;font-size:12px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+#vvip-locked .vl-text{color:var(--gold-bg);font-weight:bold;font-size:13px}
+#vvip-locked .vl-sub{color:var(--muted);font-size:11px;margin-top:2px}
 
 @media(max-width:480px){
   .shoppe-item{grid-template-columns:70px 1fr auto}
@@ -310,6 +320,10 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
   <span id="shoppe-count"></span>
 </div>
 
+<!-- VVIP+ locked notice (shown to non-members) -->
+<div id="vvip-locked" style="display:none">
+  <div>
+    <div class="vl-text">✦ VVIP+ Exclusive Items</div>
     <div class="vl-sub">Garment repair, archive downloads & more — unlock with VVIP+</div>
   </div>
   <a href="/members.html" class="shop-btn" style="font-size:11px;padding:6px 14px">Join VVIP+ →</a>
@@ -417,12 +431,16 @@ function renderAuthNav(){
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='none';
     // Show locked notice if has premium items
+    const locked=document.getElementById('vvip-locked');
+    if(locked) locked.style.display='flex';
   } else if(isAdmin){
     if(adminEl)adminEl.style.display='';
     if(gearJoin)gearJoin.style.display='none';
     if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
+    const locked=document.getElementById('vvip-locked');
+    if(locked) locked.style.display='none';
   } else if(isPremium){
     const display=vvipUsername?('@'+vvipUsername):'VVIP+';
     if(userEl){userEl.style.display='';userEl.textContent=display;}
@@ -430,12 +448,16 @@ function renderAuthNav(){
     if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='✦ '+(vvipUsername?('@'+vvipUsername):'VVIP+ Member');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
+    const locked=document.getElementById('vvip-locked');
+    if(locked) locked.style.display='none';
   } else {
     if(vvipEl)vvipEl.style.display='';
     if(gearJoin)gearJoin.style.display='none';
     if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent=vvipUsername?('@'+vvipUsername):'My Account';}
     if(gearUpsell)gearUpsell.style.display='flex';
     if(gearSO)gearSO.style.display='';
+    const locked=document.getElementById('vvip-locked');
+    if(locked) locked.style.display='flex';
   }
 }
 
