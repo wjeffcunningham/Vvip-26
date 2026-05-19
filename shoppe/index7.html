@@ -91,15 +91,10 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
 .gear-toggle::after{content:'';position:absolute;width:10px;height:10px;background:var(--btn-sh);border:1px solid;border-color:var(--btn-dk) var(--btn-hi) var(--btn-hi) var(--btn-dk);top:2px;left:2px;transition:left .1s}
 .gear-toggle:checked::after{left:22px;background:var(--btn-hi)}
 
-/* Nav shrink on narrow screens */
-@media(max-width:480px){.nav-shrink{display:none}}
-@media(max-width:600px){#site-nav a,#site-nav button{margin-right:6px;font-size:10px}}
-
-/* View tabs — identical to main site */
-.view-tabs{display:flex;margin-top:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.view-tab{font-family:Arial,Helvetica,sans-serif;font-size:12px;padding:3px 12px;background:var(--tab-inactive);border:1px solid var(--border);border-bottom:none;cursor:pointer;color:var(--fg);margin-right:2px;position:relative;top:1px}
-.view-tab.active{background:var(--bg);border-bottom-color:var(--bg);font-weight:bold}
-.view-tab:hover:not(.active){background:var(--hover)}
+/* ── SHOPPE HEADER ── */
+#shoppe-head{margin-top:16px;margin-bottom:0;border-bottom:1px solid var(--border);padding-bottom:8px;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+#shoppe-head h1{font-family:"Times New Roman",Times,serif;font-size:22px;font-weight:bold;margin:0;color:var(--fg)}
+#shoppe-head .sh-sub{font-family:Arial,sans-serif;font-size:11px;color:var(--muted)}
 
 /* ── CATEGORY TABS ── */
 .shoppe-cats{display:flex;flex-wrap:wrap;gap:4px;padding:8px 0 6px;border-bottom:1px solid var(--border);margin-bottom:0}
@@ -262,11 +257,12 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
 
 <!-- HEADER -->
 <div id="site-header">
-  <div id="site-name">VVIP Media.NET</div>
+  <a id="site-name" href="/" style="text-decoration:none">VVIP Media.NET</a>
   <div id="site-nav">
-    <a href="/">Home</a>
-    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
-    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
+    <a href="/">← Player</a>
+    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
+    <!-- Auth states -->
     <a id="nav-join-free" href="/members.html">Join Free</a>
     <a id="nav-vvip-btn" href="/members.html" style="display:none">VVIP+</a>
     <a id="nav-username-btn" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
@@ -275,7 +271,7 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
   <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
   <div id="gear-menu">
     <div class="gear-item" id="gear-join-free">
-      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free</a>
+      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free →</a>
     </div>
     <div class="gear-item" id="gear-username-row" style="display:none">
       <a href="/members.html" id="gear-username-link" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);text-decoration:none"></a>
@@ -286,20 +282,17 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
     <div class="gear-item" id="gear-signout" style="display:none">
       <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:12px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted)">Sign out</button>
     </div>
-    <div class="gear-item">
+    <div class="gear-item" style="border-top:1px solid var(--border-light);margin-top:2px;padding-top:6px">
       <label for="tog-dark">Dark mode</label>
       <input type="checkbox" id="tog-dark" class="gear-toggle" onchange="toggleDark(this.checked)">
-    </div>
-    <div class="gear-item">
-      <label for="tog-anim">Text animations</label>
-      <input type="checkbox" id="tog-anim" class="gear-toggle" checked onchange="document.documentElement.classList.toggle('no-anim',!this.checked);localStorage.setItem('vvip25:anim',this.checked?'1':'0')">
     </div>
   </div>
 </div>
 
-<!-- SHOPPE TAB BAR — matches main site view-tabs style -->
-<div class="view-tabs" style="margin-top:12px">
-  <span class="view-tab active" style="cursor:default">Shoppe</span>
+<!-- SHOPPE HEADING -->
+<div id="shoppe-head">
+  <h1>Shoppe</h1>
+  <span class="sh-sub">VVIPmedia.NET</span>
 </div>
 
 <!-- CATEGORY TABS -->
@@ -315,6 +308,11 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
     <option value="avail">Available first</option>
   </select>
   <span id="shoppe-count"></span>
+</div>
+
+    <div class="vl-sub">Garment repair, archive downloads & more — unlock with VVIP+</div>
+  </div>
+  <a href="/members.html" class="shop-btn" style="font-size:11px;padding:6px 14px">Join VVIP+ →</a>
 </div>
 
 <!-- ITEM LIST -->
