@@ -568,7 +568,7 @@ body.hide-titles .t-title-file{display:inline !important}
   <div id="site-nav">
     <a href="/" onclick="return showHome()">Home</a>
     <button onclick="toggleAbout()">About</button>
-    <a href="/shoppe/">Shoppe</a>
+    <a href="/shoppe/" >Store</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
     <!-- Auth nav — mutually exclusive states -->
@@ -673,6 +673,7 @@ body.hide-titles .t-title-file{display:inline !important}
   <button class="view-tab" data-view="favorites">Favourites</button>
   <button class="view-tab" data-view="all">All songs</button>
   <button class="view-tab" data-view="video">Video</button>
+  <button class="view-tab" data-view="hq">HQ</button>
   <button class="view-tab" data-view="shoppe">Shoppe</button>
 </div>
 
@@ -744,6 +745,7 @@ const LO_MAP={
   'mbpx':            'ofOgeY0uuxA',
   'ocean park':      '3jw4HtjP1i8',
   'afternoon sunset':'h43HpdIwY7c',
+  'arcade water':    '9k9V5N7yQFY',
   'sea':             'w-5VCXzMFMs',
   'yvr':             'w-5VCXzMFMs',
   'lo\u00e7se':      'crLxT6UCBdY',
@@ -752,9 +754,14 @@ const LO_MAP={
   'lately':          '5p3er_46RRw',
   'ship yard':       'VD2zRBOCfAU',
 };
+const IJPAUC_YT='JFxc9OQlFMU'; // IJPAUC YouTube link for soundtrack tracks
+
 function getLoVid(t){
   const tl=(t.title||'').toLowerCase();
+  const dl=(t.details||'').toLowerCase();
   if(tl.includes('\u00e6rie')||tl.includes('aerie')) return null;
+  // #ij or #yijpauc tagged = IJPAUC soundtrack
+  if(dl.includes('#ij')||dl.includes('#yijpauc')) return 'yt:'+IJPAUC_YT;
   for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
   return null;
 }
@@ -982,7 +989,7 @@ function toggleAbout(){$('#about-section').classList.toggle('open')}
 function updateToolbarVisibility(){
   const tb=$('#toolbar');
   const mode=state.viewMode;
-  if(mode==='all'||mode==='video') tb.classList.remove('hide-sort');
+  if(mode==='all'||mode==='video'||mode==='hq') tb.classList.remove('hide-sort');
   else tb.classList.add('hide-sort');
   const shuffleBtn=$('#fav-shuffle-btn');
   if(shuffleBtn) shuffleBtn.style.display=(mode==='favorites')?'':'none';
@@ -1003,7 +1010,7 @@ $$('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
   $$('.view-tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   state.viewMode=btn.dataset.view;
-  document.body.classList.toggle('view-video', btn.dataset.view==='video');
+  document.body.classList.toggle('view-video', btn.dataset.view==='video'||btn.dataset.view==='hq');
   updateToolbarVisibility();
   if(btn.dataset.view!=='shoppe') applyFilterSort();
 }));
@@ -1151,7 +1158,12 @@ function applyFilterSort(){
     state.filtered=out;renderList();return;
   }
   if(state.viewMode==='video'){
-    sortTracks(out,state.sortMode);state.filtered=out;renderVideoSections();return;
+    out=out.filter(t=>getLoVid(t));
+    sortTracks(out,state.sortMode);state.filtered=out;renderList();return;
+  }
+  if(state.viewMode==='hq'){
+    out=out.filter(t=>getHqVid(t));
+    sortTracks(out,state.sortMode);state.filtered=out;renderList();return;
   }
   if(state.viewMode==='hashtags'){state.filtered=out;renderHashtags();return}
   if(state.viewMode==='favorites'){
@@ -1164,45 +1176,6 @@ function applyFilterSort(){
 }
 
 const RSORTS=['date_desc','date_asc'];
-
-function renderVideoSections(){
-  const hv=$('#hashtag-view'),list=$('#list'),empty=$('#empty-msg');
-  list.innerHTML='';list.style.display='none';
-  hv.innerHTML='';hv.style.display='block';hv.classList.add('open');
-  empty.style.display='none';
-
-  const allTracks=[...state.tracks].filter(t=>!t.varNum);
-  const ytTracks=allTracks.filter(t=>getLoVid(t));
-  const hqTracks=allTracks.filter(t=>getHqVid(t));
-  sortTracks(ytTracks,state.sortMode);
-  sortTracks(hqTracks,state.sortMode);
-
-  function makeSection(label,tracks,openByDefault,isHq){
-    if(!tracks.length) return;
-    const sec=document.createElement('div');
-    sec.className='htag-section'+(isHq?' best-tag':'');
-    const head=document.createElement('div');head.className='htag-head';
-    head.innerHTML='<span>'+label+'</span><span class="htag-meta">['+tracks.length+' track'+(tracks.length!==1?'s':'')+']<span class="htag-arrow" style="margin-left:6px">'+(openByDefault?'▾':'▸')+'</span></span>';
-    const body=document.createElement('div');body.className='htag-body'+(openByDefault?' open':'');
-    tracks.forEach((t,i)=>body.insertAdjacentHTML('beforeend',rowHTML(t,i)));
-    head.addEventListener('click',()=>{
-      const open=body.classList.toggle('open');
-      head.querySelector('.htag-arrow').textContent=open?'▾':'▸';
-    });
-    sec.appendChild(head);sec.appendChild(body);
-    hv.appendChild(sec);
-    // Wire up clicks in this section
-    if(openByDefault){
-      state.filtered=tracks;
-      if(tracks.length) select(0);
-    }
-  }
-
-  makeSection('Video',ytTracks,true,false);
-  makeSection('HQ',hqTracks,false,true);
-
-  updateNow();
-}
 
 function renderHashtags(){
   const hv=$('#hashtag-view'),list=$('#list'),empty=$('#empty-msg');
@@ -1343,7 +1316,7 @@ function rowHTML(t,i){
   right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
 
   // Video / HQ tab: no download link, no badges — just star
-  if(state.viewMode==='video'){
+  if(state.viewMode==='video'||state.viewMode==='hq'){
     right='<button class="star-btn'+(fav?' on':'')+'" data-fav="'+t.name+'">\u2605</button>';
   }
 
@@ -1364,6 +1337,7 @@ function rowHTML(t,i){
   }
   const ruled=applyDisplayRule(t.title);
   const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+  // Video tab: YouTube thumbnail. HQ tab: track thumbnail.
   let thumbSrc=getThumb(t);
   if(state.viewMode==='video'){
     const loV=getLoVid(t);
@@ -1390,22 +1364,11 @@ document.addEventListener('click',e=>{
     if(idx>=0){
       if(state.filtered[idx].unavailable)return;
       if(state.viewMode==='video'){
-        // Update filtered to the section this row belongs to
-        const body=row.closest('.htag-body');
-        if(body){
-          const secHead=body.previousElementSibling;
-          const isHq=secHead&&secHead.textContent.includes('HQ');
-          const secTracks=[...body.querySelectorAll('.track-row')]
-            .map(r=>state.tracks.find(t=>t.id===Number(r.dataset.id))).filter(Boolean);
-          state.filtered=secTracks;
-          const newIdx=secTracks.findIndex(t=>t.id===id);
-          if(newIdx>=0){
-            select(newIdx);
-            setTimeout(()=>openVideo(isHq),80);
-          }
-        } else {
-          select(idx);setTimeout(()=>openVideo(false),80);
-        }
+        select(idx);
+        setTimeout(()=>openVideo(false),80);
+      } else if(state.viewMode==='hq'){
+        select(idx);
+        setTimeout(()=>openVideo(true),80);
       } else {
         select(idx);play();
       }
