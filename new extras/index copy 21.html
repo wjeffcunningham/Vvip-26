@@ -87,18 +87,7 @@ body{background:var(--bg);color:var(--fg);font-family:"Times New Roman",Times,se
 a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-hov)}
 #page{max-width:700px;margin:0 auto;padding:0 12px 120px}
 
-/* Display Flex shimmer animation */
-@keyframes dfShimmer{
-  0%  {background-position:200% center}
-  100%{background-position:-200% center}
-}
-.df-shimmer{
-  background:linear-gradient(90deg,#ff2200,#ff6600,#ffaa00,#ff6600,#ff2200);
-  background-size:200% auto;
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  animation:dfShimmer 3s linear infinite;
-  display:inline-block;
-}
+/* HEADER */
 #site-header{border-bottom:2px solid var(--fg);padding:14px 0 8px;position:relative}
 
 #site-name{
@@ -1549,20 +1538,22 @@ function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle
 // Per-load random seed for title variants (shared across same-named tracks)
 function applyDisplayRule(title){
   if(!state.showTextFx||!state.displayRules||!title)return null;
-  // Text effects suppressed in video and favourites tabs — cleaner presentation
-  if(state.viewMode==='video'||state.viewMode==='favorites')return null;
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   const tl=title.toLowerCase();
 
   // ── Special case: Lit(e) Rail ──────────────────────────────
+  // Match "lit(e) rail" or "lit rail" or "lite rail" in the title
   if(tl.includes('lit') && tl.includes('rail')){
+    // 50/50 per load: "Lit Rail" vs "Lite Rail"
     const useLite = titleRng('lit-rail') >= 0.5;
     if(useLite && isDark){
-      // Subtle gauze: off-white with very gentle warm offset, no heavy glow
-      return 'Lit<span style="color:#f0ece4;text-shadow:1px 0 0 rgba(255,248,230,0.4),-1px 0 0 rgba(200,190,170,0.3);letter-spacing:.02em;font-style:normal">e</span> Rail';
+      // "Lite Rail" — the e glows
+      return 'Lit<span style="color:#ffe066;text-shadow:0 0 6px #ffcc00,0 0 12px #ffaa00,0 0 2px #fff8c0">e</span> Rail';
     } else if(useLite){
+      // "Lite Rail" — light mode, no glow
       return 'Lite Rail';
     } else {
+      // "Lit Rail" — no effect
       return 'Lit Rail';
     }
   }
@@ -1578,7 +1569,6 @@ function applyDisplayRule(title){
     if(rule.segments){
       return rule.segments.map(seg=>{
         const esc=seg.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        if(seg.css_class)return`<span class="${seg.css_class}">${esc}</span>`;
         if(seg.style)return`<span style="${seg.style}">${esc}</span>`;
         return esc;
       }).join('');
