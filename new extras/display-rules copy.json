@@ -2,18 +2,18 @@
   "_comment": "Title display rules. Each key is a lowercase song title (or fragment). Rules are checked case-insensitively. 'segments' splits the title into styled spans. 'modes' = 'dark'|'light'|'both'. Use 'css_class' for CSS-animated effects defined in index.html.",
   "display flex": {
     "modes": "dark",
-    "_comment": "Display; in red, Flex; in blue",
+    "_comment": "Both words shimmer with a red-orange gradient animation",
     "segments": [
       {
         "text": "Display;",
-        "style": "color:red"
+        "css_class": "df-shimmer"
       },
       {
         "text": " "
       },
       {
         "text": "Flex;",
-        "style": "color:blue"
+        "css_class": "df-shimmer"
       }
     ]
   },
