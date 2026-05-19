@@ -334,8 +334,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 }
 
 html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !important;transition:none !important}
-html.no-anim #site-name{-webkit-text-fill-color:var(--fg);background:none}
-html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:none}
 /* Gear menu items — matches index.html */
 .gear-item{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px;color:var(--fg)}
 .gear-item:last-child{border-bottom:none}
@@ -450,8 +448,8 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
       <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:12px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted)">Sign out</button>
     </div>
     <div class="gear-item">
-      <label for="m-tog-dark">Dark mode</label>
-      <input type="checkbox" id="m-tog-dark" class="gear-toggle" onchange="toggleDark(this.checked)">
+      <label for="tog-dark">Dark mode</label>
+      <input type="checkbox" id="tog-dark" class="gear-toggle" onchange="toggleDark(this.checked)">
     </div>
     <div class="gear-item">
       <label for="tog-anim">Text animations</label>
@@ -957,13 +955,11 @@ function toggleAbout(){
   const s=document.getElementById('about-section');
   s.style.display=s.style.display==='none'?'block':'none';
 }
-function toggleDark(on){
-  if(on===undefined){
-    on = document.documentElement.getAttribute('data-theme')!=='dark';
-  }
-  document.documentElement.setAttribute('data-theme',on?'dark':'light');
-  localStorage.setItem('vvip25:dark',on?'1':'');
-  const el=document.getElementById('m-tog-dark');if(el)el.checked=on;
+function toggleDark(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  localStorage.setItem('vvip25:dark',dark?'':'1');
+  const el=document.getElementById('m-tog-dark');if(el)el.checked=!dark;
 }
 (()=>{
   const dark=localStorage.getItem('vvip25:dark')==='1';
@@ -1100,15 +1096,6 @@ async function init(){
     }
     // Ignore INITIAL_SESSION with no session — wait for real SIGNED_IN from PKCE exchange
     if(event === 'INITIAL_SESSION' && !s) return;
-    // SIGNED_IN always takes over — handles post-login even if sessionResolved was already set
-    // by the prior getSession() null-resolve (the "no existing session" path)
-    if(event === 'SIGNED_IN' && s){
-      sessionResolved = true;
-      clearTimeout(loadingTimeout);
-      if(hasCode || hasHash) history.replaceState(null, '', window.location.pathname);
-      await onSession(s);
-      return;
-    }
     if(!sessionResolved) await resolveOnce(s || null);
   });
 
