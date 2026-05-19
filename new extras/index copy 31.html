@@ -525,8 +525,6 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .track-row:hover{background:var(--hover)}
 .track-row.is-playing{background:var(--playing)}
 .track-row.is-playing .t-title{color:var(--playing-title)}
-.track-row.is-album-link{border-left:3px solid var(--gold-bg)}
-.track-row.is-album-link .t-num{padding-left:5px}
 .t-num{display:table-cell;font-family:"Courier New",Courier,monospace;font-size:11px;color:var(--fg);padding:6px 3px 6px 8px;vertical-align:middle;width:30px;white-space:nowrap;text-align:right}
 .t-thumb-cell{display:table-cell;width:70px;padding:4px 5px;vertical-align:middle}
 .t-thumb{width:62px;height:62px;object-fit:cover;border:2px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);display:block}
@@ -597,7 +595,7 @@ body.hide-titles .t-title-file{display:inline !important}
   <div id="site-nav">
     <a href="/" onclick="return showHome()">Home</a>
     <button onclick="toggleAbout()">About</button>
-    <a href="/shoppe/" onclick="event.preventDefault();document.querySelector('.view-tab[data-view=shoppe]')?.click()">Shoppe</a>
+    <a href="/shoppe/">Shoppe</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
     <!-- Auth nav — mutually exclusive states -->
@@ -782,22 +780,11 @@ const LO_MAP={
   'lately':          '5p3er_46RRw',
   'ship yard':       'VD2zRBOCfAU',
 };
-const IJPAUC_YT='JFxc9OQlFMU'; // IJPAUC full film soundtrack
-
 function getLoVid(t){
   const tl=((t.title||'')+(t.name||'')).toLowerCase();
-  const dl=(t.details||'').toLowerCase();
   if(tl.includes('\u00e6rie')||tl.includes('aerie')) return null;
-  // #IJPAUC-tagged tracks → link to the album/soundtrack on YouTube
-  if(dl.includes('#ijpauc')&&!dl.includes('#yijpauc?')) return 'yt:'+IJPAUC_YT;
   for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
   return null;
-}
-
-function isAlbumLink(t){
-  const dl=(t.details||'').toLowerCase();
-  const tl=((t.title||'')+(t.name||'')).toLowerCase();
-  return dl.includes('#ijpauc')||tl.includes('ship yard');
 }
 const HQ_MAP={
   'access':'VVIP24 Access.mov',
@@ -808,7 +795,7 @@ const HQ_MAP={
   'arcade winter':'VVIP24 Arcade Winter.mov',
   'chateau margeaux':'VVIP24 Chateau Margeaux (original).mov',
   'digital picasso':'VVIP24 Digital Picasso.mov',
-  // 'gwigswis':'VVIP24 Go Where I Go See Where I See.mov', // admin-only — disabled
+  'gwigswis':'VVIP24 Go Where I Go See Where I See.mov',
   'in the zone':'VVIP24 In the Zone.mov',
 };
 function getHqVid(t){
@@ -1549,7 +1536,7 @@ function rowHTML(t,i){
     if(loV2&&loV2.startsWith('yt:'))
       thumbSrc='https://img.youtube.com/vi/'+loV2.slice(3)+'/mqdefault.jpg';
   }
-  return '<div class="track-row'+(t.unavailable?' unavailable':'')+(isAlbumLink(t)?' is-album-link':'')+'" data-id="'+t.id+'">'
+  return '<div class="track-row'+(t.unavailable?' unavailable':'')+'" data-id="'+t.id+'">'
     +'<span class="t-num">'+String(i+1).padStart(3,'0')+'</span>'
     +'<span class="t-thumb-cell"><img class="t-thumb" src="'+thumbSrc+'" alt="" loading="lazy" onerror="this.src=\''+DEFAULT_THUMB+'\'"></span>'
     +'<span class="t-mid"><div class="t-title"><span class="t-title-name">'+titleDisplay+vTag+'</span><span class="t-title-file">'+t.name+'</span></div><div class="t-meta">'+sub+'</div></span>'
