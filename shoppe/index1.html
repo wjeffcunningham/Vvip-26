@@ -232,34 +232,6 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
   .shoppe-item-thumb,.shoppe-item-thumb-ph{width:70px;height:70px}
   .shoppe-item-title{font-size:12px}
 }
-
-/* ── MINI PLAYER BAR ── */
-#mini-player{
-  position:fixed;bottom:0;left:0;right:0;z-index:500;
-  background:var(--now-bg);border-top:2px solid var(--fg);
-  display:none;align-items:center;gap:0;
-  font-family:Arial,Helvetica,sans-serif;
-  box-shadow:0 -2px 8px rgba(0,0,0,.18);
-}
-#mini-player.active{display:flex}
-#mini-thumb{width:52px;height:52px;object-fit:cover;border-right:1px solid var(--border-light);flex-shrink:0;display:block}
-#mini-info{flex:1;min-width:0;padding:6px 10px}
-#mini-title{font-size:12px;font-weight:bold;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#mini-time{font-size:10px;color:var(--muted);margin-top:1px;font-family:"Courier New",monospace}
-#mini-controls{display:flex;align-items:stretch;flex-shrink:0}
-#mini-play-btn{
-  width:52px;height:52px;background:var(--gold-bg);color:var(--gold-fg);
-  border:none;border-left:1px solid var(--border-light);
-  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-}
-#mini-play-btn:hover{background:var(--gold-hi)}
-#mini-back-btn{
-  height:52px;padding:0 12px;background:var(--btn-bg);color:var(--fg);
-  border:none;border-left:1px solid var(--border-light);
-  font-family:Arial,sans-serif;font-size:10px;font-weight:bold;
-  cursor:pointer;white-space:nowrap;letter-spacing:.04em;
-}
-#mini-back-btn:hover{background:var(--hover)}
 </style>
 </head>
 <body>
@@ -332,20 +304,6 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
 <!-- ITEM LIST -->
 <div class="shoppe-items" id="shoppe-items"></div>
 <div id="shoppe-empty">No items in this category.</div>
-
-
-<!-- MINI PLAYER — persists from main player via localStorage -->
-<div id="mini-player">
-  <img id="mini-thumb" src="" alt="">
-  <div id="mini-info">
-    <div id="mini-title">Nothing playing</div>
-    <div id="mini-time">–:–– / –:––</div>
-  </div>
-  <div id="mini-controls">
-    <button id="mini-play-btn" title="Play/Pause on main player">&#9654;</button>
-    <button id="mini-back-btn" onclick="window.location='/'">&#9654; Player</button>
-  </div>
-</div>
 
 </div><!-- /page -->
 
