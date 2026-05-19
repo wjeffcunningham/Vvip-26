@@ -567,7 +567,6 @@ body.hide-titles .t-title-file{display:inline !important}
   <div id="site-nav">
     <a href="/" onclick="return showHome()">Home</a>
     <button onclick="toggleAbout()">About</button>
-    <a href="/shoppe/" >Store</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
     <!-- Auth nav — mutually exclusive states -->
@@ -805,21 +804,15 @@ function extractTags(s){if(!s)return[];return[...s.matchAll(/#([a-zA-Z0-9_-]+)/g
 // ── Auth ──
 async function initAuth(){
   if(!supa)return;
-  // If we're on index.html after a Google OAuth redirect, clean the hash
-  const hasOAuthHash = window.location.hash.includes('access_token') ||
-                       window.location.hash.includes('error=');
-  if(hasOAuthHash) history.replaceState(null,'',window.location.pathname);
-
-  let sessionResolved=false;
-  supa.auth.onAuthStateChange(async(event,s)=>{
-    if(sessionResolved&&event!=='SIGNED_OUT')return;
-    if(s&&!sessionResolved){sessionResolved=true;await onSession(s);}
-    else if(event==='SIGNED_OUT'){sessionResolved=false;clearSession();}
+  // Register listener FIRST so Google OAuth hash redirect is caught immediately
+  let handled=false;
+  supa.auth.onAuthStateChange(async(_,s)=>{
+    if(s&&!handled){handled=true;await onSession(s);}
+    else if(!s){handled=false;clearSession();}
   });
-  if(!hasOAuthHash){
-    const{data:{session}}=await supa.auth.getSession();
-    if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}
-  }
+  // Also handle returning visitors (existing session, no hash)
+  const{data:{session}}=await supa.auth.getSession();
+  if(session&&!handled){handled=true;await onSession(session);}
 }
 async function onSession(session){
   vvipUser=session.user;
@@ -1629,35 +1622,9 @@ const SHOPPE_FALLBACK=[
 async function loadShoppe(){
   try{
     const r=await fetch('/shoppe/shoppe.json',{cache:'no-store'});
-    if(r.ok){
-      const raw=await r.json();
-      // Normalize shoppe.json format → internal format
-      shoppeItems=raw.map((it,i)=>({
-        id: it.id||(it.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,32)+'-'+i),
-        title: it.title,
-        desc: it.description||it.desc||'',
-        price: it.price||0,
-        currency: it.currency||'CAD',
-        available: !!it.available,
-        // Tags: strip leading '#' so category filter works uniformly
-        tags: (it.tags||[]).map(t=>t.replace(/^#/,'')),
-        // Images: support both 'image' (single) and 'images' (array) field
-        images: it.images||(it.image?[it.image.replace('./','')]:[]),
-        bandcamp_url: it.bandcamp_url||null,
-        stripe_url: it.stripe_url||null,
-        fb_marketplace: it.fb_marketplace||null,
-        order_url: it.order_url||null,
-        premium: !!it.premium,
-        note: it.note||null,
-      }));
-      // Append VVIP+ exclusive items (not in public JSON)
-      shoppeItems.push(
-        {id:'mp3-archive',title:'All MP3s Download',desc:'Complete archive — every track.',price:10,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=MP3+Archive+Download',premium:false,note:null},
-        {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive — lossless.',price:20,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=WAV+Archive+Download',premium:false,note:null},
-        {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP-branded garment. You pay shipping only.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=Garment+Repair+Request',premium:true,note:'VVIP+ members only · You pay shipping only'}
-      );
-    } else { shoppeItems=SHOPPE_FALLBACK; }
-  }catch{ shoppeItems=SHOPPE_FALLBACK; }
+    if(r.ok) shoppeItems=await r.json();
+    else shoppeItems=SHOPPE_FALLBACK;
+  }catch{shoppeItems=SHOPPE_FALLBACK;}
 }
 
 function shoppeVisibleItems(){

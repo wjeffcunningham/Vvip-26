@@ -1010,39 +1010,17 @@ async function init(){
     return;
   }
 
-  // Detect Google OAuth hash — Supabase puts tokens in URL hash after redirect
-  const hasOAuthHash = window.location.hash.includes('access_token') ||
-                       window.location.hash.includes('error=');
-
-  // Clean hash from URL immediately so a manual reload doesn't re-trigger
-  if(hasOAuthHash) history.replaceState(null, '', window.location.pathname);
-
-  let sessionResolved = false;
-
-  // onAuthStateChange handles BOTH: OAuth hash redirect AND SIGNED_OUT events
-  supa.auth.onAuthStateChange(async(event, s) => {
-    if(sessionResolved && event !== 'SIGNED_OUT') return;
-    if(s && !sessionResolved){
-      sessionResolved = true;
-      await onSession(s);
-    } else if(event === 'SIGNED_OUT'){
-      sessionResolved = false;
-      currentUser = null; profile = null;
-      setNavLoggedOut(); show('view-auth');
-    }
+  // Register onAuthStateChange FIRST — catches Google OAuth hash on redirect
+  let handled = false;
+  supa.auth.onAuthStateChange(async(_,s)=>{
+    if(s && !handled){ handled=true; await onSession(s); }
+    else if(!s){ handled=false; currentUser=null; profile=null; setNavLoggedOut(); show('view-auth'); }
   });
 
-  // For returning visitors (no hash): getSession() picks up the stored token
-  if(!hasOAuthHash){
-    const { data:{ session } } = await supa.auth.getSession();
-    if(session && !sessionResolved){
-      sessionResolved = true;
-      await onSession(session);
-    } else if(!session && !sessionResolved){
-      sessionResolved = true;
-      setNavLoggedOut(); show('view-auth');
-    }
-  }
+  // Also pick up existing sessions (returning visitor, no hash)
+  const{data:{session}}=await supa.auth.getSession();
+  if(session && !handled){ handled=true; await onSession(session); }
+  else if(!session && !handled){ setNavLoggedOut(); show('view-auth'); }
 }
 
 async function updatePassword(){
@@ -1186,8 +1164,6 @@ function renderMemberNav(){
 
 async function signInGoogle(){
   if(!supa) return alert('Auth not configured.');
-  // redirectTo must EXACTLY match one of the URLs in Supabase → Auth → URL Configuration
-  // Add both https://vvipmedia.net/members.html AND https://vvipmedia.net to that list
   await supa.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: SITE_URL + '/members.html' }
