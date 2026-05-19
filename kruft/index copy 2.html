@@ -1267,9 +1267,7 @@ function sortTracks(arr,mode){
     if(mode==='bpm_desc')return(b.bpm||b.bpm_min||0)-(a.bpm||a.bpm_min||0);
     if(mode==='bpm_asc')return(a.bpm||a.bpm_min||0)-(b.bpm||b.bpm_min||0);
     if(mode==='fav')return(state.favorites.has(b.name)?1:0)-(state.favorites.has(a.name)?1:0);
-    // date_desc: newest first; same-date tracks sorted ascending by name so
-    // the base file (e.g. 25.04.10.120.mp3) always precedes v2/v3 variants
-    return(b.date-a.date)||a.name.localeCompare(b.name);
+    return(b.date-a.date)||b.name.localeCompare(a.name);
   });
 }
 
@@ -2033,7 +2031,7 @@ function setShoppeCat(cat){
 }
 
 function toggleShoppeItem(e,id){
-  if(e.target.closest('a,.shoppe-qty'))return;
+  if(e.target.closest('a,.shoppe-qty'))return; // don't collapse on link/qty click
   const item=shoppeItems.find(it=>it.id===id);
   if(item&&!item.available)return;
   shoppeExpanded=shoppeExpanded===id?null:id;
