@@ -295,6 +295,22 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 }
 #now-video-wrap.active{display:block}
 
+/* VIDEO TAB MODE: embed always visible at top, full-width, no close btn */
+body.view-video #now-bar{
+  display:block !important;
+}
+body.view-video #now-video-wrap{
+  display:block !important;
+  width:100%;
+}
+body.view-video #now-video-close{
+  display:none !important;
+}
+/* On video tab: now-top thumb area hidden (embed takes over) */
+body.view-video #now-thumb-wrap{
+  display:none;
+}
+
 /* Desktop: side-by-side — video takes left half, player controls stay right */
 @media(min-width:601px){
   #now-bar.video-mode{
@@ -314,6 +330,17 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   }
   #now-bar.video-mode #now-transport{
     grid-column:2;grid-row:2;
+  }
+  /* Video tab: full-width embed above controls */
+  body.view-video #now-bar{
+    display:block !important;
+  }
+  body.view-video #now-video-wrap{
+    display:block !important;
+    width:100%;
+  }
+  body.view-video #now-top{
+    display:grid !important;
   }
 }
 
@@ -559,6 +586,9 @@ body.hide-titles .t-title-file{display:inline !important}
 @media(max-width:480px){
   .t-right{width:44px}
   .t-right a:not(.star-btn){display:none}
+  /* In video tab, show badges even on mobile */
+  body.view-video .t-right{width:auto}
+  body.view-video .t-right a:not(.star-btn){display:none}
 }
 @media(max-width:360px){
   .t-num{display:none}
@@ -1016,6 +1046,21 @@ $$('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
   document.body.classList.toggle('view-video', btn.dataset.view==='video');
   updateToolbarVisibility();
   if(btn.dataset.view!=='shoppe') applyFilterSort();
+  // When entering video tab, open the first video immediately
+  if(btn.dataset.view==='video'){
+    setTimeout(()=>{
+      const first=state.filtered[0];
+      if(first){
+        const loV=getLoVid(first),hqV=getHqVid(first);
+        if(loV||hqV){
+          if(state.i!==0){state.i=0;updateNow();}
+          openVideo(!!(hqV&&(isPremium||isAdmin)));
+        }
+      }
+    },50);
+  }
+  // When leaving video tab, close video if open
+  if(btn.dataset.view!=='video') closeVideo();
 }));
 
 window.addEventListener('beforeunload',()=>{try{send({cmd:'report'})}catch{}});
@@ -1320,11 +1365,11 @@ function rowHTML(t,i){
     const isSoundtrack=dl.includes('#ij')||dl.includes('#yijpauc');
     const loV=getLoVid(t),hqV=getHqVid(t);
     if(isSoundtrack){
-      right='<span class="t-vid-badge soundtrack" title="Soundtrack">🎵 Soundtrack</span>'+right;
+      right='<span class="t-vid-badge soundtrack" onclick="event.stopPropagation();selectAndOpenVideo('+t.id+',false)" title="Soundtrack">🎵 Soundtrack</span>'+right;
     } else if(hqV&&(isPremium||isAdmin)){
-      right='<span class="t-vid-badge hq" title="HQ Video">▶ HQ</span>'+right;
+      right='<span class="t-vid-badge hq" onclick="event.stopPropagation();selectAndOpenVideo('+t.id+',true)" title="HQ Video">▶ HQ</span>'+right;
     } else if(loV){
-      right='<span class="t-vid-badge" title="Video">▶ Video</span>'+right;
+      right='<span class="t-vid-badge" onclick="event.stopPropagation();selectAndOpenVideo('+t.id+',false)" title="Video">▶ Video</span>'+right;
     }
   }
 
@@ -1345,17 +1390,9 @@ function rowHTML(t,i){
   }
   const ruled=applyDisplayRule(t.title);
   const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
-  // In video tab: use YouTube thumbnail if available
-  let thumbSrc=getThumb(t);
-  if(state.viewMode==='video'){
-    const loV=getLoVid(t);
-    if(loV&&loV.startsWith('yt:')){
-      thumbSrc='https://img.youtube.com/vi/'+loV.slice(3)+'/mqdefault.jpg';
-    }
-  }
   return '<div class="track-row'+(t.unavailable?' unavailable':'')+'" data-id="'+t.id+'">'
     +'<span class="t-num">'+String(i+1).padStart(3,'0')+'</span>'
-    +'<span class="t-thumb-cell"><img class="t-thumb" src="'+thumbSrc+'" alt="" loading="lazy" onerror="this.src=\''+DEFAULT_THUMB+'\'"></span>'
+    +'<span class="t-thumb-cell"><img class="t-thumb" src="'+getThumb(t)+'" alt="" loading="lazy" onerror="this.src=\''+DEFAULT_THUMB+'\'"></span>'
     +'<span class="t-mid"><div class="t-title"><span class="t-title-name">'+titleDisplay+vTag+'</span><span class="t-title-file">'+t.name+'</span></div><div class="t-meta">'+sub+'</div></span>'
     +'<span class="t-right">'+right+'</span>'
     +'</div>';
@@ -1399,12 +1436,31 @@ function select(i){
   const thumbRel=getThumb(t);
   const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
   send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:thumbAbs}});
-  closeVideo();
+  if(state.viewMode!=='video') closeVideo();
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
   document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
   updateNow();
+  // Video tab: swap embed immediately for this track
+  if(state.viewMode==='video'){
+    const loV=getLoVid(t),hqV=getHqVid(t);
+    if(loV||hqV) setTimeout(()=>openVideo(!!(hqV&&(isPremium||isAdmin))),50);
+  }
 }
 
+// Select a track by ID and open its video — used by badge buttons
+function selectAndOpenVideo(id,preferHq){
+  const idx=state.filtered.findIndex(t=>t.id===id);
+  if(idx<0)return;
+  state.i=idx;
+  const t=state.filtered[idx];
+  const thumbRel=getThumb(t);
+  const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
+  send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:thumbAbs}});
+  $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
+  document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
+  updateNow();
+  setTimeout(()=>openVideo(preferHq&&!!(getHqVid(t))&&(isPremium||isAdmin)),80);
+}
 function play(){if(state.i<0)return;send({cmd:'load',src:state.filtered[state.i].src,play:true});state.playing=true;const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');}
 function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');}
 
