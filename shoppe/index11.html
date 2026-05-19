@@ -158,8 +158,8 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .shoppe-item-price{
-  font-family:Arial,Helvetica,sans-serif;font-size:13px;
-  color:var(--fg);margin-top:2px;white-space:nowrap;
+  font-family:"Times New Roman",Times,serif;font-size:14px;
+  color:var(--fg);margin-top:2px;
 }
 .shoppe-item-right{
   display:flex;align-items:center;padding:0 12px;flex-shrink:0;
@@ -341,7 +341,7 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
 const SUPA_URL='https://auth.vvipmedia.net';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
 const SITE_URL='https://vvipmedia.net';
-const BASE_IMG='https://vvipmedia.net/shoppe/';
+const BASE_IMG='/shoppe/';
 
 let supa=null;
 try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}

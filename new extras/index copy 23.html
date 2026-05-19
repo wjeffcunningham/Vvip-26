@@ -1457,12 +1457,11 @@ function toggleFav(btn, name){
 
 document.addEventListener('click',e=>{
   const row=e.target.closest('.track-row');
-  // Only handle if clicking the row itself (not a button/link/interactive child)
-  const tag=e.target.tagName;
-  if(row&&tag!=='BUTTON'&&tag!=='A'&&tag!=='INPUT'&&!e.target.classList.contains('t-tile')){
+  if(row&&!e.target.closest('a')&&!e.target.closest('button')){
     const id=Number(row.dataset.id);
 
     if(state.viewMode==='video'){
+      // Always rebuild from the section the row lives in
       const body=row.closest('.htag-body');
       if(body){
         const secTracks=[...body.querySelectorAll('.track-row')]
