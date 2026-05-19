@@ -538,22 +538,15 @@ body.hide-titles .t-title-file{display:inline !important}
 .t-right a,.t-right button{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px;cursor:pointer;display:inline-block;line-height:1.4}
 .t-right a:hover,.t-right button:hover{background:var(--hover)}
 .t-right a.wav-off{color:var(--muted);pointer-events:none;opacity:.45}
-/* Video tab badges — match nbtn tile style exactly */
-.t-vid-btn{
-  display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:bold;
-  color:var(--fg);background:var(--btn-bg);
-  border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);
-  cursor:pointer;padding:4px 8px;gap:2px;
-  text-decoration:none;touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;
-  line-height:1.1;text-align:center;vertical-align:middle;
-  margin-left:3px;white-space:nowrap;
+.t-vid-badge{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  display:inline-block;padding:1px 6px;margin-left:3px;
+  border:1px solid;cursor:pointer;
+  background:var(--tag-bg);color:var(--tag-fg);border-color:var(--tag-bg);
+  vertical-align:middle;line-height:1.5;
 }
-.t-vid-btn:hover{background:var(--hover)}
-.t-vid-btn:active{background:var(--border)}
-.t-vid-btn-icon{font-size:13px;line-height:1;display:block}
-.t-vid-btn.hq{background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi)}
+.t-vid-badge.hq{background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-sh)}
+.t-vid-badge.soundtrack{background:#2a0a3a;color:#cc88ff;border-color:#6622aa}
 .track-row.unavailable{opacity:.45;cursor:default}
 .track-row.unavailable .t-title-name::after{content:' ✕';font-size:9px;color:var(--muted);vertical-align:middle;margin-left:4px}
 .star-btn{background:none !important;border:none !important;font-size:14px !important;cursor:pointer;color:var(--muted);padding:1px 3px !important;margin-left:2px !important}
@@ -563,12 +556,9 @@ body.hide-titles .t-title-file{display:inline !important}
 .extras-cell img{width:60px;height:60px;object-fit:cover;border:1px solid var(--border);margin-right:4px;vertical-align:top}
 #empty-msg{display:none;padding:20px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted);text-align:center;border:1px solid var(--border);border-top:none}
 
-body.view-video .t-right{width:auto;white-space:nowrap}
 @media(max-width:480px){
   .t-right{width:44px}
   .t-right a:not(.star-btn){display:none}
-  body.view-video .t-right{width:auto}
-  body.view-video .t-right a:not(.star-btn){display:none}
 }
 @media(max-width:360px){
   .t-num{display:none}
@@ -1123,7 +1113,7 @@ function getThumb(t){
 function openVideo(hq){
   const t=state.filtered[state.i];if(!t)return;
   const url=hq?getHqVid(t):getLoVid(t);
-  if(!url){alert(hq?'HQ video not available for this track.':'No video available for this track.');return}
+  if(!url){alert(hq?'HQ video not available (VVIP+ members only).':'No video available for this track.');return}
   // Pause audio before video starts
   send({cmd:'pause'});state.playing=false;
   const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');
@@ -1332,15 +1322,18 @@ function rowHTML(t,i){
   const dlDisplay=state.showDownloads?'':'none';
   right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
 
-  // Video tab: show Video and/or HQ buttons matching player tile style
+  // Video badges — shown in Video tab
   if(state.viewMode==='video'){
-    const loV=getLoVid(t);
-    const hqV=getHqVid(t)&&state.showHqVideo;
-    if(hqV){
-      right='<button class="t-vid-btn hq" onclick="event.stopPropagation();selectAndPlay('+t.id+',true)" title="HQ Video"><span class="t-vid-btn-icon">▶</span>HQ</button>'+right;
-    }
-    if(loV){
-      right='<button class="t-vid-btn" onclick="event.stopPropagation();selectAndPlay('+t.id+',false)" title="Video"><span class="t-vid-btn-icon">▶</span>Video</button>'+right;
+    const dl=(t.details||'').toLowerCase();
+    const isSoundtrack=dl.includes('#ij')||dl.includes('#yijpauc');
+    const loV=getLoVid(t),hqV=getHqVid(t)&&state.showHqVideo;
+    if(isSoundtrack){
+      right='<span class="t-vid-badge soundtrack" title="Soundtrack">🎵 Soundtrack</span>'+right;
+    } else if(hqV){
+      right='<span class="t-vid-badge hq" title="HQ Video">▶ HQ</span>'+right;
+      if(loV) right='<span class="t-vid-badge" title="YouTube">▶ YT</span>'+right;
+    } else if(loV){
+      right='<span class="t-vid-badge" title="YouTube">▶ YT</span>'+right;
     }
   }
 
@@ -1421,12 +1414,6 @@ function select(i){
   updateNow();
 }
 
-function selectAndPlay(id, hq){
-  const idx=state.filtered.findIndex(t=>t.id===id);
-  if(idx<0) return;
-  select(idx);
-  setTimeout(()=>openVideo(hq), 80);
-}
 function play(){if(state.i<0)return;send({cmd:'load',src:state.filtered[state.i].src,play:true});state.playing=true;const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');}
 function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');}
 
