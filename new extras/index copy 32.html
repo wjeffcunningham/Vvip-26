@@ -782,11 +782,14 @@ const LO_MAP={
   'lately':          '5p3er_46RRw',
   'ship yard':       'VD2zRBOCfAU',
 };
-const IJPAUC_YT='JFxc9OQlFMU'; // IJPAUC full film soundtrack — for album link only, not per-track video
+const IJPAUC_YT='JFxc9OQlFMU'; // IJPAUC full film soundtrack
 
 function getLoVid(t){
   const tl=((t.title||'')+(t.name||'')).toLowerCase();
+  const dl=(t.details||'').toLowerCase();
   if(tl.includes('\u00e6rie')||tl.includes('aerie')) return null;
+  // #IJPAUC-tagged tracks → link to the album/soundtrack on YouTube
+  if(dl.includes('#ijpauc')&&!dl.includes('#yijpauc?')) return 'yt:'+IJPAUC_YT;
   for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
   return null;
 }
