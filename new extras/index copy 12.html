@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>VVIP Media.NET</title>
 <link rel="icon" href="/favicon.ico?v=3">
-<link rel="preconnect" href="https://media.vvipmedia.net" crossorigin>
+<link rel="preconnect" href="https://cdn.vvipmedia.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <style>
@@ -723,14 +723,14 @@ const SITE_URL='https://vvipmedia.net';
 let supa=null,vvipUser=null,isPremium=false,isAdmin=false,vvipUsername='';
 try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 const PREFERRED_TAG='bestvvip';
-const BASE_MP3='https://media.vvipmedia.net/ACCESS/';
-const BASE_WAV='https://media.vvipmedia.net/WAV/';
-const BASE_THUMB='https://media.vvipmedia.net/MEDIA/thumbs/';
-const BASE_POOL='https://media.vvipmedia.net/MEDIA/pool/';
+const BASE_MP3='https://cdn.vvipmedia.net/ACCESS/';
+const BASE_WAV='https://cdn.vvipmedia.net/WAV/';
+const BASE_THUMB='https://cdn.vvipmedia.net/MEDIA/thumbs/';
+const BASE_POOL='https://cdn.vvipmedia.net/MEDIA/pool/';
 const DEFAULT_THUMB=BASE_THUMB+'default_thumb.jpg';
-const BASE_EXTRAS='https://media.vvipmedia.net/MEDIA/extras/';
-const BASE_VLO='https://media.vvipmedia.net/videos/';
-const BASE_VHQ='https://media.vvipmedia.net/VIDEOS/';
+const BASE_EXTRAS='https://cdn.vvipmedia.net/MEDIA/extras/';
+const BASE_VLO='https://cdn.vvipmedia.net/videos/';
+const BASE_VHQ='https://cdn.vvipmedia.net/VIDEOS/';
 
 /* Video maps */
 // LQ: YouTube video IDs (embed via youtube-nocookie.com)
@@ -1691,7 +1691,7 @@ document.addEventListener('touchend',e=>{
 })();
 
 // ── SHOPPE ──
-const SHOPPE_BASE_IMG='https://media.vvipmedia.net/MEDIA/shoppe/';
+const SHOPPE_BASE_IMG='https://cdn.vvipmedia.net/MEDIA/shoppe/';
 const SHOPPE_CATEGORIES=[
   {id:'all',label:'All'},
   {id:'apparel',label:'Apparel'},
