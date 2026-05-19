@@ -405,8 +405,8 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 }
 .shoppe-item-mid{padding:10px 10px;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;flex:1}
 .shoppe-item-title{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.shoppe-item-desc{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.shoppe-item-price{font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);margin-top:2px;white-space:nowrap}
+.shoppe-item-desc{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shoppe-item-price{font-family:"Times New Roman",Times,serif;font-size:13px;color:var(--fg);margin-top:2px;white-space:nowrap}
 .shoppe-item-right{display:flex;align-items:center;padding:8px 12px;flex-shrink:0}
 .shoppe-avail-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .shoppe-avail-dot.yes{background:#3a8a3a}
@@ -714,7 +714,6 @@ body.hide-titles .t-title-file{display:inline !important}
     <option value="fav">Favourites first</option>
   </select>
   <button id="fav-shuffle-btn" onclick="shuffleFavs()" style="display:none;font-family:Arial,sans-serif;font-size:11px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 10px;cursor:pointer;color:var(--fg)">⇌ Shuffle</button>
-  <button id="fav-dl-btn" onclick="downloadFavourites()" style="display:none;font-family:Arial,sans-serif;font-size:11px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 10px;cursor:pointer;color:var(--fg)" title="Download all favourites as MP3s + M3U playlist">⬇ Download all</button>
   <span id="track-count"></span>
 </div>
 
@@ -998,35 +997,6 @@ function toggleAnim(on){
   document.documentElement.classList.toggle('no-anim',!on);
   localStorage.setItem('vvip25:anim',on?'1':'0');
 }
-async function downloadFavourites(){
-  const favs=state.filtered.filter(t=>!t.unavailable);
-  if(!favs.length){alert('No favourites to download.');return;}
-  // Generate M3U playlist
-  const m3u=['#EXTM3U',''];
-  favs.forEach(t=>{
-    const dur=t.length||0;
-    m3u.push(`#EXTINF:${Math.round(dur)},${t.title||t.name}`);
-    m3u.push(t.src);
-  });
-  const blob=new Blob([m3u.join('\n')],{type:'audio/x-mpegurl'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='VVIP_Favourites.m3u';
-  document.body.appendChild(a);a.click();
-  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
-  // Trigger individual MP3 downloads with stagger
-  // Note: browsers may block multiple downloads; user may need to allow
-  for(let i=0;i<favs.length;i++){
-    await new Promise(r=>setTimeout(r,300));
-    const a2=document.createElement('a');
-    a2.href=favs[i].src;
-    a2.download=favs[i].name;
-    a2.style.display='none';
-    document.body.appendChild(a2);
-    a2.click();
-    setTimeout(()=>a2.remove(),500);
-  }
-}
 function shuffleFavs(){
   sortTracks(state.filtered,'shuffle');
   state.favOrder=[...state.filtered.map(t=>t.name)];
@@ -1043,8 +1013,6 @@ function updateToolbarVisibility(){
   else tb.classList.add('hide-sort');
   const shuffleBtn=$('#fav-shuffle-btn');
   if(shuffleBtn) shuffleBtn.style.display=(mode==='favorites')?'':'none';
-  const dlBtn=$('#fav-dl-btn');
-  if(dlBtn) dlBtn.style.display=(mode==='favorites')?'':'none';
   const shoppeView=$('#shoppe-view');
   if(mode==='shoppe'){
     if(shoppeView)shoppeView.style.display='block';
@@ -1443,7 +1411,7 @@ function rowHTML(t,i){
     } else if(hqV){
       tiles.push(`<button class="t-tile gold" onclick="event.stopPropagation();selectAndPlay(${t.id},true)" title="HQ Video"><span class="t-tile-icon">▶</span>HQ</button>`);
     } else if(hasExtras&&state.showGems){
-      tiles.push(`<button class="t-tile" onclick="event.stopPropagation();openGemsForTrack(${t.id})" title="Gems"><span class="t-tile-icon">💎</span>Gems</button>`);
+      tiles.push(`<button class="t-tile" onclick="event.stopPropagation();openPlayerGems()" title="Gems"><span class="t-tile-icon">💎</span>Gems</button>`);
     } else {
       tiles.push(`<span class="t-tile empty"></span>`);
     }
@@ -1500,16 +1468,11 @@ document.addEventListener('click',e=>{
     if(state.viewMode==='video'){
       const body=row.closest('.htag-body');
       if(body){
-        const sec=body.closest('.htag-section');
-        const isHq=sec&&sec.dataset.videotype==='hq';
         const secTracks=[...body.querySelectorAll('.track-row')]
           .map(r=>state.tracks.find(t=>t.id===Number(r.dataset.id))).filter(Boolean);
         state.filtered=secTracks;
         const newIdx=secTracks.findIndex(t=>t.id===id);
-        if(newIdx>=0){
-          select(newIdx);
-          setTimeout(()=>openVideo(isHq),80);
-        }
+        if(newIdx>=0){ select(newIdx); play(); }
       }
       return;
     }
@@ -1527,23 +1490,13 @@ document.addEventListener('click',e=>{
   }
 });
 
-// Open gems for a specific track by id (from tile click in tracklisting)
-function openGemsForTrack(id){
-  const t=state.tracks.find(t=>t.id===id);
-  if(!t)return;
-  const files=state.extras[t.baseLower];
-  if(!files||!files.length)return;
-  // Temporarily set as current track context so openPlayerGems works
-  const prevI=state.i, prevFiltered=state.filtered;
-  // Find in filtered or fall back
-  let idx=state.filtered.findIndex(tr=>tr.id===id);
-  if(idx<0){state.filtered=[t];idx=0;}
-  state.i=idx;
+// Gems overlay triggered from tile onclick
+function openGems(baseLower){
+  const files=state.extras[baseLower];if(!files)return;
+  // Find the row and toggle extras panel
+  const row=document.querySelector('.track-row .t-tile[onclick*="openGems"]')?.closest('.track-row');
+  const existing=document.getElementById('gems-overlay');if(existing){existing.remove();return;}
   openPlayerGems();
-  // Restore if track wasn't playing
-  if(prevI!==idx||prevFiltered!==state.filtered){
-    state.filtered=prevFiltered;state.i=prevI;
-  }
 }
 
 function select(i){
@@ -1643,7 +1596,7 @@ function updateNow(){
   cells.push({type:'a',icon:'⬇',label:'WAV',href:wavSrc,download:true,disabled:!isPremium,title:isPremium?'WAV download':'VVIP+ only'});
   // 3: Gems — only if track has extras and gems are enabled
   const hasGems=state.showGems&&state.extras&&state.extras[t.baseLower];
-  if(hasGems) cells.push({type:'btn',icon:'💎',label:'Gems',onclick:`openGemsForTrack(${t.id})`});
+  if(hasGems) cells.push({type:'btn',icon:'💎',label:'Gems',onclick:'openPlayerGems()'});
   // 4: Lo-fi video
   if(loV) cells.push({type:'btn',icon:'▶',label:'Video',onclick:'openVideo(false)'});
   // 5: HQ video
@@ -1932,8 +1885,8 @@ function renderShoppe(){
     return `<div class="shoppe-item${it.available?'':' unavailable'}${isExpanded?' expanded':''}" data-shoppe-id="${it.id}" onclick="toggleShoppeItem(event,'${it.id}')">
       <div class="shoppe-item-row">
         ${imgSrc
-          ?`<img class="shoppe-item-thumb" src="${imgSrc}" alt="${it.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          :''}<div class="shoppe-item-thumb-ph" style="${imgSrc?'display:none':''}">${imgSrc?'':'🛍'}</div>
+          ?`<img class="shoppe-item-thumb" src="${imgSrc}" alt="${it.title}" loading="lazy" onerror="this.style.display='none'">`
+          :`<div class="shoppe-item-thumb-ph">🛍</div>`}
         <div class="shoppe-item-mid">
           <div class="shoppe-item-title">${it.title}${it.premium?'<span class="shoppe-vvip-only">VVIP+</span>':''}</div>
           <div class="shoppe-item-desc">${it.desc||''}</div>
