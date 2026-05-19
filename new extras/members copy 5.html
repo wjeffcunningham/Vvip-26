@@ -80,7 +80,7 @@ body{
 a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov)}
 
 /* ── PAGE SHELL ── */
-#page{max-width:700px;margin:0 auto;padding:0 12px 80px}
+#page{max-width:700px;margin:0 auto;padding:0 12px 60px}
 
 /* ── HEADER — identical to index.html ── */
 #site-header{border-bottom:2px solid var(--fg);padding:14px 0 8px;position:relative}
@@ -383,34 +383,6 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
   background:var(--btn-hi);
   border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
 }
-
-/* ── MINI PLAYER BAR ── */
-#mini-player{
-  position:fixed;bottom:0;left:0;right:0;z-index:500;
-  background:var(--now-bg);border-top:2px solid var(--fg);
-  display:none;align-items:center;gap:0;
-  font-family:Arial,Helvetica,sans-serif;
-  box-shadow:0 -2px 8px rgba(0,0,0,.18);
-}
-#mini-player.active{display:flex}
-#mini-thumb{width:52px;height:52px;object-fit:cover;border-right:1px solid var(--border-light);flex-shrink:0;display:block}
-#mini-info{flex:1;min-width:0;padding:6px 10px}
-#mini-title{font-size:12px;font-weight:bold;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#mini-time{font-size:10px;color:var(--muted);margin-top:1px;font-family:"Courier New",monospace}
-#mini-controls{display:flex;align-items:stretch;flex-shrink:0}
-#mini-play-btn{
-  width:52px;height:52px;background:var(--gold-bg);color:var(--gold-fg);
-  border:none;border-left:1px solid var(--border-light);
-  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-}
-#mini-play-btn:hover{background:var(--gold-hi)}
-#mini-back-btn{
-  height:52px;padding:0 12px;background:var(--btn-bg);color:var(--fg);
-  border:none;border-left:1px solid var(--border-light);
-  font-family:Arial,sans-serif;font-size:10px;font-weight:bold;
-  cursor:pointer;white-space:nowrap;letter-spacing:.04em;
-}
-#mini-back-btn:hover{background:var(--hover)}
 </style>
 </head>
 <body>
@@ -461,10 +433,6 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
     <div class="gear-item">
       <label for="m-tog-anim" style="cursor:pointer">Text animations</label>
       <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-anim" checked onchange="setAnimPref(this.checked)"><span class="sq-toggle-track"></span></label>
-    </div>
-    <div class="gear-item">
-      <label for="m-tog-hqvideo" style="cursor:pointer">HQ Video</label>
-      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-hqvideo" checked onchange="localStorage.setItem('vvip25:hqvideo',this.checked?'1':'0')"><span class="sq-toggle-track"></span></label>
     </div>
   </div>
 </div>
@@ -913,20 +881,6 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
   </div>
 
 </div><!-- /panel -->
-
-<!-- MINI PLAYER — persists from main player via localStorage -->
-<div id="mini-player">
-  <img id="mini-thumb" src="" alt="">
-  <div id="mini-info">
-    <div id="mini-title">Nothing playing</div>
-    <div id="mini-time">–:–– / –:––</div>
-  </div>
-  <div id="mini-controls">
-    <button id="mini-play-btn" title="Play/Pause on main player">&#9654;</button>
-    <button id="mini-back-btn" onclick="window.location='/'">&#9654; Player</button>
-  </div>
-</div>
-
 </div><!-- /page -->
 
 <script>
