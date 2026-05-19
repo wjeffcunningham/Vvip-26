@@ -1001,42 +1001,31 @@ function toggleAnim(on){
 async function downloadFavourites(){
   const favs=state.filtered.filter(t=>!t.unavailable);
   if(!favs.length){alert('No favourites to download.');return;}
-
-  // M3U playlist — streaming links, opens in any media player
-  const m3u=['#EXTM3U'];
+  // Generate M3U playlist
+  const m3u=['#EXTM3U',''];
   favs.forEach(t=>{
-    m3u.push(`#EXTINF:${Math.round(t.length||0)},${t.title||t.name}`);
+    const dur=t.length||0;
+    m3u.push(`#EXTINF:${Math.round(dur)},${t.title||t.name}`);
     m3u.push(t.src);
   });
-  const m3uBlob=new Blob([m3u.join('\n')],{type:'audio/x-mpegurl'});
-  const m3uUrl=URL.createObjectURL(m3uBlob);
-  const m3uA=document.createElement('a');
-  m3uA.href=m3uUrl;m3uA.download='VVIP_Favourites.m3u';
-  document.body.appendChild(m3uA);m3uA.click();
-  setTimeout(()=>{URL.revokeObjectURL(m3uUrl);m3uA.remove();},1000);
-
-  // MP3 downloads — fetch as blob to work cross-origin, one at a time
-  const btn=$('#fav-dl-btn');
-  const origLabel=btn.textContent;
-  let done=0;
-  for(const t of favs){
-    btn.textContent=`⬇ ${++done}/${favs.length}`;
-    try{
-      const resp=await fetch(t.src);
-      if(!resp.ok) throw new Error('fetch failed');
-      const blob=await resp.blob();
-      const burl=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=burl;a.download=t.name;a.style.display='none';
-      document.body.appendChild(a);a.click();
-      setTimeout(()=>{URL.revokeObjectURL(burl);a.remove();},2000);
-      // Small gap between downloads so browser doesn't drop them
-      await new Promise(r=>setTimeout(r,400));
-    }catch{
-      // Skip tracks that fail (e.g. unavailable)
-    }
+  const blob=new Blob([m3u.join('\n')],{type:'audio/x-mpegurl'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='VVIP_Favourites.m3u';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1000);
+  // Trigger individual MP3 downloads with stagger
+  // Note: browsers may block multiple downloads; user may need to allow
+  for(let i=0;i<favs.length;i++){
+    await new Promise(r=>setTimeout(r,300));
+    const a2=document.createElement('a');
+    a2.href=favs[i].src;
+    a2.download=favs[i].name;
+    a2.style.display='none';
+    document.body.appendChild(a2);
+    a2.click();
+    setTimeout(()=>a2.remove(),500);
   }
-  btn.textContent=origLabel;
 }
 function shuffleFavs(){
   sortTracks(state.filtered,'shuffle');
