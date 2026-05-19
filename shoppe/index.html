@@ -3,38 +3,84 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>VVIP Shoppe — VVIPmedia.NET</title>
+<title>VVIP Shoppe // VVIPmedia.NET</title>
 <link rel="icon" href="/favicon.ico?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-:root{
-  --bg:#f4f4f2;--fg:#1a1a1a;--muted:#5a5a5a;
-  --border:#a8a8a8;--border-light:#d0d0d0;
-  --card:#e8e8e6;--hover:#dce4f0;
-  --link:#00308f;--link-vis:#4a1a7a;--link-hov:#9a0000;
-  --btn-bg:#d8d8d6;--btn-hi:#f0f0ee;--btn-sh:#7a7a7a;--btn-dk:#3a3a3a;
-  --scrub-bg:#bcbcba;--now-bg:#e0e0de;--tab-inactive:#cacac8;
-  --tag-bg:#1e2a3a;--tag-fg:#f0f0ee;
-  --sec-ga:#1e2a3a;--sec-gb:#2e3e52;
-  --gold-bg:#c8a84b;--gold-hi:#f0d480;--gold-sh:#7a6020;--gold-fg:#2a1800;
-  --avail:#005500;--unavail:#888880;
+:root {
+  --bg: #f4f4f2;          /* warm white — not clinical */
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #a8a8a8;
+  --border-light: #d0d0d0;
+  --card: #e8e8e6;        /* slightly warm light grey */
+  --hover: #dce4f0;       /* muted slate-blue hover */
+  --playing: #f2f0e0;
+  --playing-title: #7a0000;
+  --link: #00308f;        /* RAF blue — gov but not dull */
+  --link-vis: #4a1a7a;
+  --link-hov: #9a0000;
+  --btn-bg: #d8d8d6;      /* medium grey buttons */
+  --btn-hi: #f0f0ee;
+  --btn-sh: #7a7a7a;
+  --btn-dk: #3a3a3a;
+  --scrub-bg: #bcbcba;
+  --now-bg: #e0e0de;      /* player bar — slightly darker than page */
+  --tab-inactive: #cacac8;
+  --star-on: #8b0000;
+  --tag-bg: #1e2a3a;      /* dark navy for section headers */
+  --tag-fg: #f0f0ee;
+  --sec-ga: #1e2a3a;
+  --sec-gb: #2e3e52;
+  --logo-g1: #000044;
+  --logo-g2: #00308f;
+  --logo-g3: #000044;
+  --logo-glo: #2255dd;
+  --gold-bg: #c8a84b;
+  --gold-hi: #f0d480;
+  --gold-sh: #7a6020;
+  --gold-fg: #2a1800;
 }
-[data-theme="dark"]{
-  --bg:#111014;--fg:#e8e4d8;--muted:#888880;
-  --border:#2a2830;--border-light:#1e1c24;
-  --card:#17151c;--hover:#1a1830;
-  --link:#6699ff;--link-vis:#cc88ff;--link-hov:#ff6644;
-  --btn-bg:#28263a;--btn-hi:#484660;--btn-sh:#0c0b14;--btn-dk:#060610;
-  --gold-bg:#7a6020;--gold-hi:#c8a84b;--gold-sh:#3a2a08;--gold-fg:#f0d080;
-  --tag-bg:#0c0a22;--tag-fg:#99aaee;
-  --sec-ga:#0c0a22;--sec-gb:#14123a;
-  --avail:#44bb44;--unavail:#555550;
+[data-theme="dark"] {
+  --bg: #111014;
+  --fg: #e8e4d8;
+  --muted: #888880;
+  --border: #2a2830;
+  --border-light: #1e1c24;
+  --card: #17151c;
+  --hover: #1a1830;
+  --playing: #1a1800;
+  --playing-title: #ddaa44;
+  --link: #6699ff;
+  --link-vis: #cc88ff;
+  --link-hov: #ff6644;
+  --btn-bg: #28263a;
+  --btn-hi: #484660;
+  --btn-sh: #0c0b14;
+  --btn-dk: #060610;
+  --scrub-bg: #28263a;
+  --now-bg: #15131a;
+  --tab-inactive: #1c1a28;
+  --star-on: #ddaa44;
+  --tag-bg: #0c0a22;
+  --tag-fg: #99aaee;
+  --sec-ga: #0c0a22;
+  --sec-gb: #14123a;
+  --logo-g1: #2244aa;
+  --logo-g2: #4477dd;
+  --logo-g3: #2244aa;
+  --logo-glo: #88aaff;
+  --gold-bg: #7a6020;
+  --gold-hi: #c8a84b;
+  --gold-sh: #3a2a08;
+  --gold-fg: #f0d080;
 }
 
 *,*::before,*::after{box-sizing:border-box}
 html{height:100%;-webkit-text-size-adjust:100%}
 html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !important;transition:none !important}
 html.no-anim #site-name{-webkit-text-fill-color:var(--fg);background:none}
+html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:none}
 body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;transition:background .3s,color .3s}
 a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov);text-decoration:underline}
 #page{max-width:700px;margin:0 auto;padding:0 12px 80px}
@@ -490,9 +536,9 @@ async function loadShoppe(){
       }));
       // Append VVIP+ exclusive items
       shoppeItems.push(
-        {id:'mp3-archive',title:'All MP3s Download',desc:'Complete archive — every track.',price:10,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=MP3+Archive+Download',premium:true,note:'VVIP+ members only'},
-        {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive — lossless WAV.',price:20,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=WAV+Archive+Download',premium:true,note:'VVIP+ members only'},
-        {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP-branded garment. You pay shipping only.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=Garment+Repair+Request',premium:true,note:'VVIP+ members only · You pay shipping only'}
+        {id:'mp3-archive',title:'All MP3s Download',desc:'All Mp3s, delivered to your digital door',price:10,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=MP3+Archive+Download',premium:true,note:'VVIP+ members only'},
+        {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive // lossless WAV.',price:20,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=WAV+Archive+Download',premium:true,note:'VVIP+ members only'},
+        {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP-branded garment. You pay shipping only.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=Garment+Repair+Request',premium:true,note:'VVIP+ members only // You pay shipping only'}
       );
     } else shoppeItems=SHOPPE_FALLBACK;
   }catch{shoppeItems=SHOPPE_FALLBACK;}
