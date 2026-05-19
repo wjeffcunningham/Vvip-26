@@ -1125,7 +1125,6 @@ async function onSession(session){
   currentUser = session.user;
   profile = { username:'', is_premium:false, is_admin:false }; // safe default
   try{ await loadProfile(); }catch(e){ dbg('loadProfile crash: '+e.message); }
-  renderMemberNav();
   renderMember();
   show('view-member');
 }
@@ -1202,16 +1201,6 @@ function renderMember(){
 
   // Nav + gear state
   renderMemberNav();
-}
-
-function setNavLoggedOut(){
-  const ids=['nav-vvip-btn','nav-username-btn','nav-admin-btn'];
-  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  const jf=document.getElementById('nav-join-free');if(jf)jf.style.display='';
-  const gj=document.getElementById('gear-join-free');if(gj)gj.style.display='';
-  const gu=document.getElementById('gear-username-row');if(gu)gu.style.display='none';
-  const gv=document.getElementById('gear-vvip-upsell');if(gv)gv.style.display='none';
-  const gs=document.getElementById('gear-signout');if(gs)gs.style.display='none';
 }
 
 function renderMemberNav(){
