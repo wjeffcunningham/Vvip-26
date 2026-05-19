@@ -1019,42 +1019,28 @@ async function init(){
 
   let sessionResolved = false;
 
-  // Safety net: if nothing resolves in 4s, bail to auth screen
-  const loadingTimeout = setTimeout(() => {
-    if(!sessionResolved){
-      sessionResolved = true;
-      console.warn('[vvip] auth timeout — showing login screen');
-      setNavLoggedOut(); show('view-auth');
-    }
-  }, 4000);
-
-  const resolveOnce = async (session) => {
-    if(sessionResolved) return;
-    sessionResolved = true;
-    clearTimeout(loadingTimeout);
-    if(session) await onSession(session);
-    else { setNavLoggedOut(); show('view-auth'); }
-  };
-
-  // onAuthStateChange handles OAuth hash redirect AND session restore
+  // onAuthStateChange handles BOTH: OAuth hash redirect AND SIGNED_OUT events
   supa.auth.onAuthStateChange(async(event, s) => {
-    if(event === 'SIGNED_OUT'){
+    if(sessionResolved && event !== 'SIGNED_OUT') return;
+    if(s && !sessionResolved){
+      sessionResolved = true;
+      await onSession(s);
+    } else if(event === 'SIGNED_OUT'){
       sessionResolved = false;
       currentUser = null; profile = null;
       setNavLoggedOut(); show('view-auth');
-      return;
     }
-    if(!sessionResolved) await resolveOnce(s || null);
   });
 
-  // For returning visitors without hash: getSession() is more reliable
+  // For returning visitors (no hash): getSession() picks up the stored token
   if(!hasOAuthHash){
-    try {
-      const { data:{ session } } = await supa.auth.getSession();
-      await resolveOnce(session || null);
-    } catch(e) {
-      console.warn('[vvip] getSession error:', e);
-      await resolveOnce(null);
+    const { data:{ session } } = await supa.auth.getSession();
+    if(session && !sessionResolved){
+      sessionResolved = true;
+      await onSession(session);
+    } else if(!session && !sessionResolved){
+      sessionResolved = true;
+      setNavLoggedOut(); show('view-auth');
     }
   }
 }
