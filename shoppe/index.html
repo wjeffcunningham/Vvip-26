@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>VVIP Shoppe — VVIPmedia.NET</title>
+<title>VVIP Shoppe // VVIPmedia.NET</title>
 <link rel="icon" href="/favicon.ico?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -536,9 +536,9 @@ async function loadShoppe(){
       }));
       // Append VVIP+ exclusive items
       shoppeItems.push(
-        {id:'mp3-archive',title:'All MP3s Download',desc:'Complete archive — every track.',price:10,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=MP3+Archive+Download',premium:true,note:'VVIP+ members only'},
-        {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive — lossless WAV.',price:20,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=WAV+Archive+Download',premium:true,note:'VVIP+ members only'},
-        {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP-branded garment. You pay shipping only.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=Garment+Repair+Request',premium:true,note:'VVIP+ members only · You pay shipping only'}
+        {id:'mp3-archive',title:'All MP3s Download',desc:'All Mp3s, delivered to your digital door',price:10,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=MP3+Archive+Download',premium:true,note:'VVIP+ members only'},
+        {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive — lossless WAV.',price:20,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=WAV+Archive+Download',premium:true,note:'VVIP+ members only'},
+        {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP-branded garment. You pay shipping only.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=Garment+Repair+Request',premium:true,note:'VVIP+ members only · You pay shipping only'}
       );
     } else shoppeItems=SHOPPE_FALLBACK;
   }catch{shoppeItems=SHOPPE_FALLBACK;}
