@@ -331,15 +331,6 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 }
 
 html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !important;transition:none !important}
-/* Gear menu items — matches index.html */
-.gear-item{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px;color:var(--fg)}
-.gear-item:last-child{border-bottom:none}
-.gear-item label{cursor:pointer}
-.gear-toggle{-webkit-appearance:none;appearance:none;width:36px;height:16px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);border-radius:0;position:relative;cursor:pointer;flex-shrink:0;transition:background .12s}
-.gear-toggle:checked{background:#1a3a8a;border-color:#0a1a5a #3a5acc #3a5acc #0a1a5a}
-[data-theme="dark"] .gear-toggle:checked{background:#1a2e7a}
-.gear-toggle::after{content:'';position:absolute;width:10px;height:10px;background:var(--btn-sh);border:1px solid;border-color:var(--btn-dk) var(--btn-hi) var(--btn-hi) var(--btn-dk);top:2px;left:2px;transition:left .1s}
-.gear-toggle:checked::after{left:22px;background:var(--btn-hi)}
 /* ── SQUARE TOGGLE — 1995 panel style ── */
 .sq-toggle-wrap{
   display:inline-flex;align-items:center;gap:8px;cursor:pointer;
@@ -405,34 +396,32 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()" style="position:absolute;right:0;top:14px;font-size:22px;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;transition:transform .4s ease;user-select:none">&#9881;&#65039;</button>
   <div id="gear-menu" style="display:none;position:absolute;right:0;top:52px;background:var(--bg);border:2px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);padding:8px 14px;z-index:200;font-family:Arial,Helvetica,sans-serif;font-size:12px;min-width:200px;box-shadow:3px 3px 0 var(--btn-dk)">
-    <!-- Auth section — mirrors index.html gear exactly -->
-    <div class="gear-item" id="gear-join-free-m">
-      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free →</a>
+    <!-- Auth section -->
+    <div id="gear-auth-top">
+      <div id="gear-join-free-m" style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
+        <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free →</a>
+      </div>
+      <div id="gear-username-m" style="display:none;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
+        <span id="gear-username-m-label" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg)"></span>
+      </div>
+      <div id="gear-vvip-upsell-m" style="display:none;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
+        <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">✦ Upgrade to VVIP+</a>
+      </div>
+      <div id="gear-signout-m" style="display:none;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
+        <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:11px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted);text-align:left">Sign out</button>
+      </div>
     </div>
-    <div class="gear-item" id="gear-username-m" style="display:none">
-      <a href="/members.html" id="gear-username-m-label" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);text-decoration:none"></a>
-    </div>
-    <div class="gear-item" id="gear-vvip-upsell-m" style="display:none">
-      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">✦ Upgrade to VVIP+</a>
-    </div>
-    <div class="gear-item" id="gear-signout-m" style="display:none">
-      <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:12px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted)">Sign out</button>
-    </div>
-    <div class="gear-item" style="border-top:1px solid var(--border-light);margin-top:2px;padding-top:6px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px;margin-top:4px">
       <label for="m-tog-dark" style="cursor:pointer">Dark mode</label>
       <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-dark" onchange="toggleDark()"><span class="sq-toggle-track"></span></label>
     </div>
-    <div class="gear-item">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
       <label for="m-tog-titles" style="cursor:pointer">Titles</label>
       <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-titles" checked onchange="localStorage.setItem('vvip25:hideTitles',this.checked?'':'1')"><span class="sq-toggle-track"></span></label>
     </div>
-    <div class="gear-item">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;gap:14px">
       <label for="m-tog-downloads" style="cursor:pointer">Downloads</label>
       <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-downloads" checked onchange="localStorage.setItem('vvip25:downloads',this.checked?'1':'0')"><span class="sq-toggle-track"></span></label>
-    </div>
-    <div class="gear-item">
-      <label for="m-tog-anim" style="cursor:pointer">Text animations</label>
-      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-anim" checked onchange="setAnimPref(this.checked)"><span class="sq-toggle-track"></span></label>
     </div>
   </div>
 </div>
@@ -894,15 +883,7 @@ const SITE_URL = 'https://vvipmedia.net'; // canonical — used for OAuth redire
 const EDGE_MANIFEST = 'https://auth.vvipmedia.net/functions/v1/update-manifest';
 
 let supa = null;
-try {
-  supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
-    auth: {
-      flowType: 'implicit',  // Use hash-based tokens, not PKCE code exchange
-      detectSessionInUrl: true,
-      persistSession: true,
-    }
-  });
-} catch(e){}
+try { supa = supabase.createClient(SUPA_URL, SUPA_KEY); } catch(e){}
 
 let currentUser = null;
 let profile = null;
@@ -1234,9 +1215,14 @@ function renderMemberNav(){
 
 async function signInGoogle(){
   if(!supa) return alert('Auth not configured.');
+  // Use implicit flow (hash-based) so the token lands in the URL hash,
+  // which our hasOAuthHash detection catches reliably.
   await supa.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: SITE_URL + '/members.html' }
+    options: {
+      redirectTo: SITE_URL + '/members.html',
+      queryParams: { response_type: 'token' },
+    }
   });
 }
 

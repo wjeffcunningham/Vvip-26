@@ -383,18 +383,17 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 .shoppe-cat:hover{background:var(--hover)}
 .shoppe-cat.active{background:var(--tag-bg);color:var(--tag-fg);border-color:var(--tag-bg)}
 .shoppe-items{border:1px solid var(--border);border-top:none}
-/* Each item is a block — inner .shoppe-item-row is the flex row */
 .shoppe-item{
-  display:block;
+  display:grid;grid-template-columns:80px 1fr auto;
   border-bottom:1px solid var(--border-light);
   cursor:pointer;background:var(--bg);
   transition:background .1s;
+  min-height:80px;
 }
 .shoppe-item:last-child{border-bottom:none}
 .shoppe-item:hover{background:var(--hover)}
 .shoppe-item.unavailable{opacity:.5;cursor:default}
 .shoppe-item.expanded{background:var(--card)}
-.shoppe-item-row{display:flex;align-items:stretch;min-height:80px}
 .shoppe-item-thumb{
   width:80px;height:80px;object-fit:cover;
   border-right:1px solid var(--border-light);
@@ -404,28 +403,29 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
   width:80px;height:80px;background:var(--btn-bg);
   border-right:1px solid var(--border-light);
   display:flex;align-items:center;justify-content:center;
-  font-size:22px;color:var(--muted);flex-shrink:0;
+  font-size:22px;color:var(--muted);
 }
-.shoppe-item-mid{padding:10px 10px;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;flex:1}
+.shoppe-item-mid{padding:10px 10px;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px}
 .shoppe-item-title{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shoppe-item-desc{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.shoppe-item-price{font-family:"Times New Roman",Times,serif;font-size:13px;color:var(--fg);margin-top:2px;white-space:nowrap}
-.shoppe-item-right{display:flex;align-items:center;padding:8px 12px;flex-shrink:0}
+.shoppe-item-price{font-family:"Times New Roman",Times,serif;font-size:14px;color:var(--fg);margin-top:2px}
+.shoppe-item-right{display:flex;align-items:center;padding:8px 10px;gap:0;flex-shrink:0}
 .shoppe-avail-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .shoppe-avail-dot.yes{background:#3a8a3a}
 .shoppe-avail-dot.no{background:var(--muted)}
-/* Expanded detail — full width block below the row */
+/* Expanded detail panel */
 .shoppe-detail{
   display:none;
+  grid-column:1/-1;
   border-top:1px solid var(--border-light);
-  padding:12px 14px;
+  padding:14px 14px 14px 14px;
   background:var(--card);
 }
 .shoppe-detail.open{display:block}
-.shoppe-detail-imgs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
-.shoppe-detail-imgs img{width:80px;height:80px;object-fit:cover;border:1px solid var(--border)}
-.shoppe-detail-body{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg);line-height:1.5;margin-bottom:10px}
-.shoppe-order-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.shoppe-detail-imgs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.shoppe-detail-imgs img{width:90px;height:90px;object-fit:cover;border:1px solid var(--border);cursor:pointer}
+.shoppe-detail-body{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg);line-height:1.5;margin-bottom:12px}
+.shoppe-order-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
 .shoppe-qty{font-family:Arial,Helvetica,sans-serif;font-size:12px;
   background:var(--bg);color:var(--fg);
   border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);
@@ -745,6 +745,7 @@ const BASE_VHQ='https://cdn.vvipmedia.net/VIDEOS/';
 // Not yet on YouTube: chevy weather, slowwww, arcade winter, a light breeze, kits, duski, aerrie
 const LO_MAP={
   'analog tv':       'FqlGTGeW3lg',
+  'purple morning':  'JLZPxAuWMmY',
   'free zone':       'd-66iDBpYwg',
   'goofy spoon':     'k6DdIh2jM_g',
   'lit(e) rail':     'ZEqryQgiIgM',
@@ -761,29 +762,6 @@ const LO_MAP={
   'lately':          '5p3er_46RRw',
   'ship yard':       'VD2zRBOCfAU',
 };
-const IJPAUC_YT='JFxc9OQlFMU'; // IJPAUC YouTube link for soundtrack tracks
-
-function getLoVid(t){
-  const tl=(t.title||'').toLowerCase();
-  const dl=(t.details||'').toLowerCase();
-  if(tl.includes('\u00e6rie')||tl.includes('aerie')) return null;
-  // #ij or #yijpauc tagged = IJPAUC soundtrack
-  if(dl.includes('#ij')||dl.includes('#yijpauc')) return 'yt:'+IJPAUC_YT;
-  for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
-  return null;
-}
-  'access':'VVIP24 Access.mov',
-  'afternoon sunset':'VVIP24 Afternoon Sunset.mov',
-  'air toyota':'VVIP24 Air Toyota (loop).mov',
-  'annus mirabilis':'VVIP24 Annus Mirabilis.mov',
-  'arcade water':'VVIP24 Arcade Water.mov',
-  'arcade winter':'VVIP24 Arcade Winter.mov',
-  'chateau margeaux':'VVIP24 Chateau Margeaux (original).mov',
-  'digital picasso':'VVIP24 Digital Picasso.mov',
-  'gwigswis':'VVIP24 Go Where I Go See Where I See.mov',
-  'in the zone':'VVIP24 In the Zone.mov',
-};
-
 const HQ_MAP={
   'access':'VVIP24 Access.mov',
   'afternoon sunset':'VVIP24 Afternoon Sunset.mov',
@@ -796,6 +774,15 @@ const HQ_MAP={
   'gwigswis':'VVIP24 Go Where I Go See Where I See.mov',
   'in the zone':'VVIP24 In the Zone.mov',
 };
+
+function getLoVid(t){
+  const tl=(t.title||'').toLowerCase();
+  // Never use the IJPAUC album video for individual tracks
+  // Only match explicit per-track entries in LO_MAP
+  if(tl.includes('\u00e6rie')||tl.includes('aerie')) return null; // not on YT yet
+  for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
+  return null;
+}
 function getHqVid(t){
   const tl=(t.title||'').toLowerCase();
   for(const[k,f] of Object.entries(HQ_MAP)) if(tl.includes(k)) return BASE_VHQ+encodeURIComponent(f);
@@ -1743,12 +1730,14 @@ function renderShoppe(){
   if(!grid)return;
   grid.innerHTML=items.map(it=>{
     const imgSrc=it.images&&it.images.length?SHOPPE_BASE_IMG+it.images[0]:'';
-    const priceStr=it.price===0?'Free':(it.price>=1000000?'$'+it.price.toLocaleString()+' '+( it.currency||'CAD'):('$'+it.price.toFixed(0)+' '+(it.currency||'CAD')));
+    const priceStr=it.price===0?'Free':(it.price>=1000000?'$'+it.price.toLocaleString():('$'+it.price.toFixed(0)))+' '+( it.currency||'CAD');
     const isExpanded=shoppeExpanded===it.id;
+    // Extra images for detail panel
+    const extraImgs=it.images&&it.images.length>1?it.images.slice(1):[];
     const detailHtml=`
       <div class="shoppe-detail${isExpanded?' open':''}" id="shoppe-detail-${it.id}">
         ${it.images&&it.images.length?`<div class="shoppe-detail-imgs">${it.images.map(img=>`<img src="${SHOPPE_BASE_IMG+img}" alt="" onerror="this.style.display='none'">`).join('')}</div>`:''}
-        <div class="shoppe-detail-body">${it.desc||''}${it.note?`<br><em style="color:var(--muted);font-size:11px">${it.note}</em>`:''}</div>
+        <div class="shoppe-detail-body">${it.desc||''} ${it.note?`<br><em style="color:var(--muted);font-size:11px">${it.note}</em>`:''}</div>
         ${it.available?`
         <div class="shoppe-order-row">
           <label style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted)">Qty</label>
@@ -1757,21 +1746,19 @@ function renderShoppe(){
             it.bandcamp_url?`<a class="shoppe-order-btn" href="${it.bandcamp_url}" target="_blank" rel="noopener">Buy on Bandcamp →</a>`:
             it.stripe_url?`<a class="shoppe-order-btn" href="${it.stripe_url}" target="_blank" rel="noopener">Buy Now →</a>`:
             `<a class="shoppe-order-btn secondary" href="mailto:vvipmedia@proton.me?subject=Order: ${encodeURIComponent(it.title)}" target="_blank">Inquire →</a>`}
-        </div>`:`<div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-top:6px">Currently unavailable — check back soon.</div>`}
+        </div>`:`<div style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-top:8px">Currently unavailable — check back soon.</div>`}
       </div>`;
     return `<div class="shoppe-item${it.available?'':' unavailable'}${isExpanded?' expanded':''}" data-shoppe-id="${it.id}" onclick="toggleShoppeItem(event,'${it.id}')">
-      <div class="shoppe-item-row">
-        ${imgSrc
-          ?`<img class="shoppe-item-thumb" src="${imgSrc}" alt="${it.title}" loading="lazy" onerror="this.style.display='none'">`
-          :`<div class="shoppe-item-thumb-ph">🛍</div>`}
-        <div class="shoppe-item-mid">
-          <div class="shoppe-item-title">${it.title}${it.premium?'<span class="shoppe-vvip-only">VVIP+</span>':''}</div>
-          <div class="shoppe-item-desc">${it.desc||''}</div>
-          <div class="shoppe-item-price">${priceStr}</div>
-        </div>
-        <div class="shoppe-item-right">
-          <div class="shoppe-avail-dot ${it.available?'yes':'no'}" title="${it.available?'Available':'Unavailable'}"></div>
-        </div>
+      ${imgSrc
+        ?`<img class="shoppe-item-thumb" src="${imgSrc}" alt="${it.title}" onerror="this.style.display='none'">`
+        :`<div class="shoppe-item-thumb-ph">🛍</div>`}
+      <div class="shoppe-item-mid">
+        <div class="shoppe-item-title">${it.title}${it.premium?'<span class="shoppe-vvip-only">VVIP+</span>':''}</div>
+        <div class="shoppe-item-desc">${it.desc||''}</div>
+        <div class="shoppe-item-price">${priceStr}</div>
+      </div>
+      <div class="shoppe-item-right">
+        <div class="shoppe-avail-dot ${it.available?'yes':'no'}" title="${it.available?'Available':'Unavailable'}"></div>
       </div>
       ${detailHtml}
     </div>`;
