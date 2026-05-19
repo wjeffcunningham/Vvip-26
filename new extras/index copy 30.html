@@ -1392,16 +1392,12 @@ function renderHashtags(){
   }
   hv.appendChild(cloud);
 
-  const SECTION_LIMIT=40;
-  let sectionsRendered=0;
-  const hiddenSections=[];
   let firstSet=false;
-
   for(const tag of tags){
     const tracks=tagMap[tag];
     const isDef=tag===defTag;
     const st=[...tracks];
-    sortTracks(st,globalDefSort);
+    sortTracks(st,globalDefSort); // all categories use the same random direction
 
     const sec=document.createElement('div');sec.className='htag-section'+(tag===PREFERRED_TAG?' best-tag':'');sec.dataset.tag=tag;
 
@@ -1432,31 +1428,10 @@ function renderHashtags(){
       const open=body.classList.toggle('open');
       head.querySelector('.htag-arrow').textContent=open?'\u25be':'\u25b8';
     });
-
-    if(sectionsRendered<SECTION_LIMIT||isDef){
-      hv.appendChild(sec);
-      sectionsRendered++;
-    } else {
-      sec.style.display='none';
-      hiddenSections.push(sec);
-    }
+    hv.appendChild(sec);
 
     if(isDef&&!firstSet&&st.length){state.filtered=st;select(0);firstSet=true}
   }
-
-  // +N more button if sections were hidden
-  if(hiddenSections.length){
-    const moreBtn=document.createElement('button');
-    moreBtn.className='tag-pill tag-expand-btn';
-    moreBtn.style.cssText='display:block;width:100%;margin:4px 0;padding:5px 10px;font-size:11px;opacity:.65;text-align:left;border:1px solid var(--border);background:var(--card);color:var(--fg);cursor:pointer;font-family:Arial,sans-serif';
-    moreBtn.textContent='+'+hiddenSections.length+' more playlists';
-    moreBtn.addEventListener('click',()=>{
-      hiddenSections.forEach(s=>{ s.style.display=''; hv.appendChild(s); });
-      moreBtn.remove();
-    });
-    hv.appendChild(moreBtn);
-  }
-
   updateNow();
 }
 
