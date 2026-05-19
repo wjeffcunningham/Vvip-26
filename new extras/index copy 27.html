@@ -1069,26 +1069,6 @@ $$('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
 
 window.addEventListener('beforeunload',()=>{try{send({cmd:'report'})}catch{}});
 
-// BroadcastChannel — broadcasts live state to mini players on other tabs
-let _vvipBC=null;
-try{
-  _vvipBC=new BroadcastChannel('vvip25_player');
-  _vvipBC.onmessage=e=>{
-    if(e.data.type==='ping'){
-      // Respond with current state
-      const ct=state.filtered[state.i];
-      if(ct){
-        const np={title:ct.title||ct.name,src:ct.src,thumb:getThumb(ct),playing:state.playing,time:0,duration:state.duration};
-        _vvipBC.postMessage({type:'heartbeat',np});
-      } else {
-        _vvipBC.postMessage({type:'heartbeat',np:null});
-      }
-    } else if(e.data.type==='cmd'&&e.data.cmd==='toggle'){
-      state.playing?pause():play();
-    }
-  };
-}catch{}
-
 
 
 document.addEventListener('DOMContentLoaded',async()=>{
@@ -1771,12 +1751,17 @@ window.addEventListener('message',e=>{
       sc.value=Math.min(100,Math.max(0,(t/state.duration)*100));
     try{
       localStorage.setItem('vvip25_time',t);
+      // Persist now-playing for cross-page mini player
       const ct=state.filtered[state.i];
       if(ct){
-        const np={title:ct.title||ct.name,src:ct.src,thumb:getThumb(ct),playing:state.playing,time:t,duration:state.duration};
-        localStorage.setItem('vvip25_np',JSON.stringify(np));
-        // Broadcast live state to mini players on other tabs
-        try{_vvipBC?.postMessage({type:'state',np});}catch{}
+        localStorage.setItem('vvip25_np',JSON.stringify({
+          title:ct.title||ct.name,
+          src:ct.src,
+          thumb:getThumb(ct),
+          playing:state.playing,
+          time:t,
+          duration:state.duration
+        }));
       }
     }catch{}
   }else if(d.status==='ended'){

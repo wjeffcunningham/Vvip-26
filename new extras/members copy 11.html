@@ -1655,73 +1655,77 @@ function setAnimPref(on){
 // ── GO ──
 init();
 
-// ── MINI PLAYER — continuous with main player tab via BroadcastChannel + localStorage ──
+// ── MINI PLAYER — works standalone, no main page needed ──
 (function(){
   function fmtD(s){s=Number(s||0);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')}
   const bar=document.getElementById('mini-player');
   if(!bar)return;
 
-  let mainTabAlive=false, mainTabTimer=null;
-  let miniAudio=null, miniSrc=null;
+  let miniAudio=null; // standalone audio for this page
+  let miniPlaying=false;
+  let miniSrc=null;
 
-  try{
-    const bc=new BroadcastChannel('vvip25_player');
-    bc.onmessage=e=>{
-      if(e.data.type==='heartbeat'||e.data.type==='state'){
-        mainTabAlive=true;
-        clearTimeout(mainTabTimer);
-        mainTabTimer=setTimeout(()=>{mainTabAlive=false;},4000);
-        if(e.data.np) updateBarWith(e.data.np, true);
-      }
-    };
-    bc.postMessage({type:'ping'});
-  }catch{}
+  function getState(){
+    try{ return JSON.parse(localStorage.getItem('vvip25_np')||'null'); }catch{return null;}
+  }
 
-  function getState(){try{return JSON.parse(localStorage.getItem('vvip25_np')||'null');}catch{return null;}}
-
-  function updateBarWith(np, fromMain){
+  function updateBar(){
+    const np=getState();
     if(!np||!np.title){bar.classList.remove('active');return;}
     bar.classList.add('active');
     const thumb=document.getElementById('mini-thumb');
     const title=document.getElementById('mini-title');
     const time=document.getElementById('mini-time');
     const btn=document.getElementById('mini-play-btn');
-    if(thumb&&np.thumb&&thumb.src!==np.thumb){thumb.src=np.thumb;thumb.style.display='block';thumb.onerror=()=>thumb.style.display='none';}
+    if(thumb){thumb.src=np.thumb||'';thumb.onerror=()=>thumb.style.display='none';}
     if(title)title.textContent=np.title||'';
     if(time)time.textContent=fmtD(np.time)+' / '+fmtD(np.duration);
-    const playing=fromMain?np.playing:(miniAudio?(!miniAudio.paused&&!miniAudio.ended):np.playing);
+    // Show playing state from localStorage (main page) OR our local audio
+    const playing=miniAudio?(!miniAudio.paused&&!miniAudio.ended):np.playing;
     if(btn)btn.innerHTML=playing?'&#9646;&#9646;':'&#9654;';
   }
-
-  function updateBar(){updateBarWith(getState(), mainTabAlive&&!miniAudio?.src);}
 
   const playBtn=document.getElementById('mini-play-btn');
   if(playBtn){
     playBtn.onclick=()=>{
-      if(mainTabAlive){
-        try{const bc=new BroadcastChannel('vvip25_player');bc.postMessage({type:'cmd',cmd:'toggle'});bc.close();}catch{}
-        return;
-      }
-      const np=getState();if(!np||!np.src)return;
+      const np=getState();
+      if(!np||!np.src) return;
+      // Try to control main page first via BroadcastChannel; fall back to own audio
       if(!miniAudio){
-        miniAudio=new Audio();miniAudio.crossOrigin='anonymous';
+        miniAudio=new Audio();
+        miniAudio.crossOrigin='anonymous';
         miniAudio.addEventListener('timeupdate',()=>{
-          try{const s=getState();if(s){s.time=miniAudio.currentTime;s.playing=!miniAudio.paused;localStorage.setItem('vvip25_np',JSON.stringify(s));}}catch{}
+          // Keep localStorage in sync
+          try{
+            const stored=getState();
+            if(stored){stored.time=miniAudio.currentTime;stored.playing=!miniAudio.paused;localStorage.setItem('vvip25_np',JSON.stringify(stored));}
+          }catch{}
           updateBar();
         });
-        miniAudio.addEventListener('ended',updateBar);
+        miniAudio.addEventListener('ended',()=>{updateBar();});
       }
-      if(miniSrc!==np.src){miniAudio.src=np.src;miniSrc=np.src;miniAudio.currentTime=np.time||0;}
-      miniAudio.paused?miniAudio.play().catch(()=>{}):miniAudio.pause();
+      if(miniSrc!==np.src){
+        miniAudio.src=np.src;
+        miniSrc=np.src;
+        miniAudio.currentTime=np.time||0;
+      }
+      if(miniAudio.paused){
+        miniAudio.play().catch(()=>{});
+        miniPlaying=true;
+      } else {
+        miniAudio.pause();
+        miniPlaying=false;
+      }
       updateBar();
     };
   }
 
+  // Back to player button
   const backBtn=document.getElementById('mini-back-btn');
   if(backBtn) backBtn.onclick=()=>window.location='/';
 
   updateBar();
-  setInterval(updateBar,2000);
+  setInterval(updateBar, 2000);
 })();
 </script>
 </body>
