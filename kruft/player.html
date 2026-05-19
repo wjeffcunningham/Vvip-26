@@ -24,9 +24,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const audio = document.createElement("audio");
   audio.crossOrigin = "anonymous";
   audio.preload = "auto";
-  // Suppress Safari pip/airplay/placard errors from hidden iframe context
-  audio.disableRemotePlayback = true;
-  audio.setAttribute("x-webkit-airplay", "deny");
   document.body.appendChild(audio);
 
   let currentSrc = null;
@@ -122,14 +119,14 @@ window.addEventListener("DOMContentLoaded", () => {
         } else if(d.time != null){
           audio.currentTime = d.time;
         }
-        if(d.play) audio.play().catch(()=>{});
+        if(d.play) audio.play().catch(console.warn);
         else if(d.play === false) audio.pause();
         updateMediaSession(d.meta || lastMeta); // always refresh lock screen
         postUpdate();
         break;
 
       case "play":
-        audio.play().catch(()=>{});
+        audio.play().catch(console.warn);
         updateMediaSession(lastMeta); // re-apply stored meta so lock screen shows title
         postUpdate();
         break;
