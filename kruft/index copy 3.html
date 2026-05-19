@@ -839,30 +839,18 @@ function extractTags(s){if(!s)return[];return[...s.matchAll(/#([a-zA-Z0-9_-]+)/g
 // ── Auth ──
 async function initAuth(){
   if(!supa)return;
-  const urlParams = new URLSearchParams(window.location.search);
-  const hasCode = urlParams.has('code');
-  const hasOAuthHash = window.location.hash.includes('access_token')||window.location.hash.includes('error=');
+  // If we're on index.html after a Google OAuth redirect, clean the hash
+  const hasOAuthHash = window.location.hash.includes('access_token') ||
+                       window.location.hash.includes('error=');
   if(hasOAuthHash) history.replaceState(null,'',window.location.pathname);
 
   let sessionResolved=false;
   supa.auth.onAuthStateChange(async(event,s)=>{
-    if(event==='SIGNED_OUT'){sessionResolved=false;clearSession();return;}
+    if(sessionResolved&&event!=='SIGNED_OUT')return;
     if(s&&!sessionResolved){sessionResolved=true;await onSession(s);}
+    else if(event==='SIGNED_OUT'){sessionResolved=false;clearSession();}
   });
-
-  if(hasCode){
-    // Safari PKCE fix — explicitly exchange the code rather than relying on
-    // detectSessionInUrl (which needs sessionStorage to survive the redirect)
-    try{
-      const{data,error}=await supa.auth.exchangeCodeForSession(urlParams.get('code'));
-      history.replaceState(null,'',window.location.pathname);
-      if(data?.session&&!sessionResolved){sessionResolved=true;await onSession(data.session);return;}
-    }catch(e){}
-    if(!sessionResolved){
-      const{data:{session}}=await supa.auth.getSession();
-      if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}
-    }
-  } else if(!hasOAuthHash){
+  if(!hasOAuthHash){
     const{data:{session}}=await supa.auth.getSession();
     if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}
   }
@@ -1279,6 +1267,8 @@ function sortTracks(arr,mode){
     if(mode==='bpm_desc')return(b.bpm||b.bpm_min||0)-(a.bpm||a.bpm_min||0);
     if(mode==='bpm_asc')return(a.bpm||a.bpm_min||0)-(b.bpm||b.bpm_min||0);
     if(mode==='fav')return(state.favorites.has(b.name)?1:0)-(state.favorites.has(a.name)?1:0);
+    // date_desc: newest first; same-date tracks sorted ascending by name so
+    // the base file (e.g. 25.04.10.120.mp3) always precedes v2/v3 variants
     return(b.date-a.date)||a.name.localeCompare(b.name);
   });
 }
@@ -1976,6 +1966,7 @@ function shoppeVisibleItems(){
 
 function renderShoppe(){
   const hasPremium=isPremium||isAdmin;
+  // Full render — category tabs + items. Called on init and auth change.
   const catsEl=document.getElementById('shoppe-cats');
   if(catsEl){
     catsEl.innerHTML=SHOPPE_CATEGORIES
@@ -2034,6 +2025,7 @@ function renderShoppeItems(){
 
 function setShoppeCat(cat){
   shoppeCat=cat;shoppeExpanded=null;
+  // Update active class in-place — don't destroy+recreate buttons (prevents player skip)
   document.querySelectorAll('#shoppe-cats .shoppe-cat').forEach(btn=>{
     btn.classList.toggle('active',btn.dataset.catId===cat);
   });

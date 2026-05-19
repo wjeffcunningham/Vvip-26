@@ -1063,9 +1063,11 @@ async function init(){
   }
 
   // Detect OAuth return
-  const urlParams = new URLSearchParams(window.location.search);
-  const hasCode = urlParams.has('code');
+  const hasCode = new URLSearchParams(window.location.search).has('code');
   const hasHash = window.location.hash.includes('access_token');
+
+  // IMPORTANT: Do NOT clean the URL yet — Supabase needs ?code= to exchange it
+  // It will be cleaned after onAuthStateChange fires
 
   let sessionResolved = false;
 
@@ -1075,17 +1077,20 @@ async function init(){
       console.warn('[vvip] auth timeout');
       setNavLoggedOut(); show('view-auth');
     }
-  }, 10000);
+  }, 8000);
 
   const resolveOnce = async (session) => {
     if(sessionResolved) return;
     sessionResolved = true;
     clearTimeout(loadingTimeout);
-    history.replaceState(null, '', window.location.pathname);
+    // Now safe to clean the URL
+    if(hasCode || hasHash) history.replaceState(null, '', window.location.pathname);
     if(session) await onSession(session);
     else { setNavLoggedOut(); show('view-auth'); }
   };
 
+  // onAuthStateChange is the single source of truth
+  // With PKCE + detectSessionInUrl:true, Supabase auto-exchanges ?code= on page load
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){
       sessionResolved = false;
@@ -1093,41 +1098,30 @@ async function init(){
       setNavLoggedOut(); show('view-auth');
       return;
     }
-    if(event === 'SIGNED_IN' && s){ await resolveOnce(s); return; }
+    // Ignore INITIAL_SESSION with no session — wait for real SIGNED_IN from PKCE exchange
     if(event === 'INITIAL_SESSION' && !s) return;
+    // SIGNED_IN always takes over — handles post-login even if sessionResolved was already set
+    // by the prior getSession() null-resolve (the "no existing session" path)
+    if(event === 'SIGNED_IN' && s){
+      sessionResolved = true;
+      clearTimeout(loadingTimeout);
+      if(hasCode || hasHash) history.replaceState(null, '', window.location.pathname);
+      await onSession(s);
+      return;
+    }
     if(!sessionResolved) await resolveOnce(s || null);
   });
 
-  if(hasCode){
-    // Safari kills sessionStorage across redirects, breaking PKCE code verifier.
-    // Explicitly exchange the code ourselves as a reliable fallback.
+  // Returning visitor — get existing session directly (no OAuth redirect)
+  if(!hasCode && !hasHash){
     try{
-      const code = urlParams.get('code');
-      const { data, error } = await supa.auth.exchangeCodeForSession(code);
-      if(data?.session) { await resolveOnce(data.session); return; }
-      // If exchange failed (e.g. code already used), fall through to getSession
-      if(error) console.warn('[vvip] code exchange error:', error.message);
-    }catch(e){ console.warn('[vvip] exchangeCodeForSession threw:', e.message); }
-    // Fallback — session may already exist if onAuthStateChange beat us to it
-    if(!sessionResolved){
-      try{
-        const { data:{ session } } = await supa.auth.getSession();
-        await resolveOnce(session || null);
-      }catch(e){ await resolveOnce(null); }
+      const { data:{ session } } = await supa.auth.getSession();
+      await resolveOnce(session || null);
+    }catch(e){
+      await resolveOnce(null);
     }
-  } else if(hasHash){
-    // Implicit flow fallback — shouldn't normally reach here with PKCE
-    try{
-      const { data:{ session } } = await supa.auth.getSession();
-      await resolveOnce(session || null);
-    }catch(e){ await resolveOnce(null); }
-  } else {
-    // Returning visitor — no OAuth params
-    try{
-      const { data:{ session } } = await supa.auth.getSession();
-      await resolveOnce(session || null);
-    }catch(e){ await resolveOnce(null); }
   }
+  // hasCode: Supabase auto-exchanges via detectSessionInUrl, fires SIGNED_IN via onAuthStateChange
 }
 
 async function updatePassword(){
