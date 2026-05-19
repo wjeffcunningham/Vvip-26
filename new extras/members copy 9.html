@@ -435,7 +435,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
   <div id="gear-menu" style="display:none;position:absolute;right:0;top:52px;background:var(--bg);border:2px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);padding:8px 14px;z-index:200;font-family:Arial,Helvetica,sans-serif;font-size:12px;min-width:200px;box-shadow:3px 3px 0 var(--btn-dk)">
     <!-- Auth section — mirrors index.html gear exactly -->
     <div class="gear-item" id="gear-join-free-m">
-      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free</a>
+      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free →</a>
     </div>
     <div class="gear-item" id="gear-username-m" style="display:none">
       <a href="/members.html" id="gear-username-m-label" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);text-decoration:none"></a>
@@ -923,7 +923,7 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
   </div>
   <div id="mini-controls">
     <button id="mini-play-btn" title="Play/Pause on main player">&#9654;</button>
-    <button id="mini-back-btn" onclick="window.location='/'">Player</button>
+    <button id="mini-back-btn" onclick="window.location='/'">&#9654; Player</button>
   </div>
 </div>
 
@@ -943,7 +943,7 @@ let supa = null;
 try {
   supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
     auth: {
-      flowType: 'pkce',
+      flowType: 'implicit',  // Use hash-based tokens, not PKCE code exchange
       detectSessionInUrl: true,
       persistSession: true,
     }
@@ -1075,35 +1075,35 @@ async function init(){
     return;
   }
 
-  // Detect OAuth return
-  const hasCode = new URLSearchParams(window.location.search).has('code');
-  const hasHash = window.location.hash.includes('access_token');
+  // Detect OAuth return — either hash (implicit flow) or ?code= (PKCE flow)
+  const hasOAuthHash = window.location.hash.includes('access_token') ||
+                       window.location.hash.includes('error=');
+  const hasOAuthCode = new URLSearchParams(window.location.search).has('code');
+  const isOAuthReturn = hasOAuthHash || hasOAuthCode;
 
-  // IMPORTANT: Do NOT clean the URL yet — Supabase needs ?code= to exchange it
-  // It will be cleaned after onAuthStateChange fires
+  // Clean URL immediately so reload doesn't re-trigger
+  if(isOAuthReturn) history.replaceState(null, '', window.location.pathname);
 
   let sessionResolved = false;
 
+  // Safety net: if nothing resolves in 5s, bail to auth screen
   const loadingTimeout = setTimeout(() => {
     if(!sessionResolved){
       sessionResolved = true;
-      console.warn('[vvip] auth timeout');
+      console.warn('[vvip] auth timeout — showing login screen');
       setNavLoggedOut(); show('view-auth');
     }
-  }, 8000);
+  }, 5000);
 
   const resolveOnce = async (session) => {
     if(sessionResolved) return;
     sessionResolved = true;
     clearTimeout(loadingTimeout);
-    // Now safe to clean the URL
-    if(hasCode || hasHash) history.replaceState(null, '', window.location.pathname);
     if(session) await onSession(session);
     else { setNavLoggedOut(); show('view-auth'); }
   };
 
-  // onAuthStateChange is the single source of truth
-  // With PKCE + detectSessionInUrl:true, Supabase auto-exchanges ?code= on page load
+  // onAuthStateChange fires for both implicit hash AND PKCE code exchange
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){
       sessionResolved = false;
@@ -1114,16 +1114,29 @@ async function init(){
     if(!sessionResolved) await resolveOnce(s || null);
   });
 
-  // Returning visitor (no OAuth redirect) — get existing session directly
-  if(!hasCode && !hasHash){
+  // For PKCE: exchangeCodeForSession handles the ?code= param
+  if(hasOAuthCode){
     try{
+      const code = new URLSearchParams(window.location.search).get('code');
+      // Supabase JS v2 handles this automatically via onAuthStateChange,
+      // but we call getSession as a backup to confirm it resolved
+      setTimeout(async()=>{
+        if(!sessionResolved){
+          const{data:{session}}=await supa.auth.getSession();
+          await resolveOnce(session||null);
+        }
+      }, 1500);
+    }catch(e){ await resolveOnce(null); }
+  } else if(!hasOAuthHash){
+    // Returning visitor — just get existing session
+    try {
       const { data:{ session } } = await supa.auth.getSession();
       await resolveOnce(session || null);
-    }catch(e){
+    } catch(e) {
+      console.warn('[vvip] getSession error:', e);
       await resolveOnce(null);
     }
   }
-  // If hasCode: wait for onAuthStateChange — Supabase exchanges it automatically
 }
 
 async function updatePassword(){

@@ -1363,14 +1363,9 @@ function rowHTML(t,i){
   const dlDisplay=state.showDownloads?'':'none';
   right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
 
-  // Video tab: star + relevant video tiles
+  // Video / HQ tab: just star
   if(state.viewMode==='video'){
-    const loV=getLoVid(t), hqV=getHqVid(t);
-    const tileStyle='display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:8px;font-weight:bold;width:30px;height:30px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);margin-left:2px;vertical-align:middle;cursor:pointer;gap:1px;line-height:1';
-    const hqStyle='background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi)';
     right='<button class="star-btn'+(fav?' on':'')+'" data-fav="'+t.name+'">\u2605</button>';
-    if(hqV&&state.showHqVideo) right='<button style="'+tileStyle+';'+hqStyle+'" onclick="event.stopPropagation();selectAndPlay('+t.id+',true)" title="HQ Video"><span style="font-size:11px">▶</span>HQ</button>'+right;
-    if(loV) right='<button style="'+tileStyle+'" onclick="event.stopPropagation();selectAndPlay('+t.id+',false)" title="Video"><span style="font-size:11px">▶</span>Video</button>'+right;
   } else {
     // All other views: show small tiles for available features
     const loV=getLoVid(t), hqV=getHqVid(t);
@@ -1432,12 +1427,8 @@ document.addEventListener('click',e=>{
             .map(r=>state.tracks.find(t=>t.id===Number(r.dataset.id))).filter(Boolean);
           state.filtered=secTracks;
           const newIdx=secTracks.findIndex(t=>t.id===id);
-          if(newIdx>=0){
-            select(newIdx);
-            play(); // play audio — use tiles to open video
-          }
-        }
-        return;
+          if(newIdx>=0){ select(newIdx); setTimeout(()=>openVideo(isHq),80); }
+        } else { select(idx);setTimeout(()=>openVideo(false),80); }
       } else {
         select(idx);play();
       }
