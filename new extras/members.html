@@ -386,32 +386,15 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
   <div id="site-nav">
     <a href="/">Home</a>
     <button onclick="toggleAbout()">About</button>
+    <a href="https://shoppe.vvipmedia.net" target="_blank" rel="noopener">Store</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
-    <!-- Auth nav states -->
     <a id="nav-join" href="/members.html" style="display:none">Join Free</a>
     <a id="vvip-nav-link" href="/members.html" style="display:none">VVIP+</a>
-    <a id="nav-username-lnk" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
-    <span id="nav-admin-lnk" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;cursor:pointer">Admin</span>
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()" style="position:absolute;right:0;top:14px;font-size:22px;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;transition:transform .4s ease;user-select:none">&#9881;&#65039;</button>
   <div id="gear-menu" style="display:none;position:absolute;right:0;top:52px;background:var(--bg);border:2px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);padding:8px 14px;z-index:200;font-family:Arial,Helvetica,sans-serif;font-size:12px;min-width:200px;box-shadow:3px 3px 0 var(--btn-dk)">
-    <!-- Auth section -->
-    <div id="gear-auth-top">
-      <div id="gear-join-free-m" style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
-        <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free →</a>
-      </div>
-      <div id="gear-username-m" style="display:none;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
-        <span id="gear-username-m-label" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg)"></span>
-      </div>
-      <div id="gear-vvip-upsell-m" style="display:none;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
-        <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">✦ Upgrade to VVIP+</a>
-      </div>
-      <div id="gear-signout-m" style="display:none;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
-        <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:11px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted);text-align:left">Sign out</button>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px;margin-top:4px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px">
       <label for="m-tog-dark" style="cursor:pointer">Dark mode</label>
       <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-dark" onchange="toggleDark()"><span class="sq-toggle-track"></span></label>
     </div>
@@ -541,53 +524,19 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
         </div>
         <div class="m-field">
           <label class="m-label">Email</label>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input class="m-input" type="text" id="inp-email" readonly style="flex:1">
-            <button class="m-btn" onclick="startEmailChange()" style="padding:5px 12px;font-size:11px;flex-shrink:0">Change</button>
-          </div>
+          <input class="m-input" type="text" id="inp-email" readonly>
         </div>
-        <div id="email-change-wrap" style="display:none">
-          <div class="m-field">
-            <label class="m-label">New email address</label>
-            <input class="m-input" type="email" id="inp-new-email" placeholder="new@email.com">
-          </div>
-          <div class="m-btn-row">
-            <button class="m-btn gold" onclick="requestEmailChange()">Send confirmation</button>
-            <button class="m-btn" onclick="cancelEmailChange()">Cancel</button>
-          </div>
-        </div>
-
-        <div class="m-field" style="margin-top:10px">
-          <label class="m-label">Shipping Address (optional)</label>
-          <textarea class="m-input" id="inp-address" rows="3" placeholder="Street, City, Province, Postal Code, Country" style="resize:vertical;font-family:'Times New Roman',Times,serif;font-size:14px"></textarea>
-        </div>
-
         <div class="m-btn-row">
-          <button class="m-btn" onclick="saveProfile()">Save</button>
+          <button class="m-btn" onclick="saveUsername()">Save username</button>
           <button class="m-btn danger" onclick="signOut()">Sign out</button>
         </div>
         <div id="profile-msg" class="m-msg"></div>
-
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light)">
           <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Preferences</div>
-          <div style="display:flex;align-items:center;justify-content:space-between;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg);margin-bottom:6px">
+          <div style="display:flex;align-items:center;justify-content:space-between;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg)">
             <label for="mem-tog-anim" style="cursor:pointer">Text animations</label>
             <label class="sq-toggle-wrap">
               <input type="checkbox" id="mem-tog-anim" checked onchange="setAnimPref(this.checked)">
-              <span class="sq-toggle-track"></span>
-            </label>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg);margin-bottom:6px">
-            <label for="mem-tog-newsletter" style="cursor:pointer">Sign me up for newsletters</label>
-            <label class="sq-toggle-wrap">
-              <input type="checkbox" id="mem-tog-newsletter">
-              <span class="sq-toggle-track"></span>
-            </label>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg)">
-            <label for="mem-tog-remember" style="cursor:pointer">Remember me on this device</label>
-            <label class="sq-toggle-wrap">
-              <input type="checkbox" id="mem-tog-remember" checked>
               <span class="sq-toggle-track"></span>
             </label>
           </div>
@@ -676,9 +625,9 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
           </div>
         </div>
 
-        <!-- VVIP+ store items — premium/admin only -->
-        <div id="vvip-member-store" style="margin-top:18px;border-top:1px solid var(--border-light);padding-top:14px">
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Member Store <span style="background:var(--gold-bg);color:var(--gold-fg);font-size:9px;padding:1px 6px;letter-spacing:.04em;margin-left:6px">VVIP+</span></div>
+        <!-- VVIP+ store items -->
+        <div style="margin-top:18px;border-top:1px solid var(--border-light);padding-top:14px">
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Member Store</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <div style="border:1px solid var(--border);padding:12px 14px;background:var(--bg);font-family:Arial,sans-serif;font-size:12px;flex:1;min-width:180px">
               <div style="font-weight:bold;margin-bottom:3px">All MP3s Download</div>
@@ -691,12 +640,6 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
               <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Complete archive — lossless.</div>
               <div style="font-size:15px;font-family:'Times New Roman',Times,serif;margin-bottom:8px">$20 <span style="font-size:11px;color:var(--muted)">OBO · CAD</span></div>
               <a href="mailto:vvipmedia@proton.me?subject=WAV+Archive+Download" class="m-btn" style="font-size:11px;padding:5px 12px">Inquire →</a>
-            </div>
-            <div style="border:2px solid var(--gold-bg);padding:12px 14px;background:var(--bg);font-family:Arial,sans-serif;font-size:12px;flex:1;min-width:180px">
-              <div style="font-weight:bold;margin-bottom:3px">Garment Repair Service ✦</div>
-              <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Free repair of any VVIP-branded garment. You pay shipping only.</div>
-              <div style="font-size:15px;font-family:'Times New Roman',Times,serif;margin-bottom:8px;color:var(--gold-bg)">Free <span style="font-size:11px;color:var(--muted)">+ shipping</span></div>
-              <a href="mailto:vvipmedia@proton.me?subject=Garment+Repair+Request" class="m-btn" style="font-size:11px;padding:5px 12px;background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi)">Request Repair →</a>
             </div>
           </div>
         </div>
@@ -1035,17 +978,8 @@ async function updatePassword(){
 function setNavLoggedOut(){
   const nj=document.getElementById('nav-join');
   const nv=document.getElementById('vvip-nav-link');
-  const nu=document.getElementById('nav-username-lnk');
-  const na=document.getElementById('nav-admin-lnk');
-  [nv,nu,na].forEach(el=>{if(el)el.style.display='none'});
   if(nj)nj.style.display='';
-  // Gear: show join free, hide everything else
-  const gjm=document.getElementById('gear-join-free-m');
-  const gum=document.getElementById('gear-username-m');
-  const gvu=document.getElementById('gear-vvip-upsell-m');
-  const gso=document.getElementById('gear-signout-m');
-  if(gjm)gjm.style.display='flex';
-  [gum,gvu,gso].forEach(el=>{if(el)el.style.display='none'});
+  if(nv)nv.style.display='none';
 }
 
 async function onSession(session){
@@ -1084,19 +1018,11 @@ function dbg(msg){
 function renderMember(){
   if(!currentUser || !profile) return;
 
-  // Email + username
+  // Email
   document.getElementById('inp-email').value = currentUser.email || '';
   document.getElementById('inp-username').value = profile.username || '';
   const animEl=document.getElementById('mem-tog-anim');
   if(animEl) animEl.checked=(localStorage.getItem('vvip25:anim')!=='0');
-  // Newsletter + remember me
-  const nlEl=document.getElementById('mem-tog-newsletter');
-  if(nlEl) nlEl.checked=!!profile.newsletter;
-  const remEl=document.getElementById('mem-tog-remember');
-  if(remEl) remEl.checked=true; // default on
-  // Address
-  const addrEl=document.getElementById('inp-address');
-  if(addrEl) addrEl.value=profile.address||'';
 
   // Status badge
   const badge = document.getElementById('status-badge');
@@ -1116,7 +1042,16 @@ function renderMember(){
   document.getElementById('upgrade-section').style.display=hasPremAccess?'none':'';
   document.getElementById('benefits-section').style.display=hasPremAccess?'':'none';
 
-  // VVIP Archives link
+  // Nav state:
+  // - VVIP+: hide both join + vvip nav links; show account in utils
+  // - Free member: show VVIP+ link; hide join; show account in utils
+  // - Logged out: show Join Free + join in utils (handled in show('view-auth') path)
+  const navJoin=document.getElementById('nav-join');
+  const navVvip=document.getElementById('vvip-nav-link');
+  if(navJoin) navJoin.style.display='none';
+  if(navVvip) navVvip.style.display=(profile.is_premium||profile.is_admin)?'none':'';
+
+  // VVIP Archives link (set to CF bucket path — update URL as needed)
   const archivesLink = document.getElementById('vvip-archives-link');
   if(archivesLink) archivesLink.href = 'https://cdn.vvipmedia.net/MEDIA/video/';
 
@@ -1124,41 +1059,6 @@ function renderMember(){
   if(profile.is_admin){
     document.getElementById('admin-panel').style.display = '';
     loadTracksForEditor();
-  }
-
-  // Nav + gear state
-  renderMemberNav();
-}
-
-function renderMemberNav(){
-  if(!currentUser||!profile)return;
-  const hasPremAccess=profile.is_premium||profile.is_admin;
-  const nj=document.getElementById('nav-join');
-  const nv=document.getElementById('vvip-nav-link');
-  const nu=document.getElementById('nav-username-lnk');
-  const na=document.getElementById('nav-admin-lnk');
-  [nj,nv,nu,na].forEach(el=>{if(el)el.style.display='none'});
-
-  const gjm=document.getElementById('gear-join-free-m');
-  const gum=document.getElementById('gear-username-m');
-  const gvu=document.getElementById('gear-vvip-upsell-m');
-  const gso=document.getElementById('gear-signout-m');
-  [gjm,gum,gvu,gso].filter(Boolean).forEach(el=>el.style.display='none');
-
-  if(profile.is_admin){
-    if(na)na.style.display='';
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-m-label');if(lbl)lbl.textContent='⬡ Admin'+(profile.username?' · @'+profile.username:'');}
-    if(gso)gso.style.display='flex';
-  } else if(hasPremAccess){
-    const display=profile.username?('@'+profile.username):'VVIP+';
-    if(nu){nu.style.display='';nu.textContent=display;}
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-m-label');if(lbl)lbl.textContent='✦ '+(profile.username?('@'+profile.username):'VVIP+ Member');}
-    if(gso)gso.style.display='flex';
-  } else {
-    if(nv)nv.style.display='';
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-m-label');if(lbl)lbl.textContent=profile.username?('@'+profile.username):'My Account';}
-    if(gvu)gvu.style.display='flex';
-    if(gso)gso.style.display='flex';
   }
 }
 
@@ -1191,38 +1091,18 @@ async function signOut(){
 }
 
 // ── PROFILE ──
-async function saveProfile(){
-  const username = document.getElementById('inp-username').value.trim();
-  if(username && !/^[a-zA-Z0-9_.-]{2,32}$/.test(username)){
-    showProfileMsg('Username: 2–32 chars, letters/numbers/_ . -', 'err'); return;
+async function saveUsername(){
+  const val = document.getElementById('inp-username').value.trim();
+  if(!val){ showProfileMsg('Please enter a username.', 'err'); return; }
+  if(!/^[a-zA-Z0-9_.-]{2,32}$/.test(val)){
+    showProfileMsg('2–32 chars: letters, numbers, _ . -', 'err'); return;
   }
-  const address = document.getElementById('inp-address')?.value.trim()||'';
-  const newsletter = document.getElementById('mem-tog-newsletter')?.checked||false;
   showProfileMsg('Saving…', 'info');
-  const updates={};
-  if(username) updates.username=username;
-  updates.address=address;
-  updates.newsletter=newsletter;
-  const { error } = await supa.from('profiles').update(updates).eq('id', currentUser.id);
+  const { error } = await supa.from('profiles')
+    .update({ username: val })
+    .eq('id', currentUser.id);
   if(error) showProfileMsg('Error: ' + error.message, 'err');
-  else { if(username) profile.username=username; profile.address=address; profile.newsletter=newsletter; showProfileMsg('✓ Saved.', 'ok'); renderMemberNav(); }
-}
-async function saveUsername(){ return saveProfile(); } // compat alias
-
-function startEmailChange(){
-  document.getElementById('email-change-wrap').style.display='';
-}
-function cancelEmailChange(){
-  document.getElementById('email-change-wrap').style.display='none';
-  document.getElementById('inp-new-email').value='';
-}
-async function requestEmailChange(){
-  const newEmail=document.getElementById('inp-new-email').value.trim();
-  if(!newEmail||!newEmail.includes('@')){showProfileMsg('Enter a valid email.','err');return;}
-  showProfileMsg('Sending confirmation…','info');
-  const{error}=await supa.auth.updateUser({email:newEmail});
-  if(error) showProfileMsg('Error: '+error.message,'err');
-  else {showProfileMsg('✓ Check both inboxes to confirm the change.','ok');cancelEmailChange();}
+  else { profile.username = val; showProfileMsg('✓ Saved.', 'ok'); }
 }
 function showProfileMsg(t, cls){
   const el = document.getElementById('profile-msg');
