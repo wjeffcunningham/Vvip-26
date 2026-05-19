@@ -1010,25 +1010,23 @@ async function init(){
     return;
   }
 
-  // Detect OAuth return — either hash (implicit flow) or ?code= (PKCE flow)
+  // Detect Google OAuth hash — Supabase puts tokens in URL hash after redirect
   const hasOAuthHash = window.location.hash.includes('access_token') ||
                        window.location.hash.includes('error=');
-  const hasOAuthCode = new URLSearchParams(window.location.search).has('code');
-  const isOAuthReturn = hasOAuthHash || hasOAuthCode;
 
-  // Clean URL immediately so reload doesn't re-trigger
-  if(isOAuthReturn) history.replaceState(null, '', window.location.pathname);
+  // Clean hash from URL immediately so a manual reload doesn't re-trigger
+  if(hasOAuthHash) history.replaceState(null, '', window.location.pathname);
 
   let sessionResolved = false;
 
-  // Safety net: if nothing resolves in 5s, bail to auth screen
+  // Safety net: if nothing resolves in 4s, bail to auth screen
   const loadingTimeout = setTimeout(() => {
     if(!sessionResolved){
       sessionResolved = true;
       console.warn('[vvip] auth timeout — showing login screen');
       setNavLoggedOut(); show('view-auth');
     }
-  }, 5000);
+  }, 4000);
 
   const resolveOnce = async (session) => {
     if(sessionResolved) return;
@@ -1038,7 +1036,7 @@ async function init(){
     else { setNavLoggedOut(); show('view-auth'); }
   };
 
-  // onAuthStateChange fires for both implicit hash AND PKCE code exchange
+  // onAuthStateChange handles OAuth hash redirect AND session restore
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){
       sessionResolved = false;
@@ -1049,21 +1047,8 @@ async function init(){
     if(!sessionResolved) await resolveOnce(s || null);
   });
 
-  // For PKCE: exchangeCodeForSession handles the ?code= param
-  if(hasOAuthCode){
-    try{
-      const code = new URLSearchParams(window.location.search).get('code');
-      // Supabase JS v2 handles this automatically via onAuthStateChange,
-      // but we call getSession as a backup to confirm it resolved
-      setTimeout(async()=>{
-        if(!sessionResolved){
-          const{data:{session}}=await supa.auth.getSession();
-          await resolveOnce(session||null);
-        }
-      }, 1500);
-    }catch(e){ await resolveOnce(null); }
-  } else if(!hasOAuthHash){
-    // Returning visitor — just get existing session
+  // For returning visitors without hash: getSession() is more reliable
+  if(!hasOAuthHash){
     try {
       const { data:{ session } } = await supa.auth.getSession();
       await resolveOnce(session || null);
@@ -1215,14 +1200,11 @@ function renderMemberNav(){
 
 async function signInGoogle(){
   if(!supa) return alert('Auth not configured.');
-  // Use implicit flow (hash-based) so the token lands in the URL hash,
-  // which our hasOAuthHash detection catches reliably.
+  // redirectTo must EXACTLY match one of the URLs in Supabase → Auth → URL Configuration
+  // Add both https://vvipmedia.net/members.html AND https://vvipmedia.net to that list
   await supa.auth.signInWithOAuth({
     provider: 'google',
-    options: {
-      redirectTo: SITE_URL + '/members.html',
-      queryParams: { response_type: 'token' },
-    }
+    options: { redirectTo: SITE_URL + '/members.html' }
   });
 }
 
