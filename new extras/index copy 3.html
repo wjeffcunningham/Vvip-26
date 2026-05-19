@@ -295,22 +295,6 @@ a{color:var(--link)} a:visited{color:var(--link-vis)} a:hover{color:var(--link-h
 }
 #now-video-wrap.active{display:block}
 
-/* VIDEO TAB MODE: embed always visible at top, full-width, no close btn */
-body.view-video #now-bar{
-  display:block !important;
-}
-body.view-video #now-video-wrap{
-  display:block !important;
-  width:100%;
-}
-body.view-video #now-video-close{
-  display:none !important;
-}
-/* On video tab: now-top thumb area hidden (embed takes over) */
-body.view-video #now-thumb-wrap{
-  display:none;
-}
-
 /* Desktop: side-by-side — video takes left half, player controls stay right */
 @media(min-width:601px){
   #now-bar.video-mode{
@@ -326,21 +310,10 @@ body.view-video #now-thumb-wrap{
   }
   #now-bar.video-mode #now-top{
     grid-column:2;grid-row:1;
-    display:grid;
+    display:grid; /* keep normal layout */
   }
   #now-bar.video-mode #now-transport{
     grid-column:2;grid-row:2;
-  }
-  /* Video tab: full-width embed above controls */
-  body.view-video #now-bar{
-    display:block !important;
-  }
-  body.view-video #now-video-wrap{
-    display:block !important;
-    width:100%;
-  }
-  body.view-video #now-top{
-    display:grid !important;
   }
 }
 
@@ -352,7 +325,7 @@ body.view-video #now-thumb-wrap{
   }
   #now-bar.video-mode #now-top,
   #now-bar.video-mode #now-transport{
-    display:grid;
+    display:grid;   /* restore normal mobile layout */
   }
 }
 
@@ -1046,21 +1019,6 @@ $$('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
   document.body.classList.toggle('view-video', btn.dataset.view==='video');
   updateToolbarVisibility();
   if(btn.dataset.view!=='shoppe') applyFilterSort();
-  // When entering video tab, open the first video immediately
-  if(btn.dataset.view==='video'){
-    setTimeout(()=>{
-      const first=state.filtered[0];
-      if(first){
-        const loV=getLoVid(first),hqV=getHqVid(first);
-        if(loV||hqV){
-          if(state.i!==0){state.i=0;updateNow();}
-          openVideo(!!(hqV&&(isPremium||isAdmin)));
-        }
-      }
-    },50);
-  }
-  // When leaving video tab, close video if open
-  if(btn.dataset.view!=='video') closeVideo();
 }));
 
 window.addEventListener('beforeunload',()=>{try{send({cmd:'report'})}catch{}});
@@ -1436,14 +1394,14 @@ function select(i){
   const thumbRel=getThumb(t);
   const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
   send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:thumbAbs}});
-  if(state.viewMode!=='video') closeVideo();
+  closeVideo();
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
   document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
   updateNow();
-  // Video tab: swap embed immediately for this track
+  // In video tab: auto-open the video for this track
   if(state.viewMode==='video'){
     const loV=getLoVid(t),hqV=getHqVid(t);
-    if(loV||hqV) setTimeout(()=>openVideo(!!(hqV&&(isPremium||isAdmin))),50);
+    if(loV||hqV) setTimeout(()=>openVideo(!!(hqV&&(isPremium||isAdmin))),80);
   }
 }
 
