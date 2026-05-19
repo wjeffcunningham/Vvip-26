@@ -269,13 +269,12 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
   <div id="site-name">VVIP Media.NET</div>
   <div id="site-nav">
     <a href="/">Home</a>
-    <a href="/shoppe/">Shoppe</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
     <a id="nav-join-free" href="/members.html">Join Free</a>
     <a id="nav-vvip-btn" href="/members.html" style="display:none">VVIP+</a>
     <a id="nav-username-btn" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
-    <span id="nav-admin-btn" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;margin-left:4px;cursor:pointer" onclick="window.location='/members.html'">Admin</span>
+    <span id="nav-admin-btn" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;cursor:pointer" onclick="window.location='/members.html'">Admin</span>
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
   <div id="gear-menu">
@@ -417,33 +416,30 @@ function renderAuthNav(){
   const gearUser=document.getElementById('gear-username-row');
   const gearUpsell=document.getElementById('gear-vvip-upsell');
   const gearSO=document.getElementById('gear-signout');
-  const gearLink=document.getElementById('gear-username-link');
   if(!vvipUser){
     if(joinEl)joinEl.style.display='';
     if(gearJoin)gearJoin.style.display='';
     if(gearUser)gearUser.style.display='none';
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='none';
+    // Show locked notice if has premium items
   } else if(isAdmin){
     if(adminEl)adminEl.style.display='';
     if(gearJoin)gearJoin.style.display='none';
-    if(gearUser)gearUser.style.display='';
-    if(gearLink)gearLink.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');
+    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else if(isPremium){
     const display=vvipUsername?('@'+vvipUsername):'VVIP+';
     if(userEl){userEl.style.display='';userEl.textContent=display;}
     if(gearJoin)gearJoin.style.display='none';
-    if(gearUser)gearUser.style.display='';
-    if(gearLink)gearLink.textContent='✦ '+(vvipUsername?('@'+vvipUsername):'VVIP+ Member');
+    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='✦ '+(vvipUsername?('@'+vvipUsername):'VVIP+ Member');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else {
     if(vvipEl)vvipEl.style.display='';
     if(gearJoin)gearJoin.style.display='none';
-    if(gearUser)gearUser.style.display='';
-    if(gearLink)gearLink.textContent=vvipUsername?('@'+vvipUsername):'My Account';
+    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent=vvipUsername?('@'+vvipUsername):'My Account';}
     if(gearUpsell)gearUpsell.style.display='flex';
     if(gearSO)gearSO.style.display='';
   }

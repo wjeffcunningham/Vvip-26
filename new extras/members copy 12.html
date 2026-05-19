@@ -425,35 +425,49 @@ html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !impo
   <div id="site-name">VVIP Media.NET</div>
   <div id="site-nav">
     <a href="/">Home</a>
-    <a href="/shoppe/">Shoppe</a>
-    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
-    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
-    <a id="nav-join-free" href="/members.html">Join Free</a>
-    <a id="nav-vvip-btn" href="/members.html" style="display:none">VVIP+</a>
-    <a id="nav-username-btn" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
-    <span id="nav-admin-btn" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;margin-left:4px;cursor:pointer" onclick="window.location='/members.html'">Admin</span>
+    <button onclick="toggleAbout()">About</button>
+    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener">YouTube</a>
+    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener">Instagram</a>
+    <!-- Auth nav states -->
+    <a id="nav-join" href="/members.html" style="display:none">Join Free</a>
+    <a id="vvip-nav-link" href="/members.html" style="display:none">VVIP+</a>
+    <a id="nav-username-lnk" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
+    <span id="nav-admin-lnk" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;cursor:pointer">Admin</span>
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
   <div id="gear-menu">
-    <div class="gear-item" id="gear-join-free">
+    <!-- Auth section — mirrors index.html gear exactly -->
+    <div class="gear-item" id="gear-join-free-m">
       <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free</a>
     </div>
-    <div class="gear-item" id="gear-username-row" style="display:none">
-      <a href="/members.html" id="gear-username-link" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);text-decoration:none"></a>
+    <div class="gear-item" id="gear-username-m" style="display:none">
+      <a href="/members.html" id="gear-username-m-label" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);text-decoration:none"></a>
     </div>
-    <div class="gear-item" id="gear-vvip-upsell" style="display:none">
+    <div class="gear-item" id="gear-vvip-upsell-m" style="display:none">
       <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">✦ Upgrade to VVIP+</a>
     </div>
-    <div class="gear-item" id="gear-signout" style="display:none">
+    <div class="gear-item" id="gear-signout-m" style="display:none">
       <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:12px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted)">Sign out</button>
     </div>
-    <div class="gear-item">
-      <label for="tog-dark">Dark mode</label>
-      <input type="checkbox" id="tog-dark" class="gear-toggle" onchange="toggleDark(this.checked)">
+    <div class="gear-item" style="border-top:1px solid var(--border-light);margin-top:2px;padding-top:6px">
+      <label for="m-tog-dark" style="cursor:pointer">Dark mode</label>
+      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-dark" onchange="toggleDark()"><span class="sq-toggle-track"></span></label>
     </div>
     <div class="gear-item">
-      <label for="tog-anim">Text animations</label>
-      <input type="checkbox" id="tog-anim" class="gear-toggle" checked onchange="document.documentElement.classList.toggle('no-anim',!this.checked);localStorage.setItem('vvip25:anim',this.checked?'1':'0')">
+      <label for="m-tog-titles" style="cursor:pointer">Titles</label>
+      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-titles" checked onchange="localStorage.setItem('vvip25:hideTitles',this.checked?'':'1')"><span class="sq-toggle-track"></span></label>
+    </div>
+    <div class="gear-item">
+      <label for="m-tog-downloads" style="cursor:pointer">Downloads</label>
+      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-downloads" checked onchange="localStorage.setItem('vvip25:downloads',this.checked?'1':'0')"><span class="sq-toggle-track"></span></label>
+    </div>
+    <div class="gear-item">
+      <label for="m-tog-anim" style="cursor:pointer">Text animations</label>
+      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-anim" checked onchange="setAnimPref(this.checked)"><span class="sq-toggle-track"></span></label>
+    </div>
+    <div class="gear-item">
+      <label for="m-tog-hqvideo" style="cursor:pointer">HQ Video</label>
+      <label class="sq-toggle-wrap"><input type="checkbox" id="m-tog-hqvideo" checked onchange="localStorage.setItem('vvip25:hqvideo',this.checked?'1':'0')"><span class="sq-toggle-track"></span></label>
     </div>
   </div>
 </div>
@@ -1094,12 +1108,10 @@ async function init(){
       setNavLoggedOut(); show('view-auth');
       return;
     }
-    // Ignore INITIAL_SESSION with no session — wait for real SIGNED_IN from PKCE exchange
-    if(event === 'INITIAL_SESSION' && !s) return;
     if(!sessionResolved) await resolveOnce(s || null);
   });
 
-  // Returning visitor — get existing session directly (no OAuth redirect)
+  // Returning visitor (no OAuth redirect) — get existing session directly
   if(!hasCode && !hasHash){
     try{
       const { data:{ session } } = await supa.auth.getSession();
@@ -1108,7 +1120,7 @@ async function init(){
       await resolveOnce(null);
     }
   }
-  // hasCode: Supabase auto-exchanges via detectSessionInUrl, fires SIGNED_IN via onAuthStateChange
+  // If hasCode: wait for onAuthStateChange — Supabase exchanges it automatically
 }
 
 async function updatePassword(){
@@ -1120,6 +1132,21 @@ async function updatePassword(){
   else { authMsg('✓ Password updated. Signing you in…',true); setTimeout(()=>window.location.href='/members.html',1500); }
 }
 
+function setNavLoggedOut(){
+  const nj=document.getElementById('nav-join');
+  const nv=document.getElementById('vvip-nav-link');
+  const nu=document.getElementById('nav-username-lnk');
+  const na=document.getElementById('nav-admin-lnk');
+  [nv,nu,na].forEach(el=>{if(el)el.style.display='none'});
+  if(nj)nj.style.display='';
+  // Gear: show join free, hide everything else
+  const gjm=document.getElementById('gear-join-free-m');
+  const gum=document.getElementById('gear-username-m');
+  const gvu=document.getElementById('gear-vvip-upsell-m');
+  const gso=document.getElementById('gear-signout-m');
+  if(gjm)gjm.style.display='flex';
+  [gum,gvu,gso].forEach(el=>{if(el)el.style.display='none'});
+}
 
 async function onSession(session){
   currentUser = session.user;
@@ -1206,30 +1233,30 @@ function renderMember(){
 function renderMemberNav(){
   if(!currentUser||!profile)return;
   const hasPremAccess=profile.is_premium||profile.is_admin;
-  const nj=document.getElementById('nav-join-free');
-  const nv=document.getElementById('nav-vvip-btn');
-  const nu=document.getElementById('nav-username-btn');
-  const na=document.getElementById('nav-admin-btn');
+  const nj=document.getElementById('nav-join');
+  const nv=document.getElementById('vvip-nav-link');
+  const nu=document.getElementById('nav-username-lnk');
+  const na=document.getElementById('nav-admin-lnk');
   [nj,nv,nu,na].forEach(el=>{if(el)el.style.display='none'});
 
-  const gjm=document.getElementById('gear-join-free');
-  const gum=document.getElementById('gear-username-row');
-  const gvu=document.getElementById('gear-vvip-upsell');
-  const gso=document.getElementById('gear-signout');
+  const gjm=document.getElementById('gear-join-free-m');
+  const gum=document.getElementById('gear-username-m');
+  const gvu=document.getElementById('gear-vvip-upsell-m');
+  const gso=document.getElementById('gear-signout-m');
   [gjm,gum,gvu,gso].filter(Boolean).forEach(el=>el.style.display='none');
 
   if(profile.is_admin){
     if(na)na.style.display='';
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='⬡ Admin'+(profile.username?' · @'+profile.username:'');}
+    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-m-label');if(lbl)lbl.textContent='⬡ Admin'+(profile.username?' · @'+profile.username:'');}
     if(gso)gso.style.display='flex';
   } else if(hasPremAccess){
     const display=profile.username?('@'+profile.username):'VVIP+';
     if(nu){nu.style.display='';nu.textContent=display;}
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='✦ '+(profile.username?('@'+profile.username):'VVIP+ Member');}
+    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-m-label');if(lbl)lbl.textContent='✦ '+(profile.username?('@'+profile.username):'VVIP+ Member');}
     if(gso)gso.style.display='flex';
   } else {
     if(nv)nv.style.display='';
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent=profile.username?('@'+profile.username):'My Account';}
+    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-m-label');if(lbl)lbl.textContent=profile.username?('@'+profile.username):'My Account';}
     if(gvu)gvu.style.display='flex';
     if(gso)gso.style.display='flex';
   }
