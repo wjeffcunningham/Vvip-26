@@ -781,7 +781,7 @@ const LO_MAP={
   'ship yard':       'VD2zRBOCfAU',
 };
 function getLoVid(t){
-  const tl=((t.title||'')+(t.name||'')).toLowerCase();
+  const tl=(t.title||'').toLowerCase();
   if(tl.includes('\u00e6rie')||tl.includes('aerie')) return null;
   for(const[k,id] of Object.entries(LO_MAP)) if(tl.includes(k)) return 'yt:'+id;
   return null;
@@ -799,7 +799,7 @@ const HQ_MAP={
   'in the zone':'VVIP24 In the Zone.mov',
 };
 function getHqVid(t){
-  const tl=((t.title||'')+(t.name||'')).toLowerCase();
+  const tl=(t.title||'').toLowerCase();
   for(const[k,f] of Object.entries(HQ_MAP)) if(tl.includes(k)) return BASE_VHQ+encodeURIComponent(f);
   return null;
 }
@@ -1151,19 +1151,14 @@ function getThumb(t){
   return state.resolvedThumb.get(t.id)||DEFAULT_THUMB;
 }
 
-let _openingVideo=false;
+// Track whether current video is HQ so auto-advance knows which type to open
+let _videoIsHq=false;
 
 function openVideo(hq){
   const t=state.filtered[state.i];if(!t)return;
   const url=hq?getHqVid(t):getLoVid(t);
-  if(!url){
-    // Try other type as fallback
-    const fallback=hq?getLoVid(t):getHqVid(t);
-    if(fallback){openVideo(!hq);return;}
-    return;
-  }
+  if(!url){alert(hq?'HQ video not available for this track.':'No video available for this track.');return}
   _videoIsHq=hq;
-  _openingVideo=true;
   send({cmd:'pause'});state.playing=false;
   const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');
   const vw=$('#now-video-wrap'),vid=$('#now-video');
@@ -1172,6 +1167,7 @@ function openVideo(hq){
     const ytId=url.slice(3);
     const iframe=document.createElement('iframe');
     iframe.className='yt-embed';
+    // enablejsapi=1 lets us receive postMessage state changes for auto-advance
     iframe.src='https://www.youtube-nocookie.com/embed/'+ytId+'?autoplay=1&rel=0&enablejsapi=1';
     iframe.allow='autoplay; fullscreen; picture-in-picture';
     iframe.allowFullscreen=true;
@@ -1183,7 +1179,6 @@ function openVideo(hq){
   }
   vw.classList.add('active');
   $('#now-bar').classList.add('video-mode');
-  _openingVideo=false;
 }
 function closeVideo(){
   const vw=$('#now-video-wrap'),vid=$('#now-video');
@@ -1191,8 +1186,7 @@ function closeVideo(){
   $('#now-bar').classList.remove('video-mode');
   vid.pause();vid.src='';vid.style.display='block';
   vw.querySelector('.yt-embed')?.remove();
-  // Only resume audio if we're not immediately opening another video
-  if(!_openingVideo&&state.i>=0){
+  if(state.i>=0){
     send({cmd:'play'});state.playing=true;
     const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');
   }
@@ -1513,7 +1507,7 @@ document.addEventListener('click',e=>{
         state.filtered=secTracks;
         const newIdx=secTracks.findIndex(t=>t.id===id);
         if(newIdx>=0){
-          select(newIdx, true);
+          select(newIdx);
           setTimeout(()=>openVideo(isHq),80);
         }
       }
@@ -1552,14 +1546,12 @@ function openGemsForTrack(id){
   }
 }
 
-function select(i,noResume){
+function select(i){
   state.i=i;const t=state.filtered[i];if(!t)return;
   const thumbRel=getThumb(t);
   const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
   send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:thumbAbs}});
-  if(noResume)_openingVideo=true;
   closeVideo();
-  _openingVideo=false;
   $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
   document.querySelector('.track-row[data-id="'+t.id+'"]')?.classList.add('is-playing');
   updateNow();
@@ -1581,7 +1573,7 @@ function selectAndPlay(id, hq){
     if(!t)return;
     state.filtered=[t]; idx=0;
   }
-  select(idx, true);
+  select(idx);
   setTimeout(()=>openVideo(hq),80);
 }
 function play(){if(state.i<0)return;send({cmd:'load',src:state.filtered[state.i].src,play:true});state.playing=true;const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');}
