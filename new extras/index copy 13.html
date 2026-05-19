@@ -1092,14 +1092,11 @@ function getThumb(t){
   return state.resolvedThumb.get(t.id)||DEFAULT_THUMB;
 }
 
-// Track whether current video is HQ so auto-advance knows which type to open
-let _videoIsHq=false;
-
 function openVideo(hq){
   const t=state.filtered[state.i];if(!t)return;
   const url=hq?getHqVid(t):getLoVid(t);
   if(!url){alert(hq?'HQ video not available for this track.':'No video available for this track.');return}
-  _videoIsHq=hq;
+  // Pause audio before video starts
   send({cmd:'pause'});state.playing=false;
   const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');
   const vw=$('#now-video-wrap'),vid=$('#now-video');
@@ -1108,8 +1105,7 @@ function openVideo(hq){
     const ytId=url.slice(3);
     const iframe=document.createElement('iframe');
     iframe.className='yt-embed';
-    // enablejsapi=1 lets us receive postMessage state changes for auto-advance
-    iframe.src='https://www.youtube-nocookie.com/embed/'+ytId+'?autoplay=1&rel=0&enablejsapi=1';
+    iframe.src='https://www.youtube-nocookie.com/embed/'+ytId+'?autoplay=1&rel=0';
     iframe.allow='autoplay; fullscreen; picture-in-picture';
     iframe.allowFullscreen=true;
     vw.insertBefore(iframe,vid);
@@ -1127,32 +1123,12 @@ function closeVideo(){
   $('#now-bar').classList.remove('video-mode');
   vid.pause();vid.src='';vid.style.display='block';
   vw.querySelector('.yt-embed')?.remove();
+  // Resume audio from where it was
   if(state.i>=0){
     send({cmd:'play'});state.playing=true;
     const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');
   }
 }
-
-// Auto-advance video: play next track when current video ends
-function videoAdvance(){
-  if(state.viewMode!=='video'||!state.filtered.length)return;
-  const next=(state.i+1)%state.filtered.length;
-  select(next);
-  setTimeout(()=>openVideo(_videoIsHq),80);
-  // Highlight new row
-  $$('.track-row').forEach(r=>r.classList.remove('is-playing'));
-  document.querySelector('.track-row[data-id="'+state.filtered[next].id+'"]')?.classList.add('is-playing');
-}
-// <video> ended event
-document.getElementById('now-video')?.addEventListener('ended',videoAdvance);
-// YouTube postMessage: state -1 (ended) triggers advance
-window.addEventListener('message',e=>{
-  try{
-    const d=typeof e.data==='string'?JSON.parse(e.data):e.data;
-    // YouTube iframe API sends {event:'onStateChange', info:0} when ended
-    if(d&&d.event==='onStateChange'&&d.info===0) videoAdvance();
-  }catch{}
-});
 
 function sortTracks(arr,mode){
   if(mode==='shuffle'){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return}
@@ -1205,7 +1181,6 @@ function renderVideoSections(){
     if(!tracks.length) return;
     const sec=document.createElement('div');
     sec.className='htag-section'+(isHq?' best-tag':'');
-    sec.dataset.videotype=isHq?'hq':'yt';
     const head=document.createElement('div');head.className='htag-head';
     head.innerHTML='<span>'+label+'</span><span class="htag-meta">['+tracks.length+' track'+(tracks.length!==1?'s':'')+']<span class="htag-arrow" style="margin-left:6px">'+(openByDefault?'▾':'▸')+'</span></span>';
     const body=document.createElement('div');body.className='htag-body'+(openByDefault?' open':'');
@@ -1216,12 +1191,16 @@ function renderVideoSections(){
     });
     sec.appendChild(head);sec.appendChild(body);
     hv.appendChild(sec);
-    // Set filtered to first open section — but don't autoplay
-    if(openByDefault) state.filtered=tracks;
+    // Wire up clicks in this section
+    if(openByDefault){
+      state.filtered=tracks;
+      if(tracks.length) select(0);
+    }
   }
 
   makeSection('Video',ytTracks,true,false);
   makeSection('HQ',hqTracks,false,true);
+
   updateNow();
 }
 
@@ -1363,17 +1342,9 @@ function rowHTML(t,i){
   const dlDisplay=state.showDownloads?'':'none';
   right='<a href="'+t.src+'" download class="t-dl-link" style="display:'+dlDisplay+';font-family:Arial,sans-serif;font-size:10px;color:var(--fg);text-decoration:none;border:1px solid var(--border);padding:1px 5px;background:var(--btn-bg);margin-left:3px">MP3</a>'+right;
 
-  // Video / HQ tab: just star
+  // Video / HQ tab: no download link, no badges — just star
   if(state.viewMode==='video'){
     right='<button class="star-btn'+(fav?' on':'')+'" data-fav="'+t.name+'">\u2605</button>';
-  } else {
-    // All other views: show small tiles for available features
-    const loV=getLoVid(t), hqV=getHqVid(t);
-    const tileStyle='display:inline-flex;flex-direction:column;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:8px;font-weight:bold;width:30px;height:30px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);margin-left:2px;vertical-align:middle;cursor:pointer;gap:1px;line-height:1';
-    const hqStyle='background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi)';
-    if(hqV&&state.showHqVideo) right='<button style="'+tileStyle+';'+hqStyle+'" onclick="event.stopPropagation();selectAndPlay('+t.id+',true)" title="HQ Video"><span style="font-size:11px">▶</span>HQ</button>'+right;
-    if(loV) right='<button style="'+tileStyle+'" onclick="event.stopPropagation();selectAndPlay('+t.id+',false)" title="Video"><span style="font-size:11px">▶</span>Video</button>'+right;
-    if(hasExtras&&state.showGems) right='<button style="'+tileStyle+'" onclick="event.stopPropagation();openPlayerGems()" title="Gems"><span style="font-size:12px">💎</span></button>'+right;
   }
 
   let vTag='';
@@ -1419,16 +1390,22 @@ document.addEventListener('click',e=>{
     if(idx>=0){
       if(state.filtered[idx].unavailable)return;
       if(state.viewMode==='video'){
+        // Update filtered to the section this row belongs to
         const body=row.closest('.htag-body');
         if(body){
-          const sec=body.closest('.htag-section');
-          const isHq=sec&&sec.dataset.videotype==='hq';
+          const secHead=body.previousElementSibling;
+          const isHq=secHead&&secHead.textContent.includes('HQ');
           const secTracks=[...body.querySelectorAll('.track-row')]
             .map(r=>state.tracks.find(t=>t.id===Number(r.dataset.id))).filter(Boolean);
           state.filtered=secTracks;
           const newIdx=secTracks.findIndex(t=>t.id===id);
-          if(newIdx>=0){ select(newIdx); setTimeout(()=>openVideo(isHq),80); }
-        } else { select(idx);setTimeout(()=>openVideo(false),80); }
+          if(newIdx>=0){
+            select(newIdx);
+            setTimeout(()=>openVideo(isHq),80);
+          }
+        } else {
+          select(idx);setTimeout(()=>openVideo(false),80);
+        }
       } else {
         select(idx);play();
       }
@@ -1714,7 +1691,7 @@ document.addEventListener('touchend',e=>{
 })();
 
 // ── SHOPPE ──
-const SHOPPE_BASE_IMG='/shoppe/';
+const SHOPPE_BASE_IMG='https://media.vvipmedia.net/MEDIA/shoppe/';
 const SHOPPE_CATEGORIES=[
   {id:'all',label:'All'},
   {id:'apparel',label:'Apparel'},
