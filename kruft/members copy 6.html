@@ -934,7 +934,7 @@ let supa = null;
 try {
   supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
     auth: {
-      flowType: 'implicit',
+      flowType: 'pkce',
       detectSessionInUrl: true,
       persistSession: true,
     }
@@ -1039,6 +1039,7 @@ async function sendPasswordReset(){
 
 // ── AUTH ──
 async function init(){
+  show('view-loading');
   if(!supa){ setNavLoggedOut(); show('view-auth'); return; }
 
   // Password reset redirect
@@ -1061,45 +1062,66 @@ async function init(){
     return;
   }
 
-  // Show login form immediately — no spinner, no waiting.
-  // If a session exists, onAuthStateChange fires SIGNED_IN within ~1s and we swap views.
-  setNavLoggedOut();
-  show('view-auth');
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const hasCode = urlParams.has('code');
+  // Detect OAuth return
+  const hasCode = new URLSearchParams(window.location.search).has('code');
   const hasHash = window.location.hash.includes('access_token');
 
+  // IMPORTANT: Do NOT clean the URL yet — Supabase needs ?code= to exchange it
+  // It will be cleaned after onAuthStateChange fires
+
   let sessionResolved = false;
+
+  const loadingTimeout = setTimeout(() => {
+    if(!sessionResolved){
+      sessionResolved = true;
+      console.warn('[vvip] auth timeout');
+      setNavLoggedOut(); show('view-auth');
+    }
+  }, 8000);
 
   const resolveOnce = async (session) => {
     if(sessionResolved) return;
     sessionResolved = true;
+    clearTimeout(loadingTimeout);
+    // Now safe to clean the URL
     if(hasCode || hasHash) history.replaceState(null, '', window.location.pathname);
     if(session) await onSession(session);
-    // if no session, we're already showing view-auth — nothing to do
+    else { setNavLoggedOut(); show('view-auth'); }
   };
 
-  // onAuthStateChange is the primary mechanism
   supa.auth.onAuthStateChange(async(event, s) => {
-    if(event === 'SIGNED_OUT'){
-      sessionResolved = false;
-      currentUser = null; profile = null;
-      setNavLoggedOut(); show('view-auth');
+    if(event === 'SIGNED_OUT'){ sessionResolved=false; currentUser=null; profile=null; setNavLoggedOut(); show('view-auth'); return; }
+    if(event === 'SIGNED_IN' && s){ await resolveOnce(s); return; }
+    if(event === 'INITIAL_SESSION'){
+      // INITIAL_SESSION fires on every page load with current session state
+      await resolveOnce(s || null);
       return;
     }
-    if(event === 'SIGNED_IN' && s){ await resolveOnce(s); return; }
-    if(event === 'INITIAL_SESSION' && s){ await resolveOnce(s); return; }
-    // INITIAL_SESSION with no session = not logged in, already showing auth form
+    if(!sessionResolved) await resolveOnce(s || null);
   });
 
-  // Also try getSession() as a backup, but race it against 2s timeout
-  // (Supabase implicit flow can hang getSession() indefinitely — this prevents that)
-  if(hasCode){
+  // Fallback: race getSession() against a 3s timeout in case it hangs (Supabase implicit flow bug)
+  const getSessionRace = Promise.race([
+    supa.auth.getSession().then(r => r?.data?.session || null).catch(() => null),
+    new Promise(res => setTimeout(() => res(null), 3000))
+  ]);
+
+  if(hasHash){
+    // Token is in hash — onAuthStateChange SIGNED_IN will fire; getSession race as backup
+    const session = await getSessionRace;
+    if(!sessionResolved) await resolveOnce(session);
+  } else if(hasCode){
     try{
       const{data,error}=await supa.auth.exchangeCodeForSession(urlParams.get('code'));
-      if(data?.session){ await resolveOnce(data.session); }
-    }catch(e){ console.warn('[vvip] exchange error:',e.message); }
+      if(error) console.warn('[vvip] exchange error:',error.message);
+      if(data?.session){ await resolveOnce(data.session); return; }
+    }catch(e){ console.warn('[vvip] exchange threw:',e.message); }
+    const session = await getSessionRace;
+    if(!sessionResolved) await resolveOnce(session);
+  } else {
+    // Normal load — INITIAL_SESSION fires via onAuthStateChange, race as safety net
+    const session = await getSessionRace;
+    if(!sessionResolved) await resolveOnce(session);
   }
 }
 
@@ -1222,20 +1244,16 @@ function renderMemberNav(){
   [gjm,gum,gvu,gso].filter(Boolean).forEach(el=>el.style.display='none');
 
   if(profile.is_admin){
-    if(na){na.style.display='';na.textContent=profile.username?'Welcome, @'+profile.username:'⬡ Admin';}
+    if(na)na.style.display='';
     if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='⬡ Admin'+(profile.username?' · @'+profile.username:'');}
     if(gso)gso.style.display='flex';
   } else if(hasPremAccess){
-    const welcome=profile.username?'Welcome, @'+profile.username:'✦ VVIP+';
-    if(nu){nu.style.display='';nu.textContent=welcome;}
+    const display=profile.username?('@'+profile.username):'VVIP+';
+    if(nu){nu.style.display='';nu.textContent=display;}
     if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='✦ '+(profile.username?('@'+profile.username):'VVIP+ Member');}
     if(gso)gso.style.display='flex';
   } else {
-    if(profile.username){
-      if(nu){nu.style.display='';nu.textContent='Welcome, @'+profile.username;}
-    } else {
-      if(nv)nv.style.display='';
-    }
+    if(nv)nv.style.display='';
     if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent=profile.username?('@'+profile.username):'My Account';}
     if(gvu)gvu.style.display='flex';
     if(gso)gso.style.display='flex';
