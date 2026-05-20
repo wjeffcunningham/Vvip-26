@@ -744,10 +744,12 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
     <div class="m-section-head">⬡ Admin Tools</div>
     <div class="m-section-body">
 
-      <div class="admin-tab-row">
+      <div class="admin-tab-row" style="flex-wrap:wrap;gap:2px 0">
         <button class="admin-tab active" onclick="adminTab('upload',this)">Upload Track</button>
-        <button class="admin-tab" onclick="adminTab('edit',this)">Edit Song Info</button>
-        <button class="admin-tab" onclick="adminTab('thumb',this)">Thumbnails</button>
+        <button class="admin-tab" onclick="adminTab('edit',this)">Edit Track</button>
+        <button class="admin-tab" onclick="adminTab('images',this)">Images</button>
+        <button class="admin-tab" onclick="adminTab('hashtags',this)">Hashtags</button>
+        <button class="admin-tab" onclick="adminTab('shoppe',this)">Shoppe</button>
         <button class="admin-tab" onclick="adminTab('users',this)">Users</button>
       </div>
 
@@ -767,11 +769,11 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
             <input class="m-input" type="number" id="up-bpm" placeholder="e.g. 120" min="40" max="300">
           </div>
           <div class="m-field">
-            <label class="m-label">BPM Range min (optional)</label>
+            <label class="m-label">BPM Range min</label>
             <input class="m-input" type="number" id="up-bpm-min" placeholder="e.g. 90">
           </div>
           <div class="m-field">
-            <label class="m-label">BPM Range max (optional)</label>
+            <label class="m-label">BPM Range max</label>
             <input class="m-input" type="number" id="up-bpm-max" placeholder="e.g. 130">
           </div>
           <div class="m-field">
@@ -779,7 +781,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
             <input class="m-input" type="date" id="up-date">
           </div>
           <div class="m-field upload-full">
-            <label class="m-label">Tags / Details (e.g. #bestvvip #ij)</label>
+            <label class="m-label">Tags / Details (e.g. #bestvvip #ambient)</label>
             <input class="m-input" type="text" id="up-details" placeholder="#bestvvip #ambient">
           </div>
           <div class="m-field upload-full">
@@ -793,9 +795,9 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
         <div id="upload-status"></div>
       </div>
 
-      <!-- Edit pane -->
+      <!-- Edit Track pane -->
       <div class="admin-pane" id="pane-edit">
-        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">Click any track to edit its metadata.</p>
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">Click any track to edit. Title field supports <code>//</code> variants.</p>
         <div id="song-list-wrap">
           <div id="song-list" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);padding:10px">Loading tracks…</div>
         </div>
@@ -827,57 +829,134 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
               <input class="m-input" type="text" id="edit-length">
             </div>
             <div class="m-field upload-full">
-              <label class="m-label">Tags / Details (e.g. #bestvvip #ambient)</label>
+              <label class="m-label">Tags / Details</label>
               <input class="m-input" type="text" id="edit-details">
-            </div>
-            <div class="m-field upload-full">
-              <label class="m-label">Hashtags (e.g. #moody #late-night)</label>
-              <input class="m-input" type="text" id="edit-hashtags" placeholder="#tag1 #tag2">
             </div>
           </div>
           <div class="m-btn-row">
             <button class="m-btn gold" onclick="saveEdit()">Save Changes</button>
+            <button class="m-btn danger" onclick="deleteTrack()">Delete Track</button>
             <button class="m-btn" onclick="cancelEdit()">Cancel</button>
           </div>
           <div id="edit-msg" class="m-msg"></div>
         </div>
       </div>
 
-      <!-- Thumbnail pane -->
-      <div class="admin-pane" id="pane-thumb">
-        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">
-          Upload a thumbnail override for any track. Overrides the cascade for that specific track only. JPG or PNG, ideally square.
-        </p>
+      <!-- Images pane -->
+      <div class="admin-pane" id="pane-images">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">Upload an image, then assign it to a track as its primary thumbnail, a thumbnail override, or a gem.</p>
         <div class="upload-grid">
           <div class="m-field upload-full">
-            <label class="m-label">Search track</label>
-            <input class="m-input" type="text" id="thumb-search" placeholder="e.g. analog tv" oninput="filterThumbTrack(this.value)">
-            <div id="thumb-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
-            <input type="hidden" id="thumb-track-name">
-          </div>
-          <div class="m-field upload-full" id="thumb-selected-wrap" style="display:none">
-            <label class="m-label">Selected</label>
-            <div id="thumb-selected-label" style="font-family:Arial,sans-serif;font-size:12px;padding:4px 8px;background:var(--card);border:1px solid var(--border)"></div>
+            <label class="m-label">Image file (JPG / PNG / WEBP)</label>
+            <input type="file" id="img-file" accept=".jpg,.jpeg,.png,.webp" class="m-file-input" onchange="previewImg(this)">
           </div>
           <div class="m-field upload-full">
-            <label class="m-label">Image (JPG / PNG)</label>
-            <input type="file" id="thumb-file" accept=".jpg,.jpeg,.png,.webp" class="m-file-input" onchange="previewThumb(this)">
+            <img id="img-preview" style="display:none;width:120px;height:120px;object-fit:cover;border:2px solid var(--border);margin-bottom:4px" alt="preview">
           </div>
           <div class="m-field upload-full">
-            <img id="thumb-preview" style="display:none;width:120px;height:120px;object-fit:cover;border:2px solid var(--border)" alt="preview">
+            <label class="m-label">Assign to track</label>
+            <input class="m-input" type="text" id="img-track-search" placeholder="start typing title or filename…" oninput="filterImgTrack(this.value)">
+            <div id="img-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
+            <input type="hidden" id="img-track-name">
+            <div id="img-selected-wrap" style="display:none;margin-top:4px;font-family:Arial,sans-serif;font-size:12px;padding:4px 8px;background:var(--card);border:1px solid var(--border)" id="img-selected-label"></div>
+          </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Role</label>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;font-family:Arial,sans-serif;font-size:12px;margin-top:4px">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="radio" name="img-role" value="thumb" checked> Primary thumbnail</label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="radio" name="img-role" value="override"> Override thumbnail</label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="radio" name="img-role" value="gem"> Gem</label>
+            </div>
           </div>
         </div>
         <div class="m-btn-row">
-          <button class="m-btn gold" onclick="uploadThumb()">Upload Thumbnail</button>
+          <button class="m-btn gold" onclick="uploadImage()">Upload &amp; Assign</button>
         </div>
-        <div id="thumb-status" class="m-msg"></div>
+        <div id="img-status" class="m-msg"></div>
+      </div>
+
+      <!-- Hashtags pane -->
+      <div class="admin-pane" id="pane-hashtags">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">Add or remove hashtags on any track. Use the hide toggle to suppress a tag from public display without removing it.</p>
+        <div class="m-field">
+          <label class="m-label">Track</label>
+          <input class="m-input" type="text" id="hash-track-search" placeholder="start typing title or filename…" oninput="filterHashTrack(this.value)">
+          <div id="hash-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
+          <input type="hidden" id="hash-track-name">
+        </div>
+        <div id="hash-track-info" style="display:none">
+          <div style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin-bottom:8px">Current tags: <span id="hash-current-tags" style="color:var(--fg)"></span></div>
+          <div class="upload-grid">
+            <div class="m-field">
+              <label class="m-label">Add tag (without #)</label>
+              <input class="m-input" type="text" id="hash-add-input" placeholder="e.g. ambient">
+            </div>
+            <div class="m-field">
+              <label class="m-label">Remove tag (without #)</label>
+              <input class="m-input" type="text" id="hash-remove-input" placeholder="e.g. old-tag">
+            </div>
+            <div class="m-field upload-full">
+              <label class="m-label">Hide tags from public display (comma-separated, without #)</label>
+              <input class="m-input" type="text" id="hash-hidden-input" placeholder="e.g. wip,draft">
+            </div>
+          </div>
+          <div class="m-btn-row">
+            <button class="m-btn gold" onclick="saveHashtags()">Save</button>
+          </div>
+        </div>
+        <div id="hash-status" class="m-msg"></div>
+      </div>
+
+      <!-- Shoppe pane -->
+      <div class="admin-pane" id="pane-shoppe">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">Add or remove items from the shoppe. Changes update shoppe.json immediately.</p>
+        <div id="shoppe-item-list" style="max-height:240px;overflow-y:auto;border:1px solid var(--border);margin-bottom:14px">
+          <div style="padding:10px;font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Loading…</div>
+        </div>
+        <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-top:10px;border-top:1px solid var(--border-light)">Add new item</div>
+        <div class="upload-grid">
+          <div class="m-field">
+            <label class="m-label">Title</label>
+            <input class="m-input" type="text" id="sp-title" placeholder="e.g. VVIP Tote">
+          </div>
+          <div class="m-field">
+            <label class="m-label">Price (CAD)</label>
+            <input class="m-input" type="number" id="sp-price" placeholder="0" min="0">
+          </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Description</label>
+            <input class="m-input" type="text" id="sp-desc" placeholder="Short description">
+          </div>
+          <div class="m-field">
+            <label class="m-label">Tags (comma-sep, e.g. apparel,print)</label>
+            <input class="m-input" type="text" id="sp-tags" placeholder="apparel">
+          </div>
+          <div class="m-field">
+            <label class="m-label">Stripe URL (optional)</label>
+            <input class="m-input" type="url" id="sp-stripe" placeholder="https://buy.stripe.com/…">
+          </div>
+          <div class="m-field">
+            <label class="m-label">Bandcamp URL (optional)</label>
+            <input class="m-input" type="url" id="sp-bandcamp" placeholder="https://vvip.bandcamp.com/…">
+          </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Note (optional)</label>
+            <input class="m-input" type="text" id="sp-note" placeholder="e.g. VVIP+ only">
+          </div>
+          <div class="m-field" style="display:flex;align-items:center;gap:10px">
+            <label style="font-family:Arial,sans-serif;font-size:12px;cursor:pointer"><input type="checkbox" id="sp-available" checked> Available</label>
+            <label style="font-family:Arial,sans-serif;font-size:12px;cursor:pointer"><input type="checkbox" id="sp-premium"> VVIP+ only</label>
+          </div>
+        </div>
+        <div class="m-btn-row">
+          <button class="m-btn gold" onclick="addShoppeItem()">Add Item</button>
+        </div>
+        <div id="shoppe-admin-status" class="m-msg"></div>
       </div>
 
       <!-- Users pane -->
       <div class="admin-pane" id="pane-users">
-        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 14px">
-          Grant or revoke admin / VVIP+ status by email.
-        </p>
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 14px">Grant or revoke admin / VVIP+ status by email.</p>
         <div class="m-field">
           <label class="m-label">User email</label>
           <input class="m-input" type="email" id="admin-user-email" placeholder="user@example.com" autocomplete="off">
@@ -934,7 +1013,7 @@ let supa = null;
 try {
   supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
     auth: {
-      flowType: 'implicit',
+      flowType: 'pkce',
       detectSessionInUrl: true,
       persistSession: true,
     }
@@ -1088,32 +1167,20 @@ async function init(){
     if(!sessionResolved) await resolveOnce(s || null);
   });
 
-  if(hasHash){
-    // Implicit flow — token is in the hash, Supabase picks it up via detectSessionInUrl
-    // onAuthStateChange SIGNED_IN fires automatically; just wait for it
-    // Fallback: poll getSession after a tick in case it fires before our listener
-    setTimeout(async()=>{
-      if(!sessionResolved){
-        try{ const{data:{session}}=await supa.auth.getSession(); await resolveOnce(session||null); }
-        catch{ await resolveOnce(null); }
-      }
-    }, 800);
-  } else if(hasCode){
-    // PKCE fallback — try explicit exchange first
+  if(hasCode){
     try{
-      console.log('[vvip] exchanging code…');
-      const{data,error}=await supa.auth.exchangeCodeForSession(urlParams.get('code'));
-      if(error) console.warn('[vvip] exchange error:',error.message);
+      console.log('[vvip] exchanging OAuth code…');
+      const { data, error } = await supa.auth.exchangeCodeForSession(urlParams.get('code'));
+      if(error) console.warn('[vvip] exchange error:', error.message);
       if(data?.session){ await resolveOnce(data.session); return; }
-    }catch(e){ console.warn('[vvip] exchange threw:',e.message); }
+    }catch(e){ console.warn('[vvip] exchange threw:', e.message); }
     if(!sessionResolved){
       try{ const{data:{session}}=await supa.auth.getSession(); await resolveOnce(session||null); }
-      catch{ await resolveOnce(null); }
+      catch(e){ await resolveOnce(null); }
     }
   } else {
-    // Normal load — check for existing session
     try{ const{data:{session}}=await supa.auth.getSession(); await resolveOnce(session||null); }
-    catch{ await resolveOnce(null); }
+    catch(e){ await resolveOnce(null); }
   }
 }
 
@@ -1236,20 +1303,16 @@ function renderMemberNav(){
   [gjm,gum,gvu,gso].filter(Boolean).forEach(el=>el.style.display='none');
 
   if(profile.is_admin){
-    if(na){na.style.display='';na.textContent=profile.username?'Welcome, @'+profile.username:'⬡ Admin';}
+    if(na)na.style.display='';
     if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='⬡ Admin'+(profile.username?' · @'+profile.username:'');}
     if(gso)gso.style.display='flex';
   } else if(hasPremAccess){
-    const welcome=profile.username?'Welcome, @'+profile.username:'✦ VVIP+';
-    if(nu){nu.style.display='';nu.textContent=welcome;}
+    const display=profile.username?('@'+profile.username):'VVIP+';
+    if(nu){nu.style.display='';nu.textContent=display;}
     if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='✦ '+(profile.username?('@'+profile.username):'VVIP+ Member');}
     if(gso)gso.style.display='flex';
   } else {
-    if(profile.username){
-      if(nu){nu.style.display='';nu.textContent='Welcome, @'+profile.username;}
-    } else {
-      if(nv)nv.style.display='';
-    }
+    if(nv)nv.style.display='';
     if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent=profile.username?('@'+profile.username):'My Account';}
     if(gvu)gvu.style.display='flex';
     if(gso)gso.style.display='flex';
@@ -1382,7 +1445,6 @@ async function saveEdit(){
   const origName = document.getElementById('edit-orig-name').value;
   const idx = allTracks.findIndex(t => t.name === origName);
   if(idx < 0){ showEditMsg('Track not found.', 'err'); return; }
-
   const lengthStr = document.getElementById('edit-length').value.trim();
   const updated = {
     ...allTracks[idx],
@@ -1393,16 +1455,26 @@ async function saveEdit(){
     date: document.getElementById('edit-date').value || undefined,
     length: lengthStr ? parseLenSec(lengthStr) : undefined,
     details: document.getElementById('edit-details').value.trim() || undefined,
-    hashtags: document.getElementById('edit-hashtags').value.trim() || undefined,
   };
-  // Clean undefined
   Object.keys(updated).forEach(k => updated[k] === undefined && delete updated[k]);
   allTracks[idx] = updated;
-
   showEditMsg('Saving…', 'info');
   const ok = await pushManifest();
   if(ok){ showEditMsg('✓ Saved.', 'ok'); renderSongList(); }
-  else showEditMsg('Error saving manifest. Check console.', 'err');
+  else showEditMsg('Error saving manifest.', 'err');
+}
+
+async function deleteTrack(){
+  const origName = document.getElementById('edit-orig-name').value;
+  if(!origName) return;
+  if(!confirm('Delete "' + origName + '" from manifest? (File stays on R2.)')) return;
+  const idx = allTracks.findIndex(t => t.name === origName);
+  if(idx < 0){ showEditMsg('Track not found.', 'err'); return; }
+  allTracks.splice(idx, 1);
+  showEditMsg('Saving…', 'info');
+  const ok = await pushManifest();
+  if(ok){ showEditMsg('✓ Deleted from manifest.', 'ok'); cancelEdit(); renderSongList(); }
+  else showEditMsg('Error saving manifest.', 'err');
 }
 
 // ── ADMIN: UPLOAD ──
@@ -1498,86 +1570,245 @@ function adminTab(name, btn){
   document.querySelectorAll('.admin-pane').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('pane-'+name).classList.add('active');
+  if(name==='shoppe') loadShoppeAdmin();
 }
 
-// ── ADMIN: THUMBNAILS ──
-const THUMB_BASE = 'assets/thumbs/';
+// ── ADMIN: IMAGES (thumb / override / gem) ──
 const EDGE_THUMB = 'https://auth.vvipmedia.net/functions/v1/upload-thumb';
+const EDGE_EXTRAS = 'https://auth.vvipmedia.net/functions/v1/upload-extras';
 
-function filterThumbTrack(q){
-  const res = document.getElementById('thumb-track-results');
+function previewImg(input){
+  const file = input.files[0]; if(!file) return;
+  const img = document.getElementById('img-preview');
+  img.src = URL.createObjectURL(file); img.style.display = 'block';
+}
+// Keep old previewThumb alias just in case
+function previewThumb(input){ previewImg(input); }
+
+function filterImgTrack(q){
+  const res = document.getElementById('img-track-results');
   if(!q||q.length<2){ res.style.display='none'; return; }
-  const matches = allTracks.filter(t=>{
-    const title = (t.title||t.name||'').toLowerCase();
-    return title.includes(q.toLowerCase());
-  }).slice(0,12);
+  const matches = allTracks.filter(t=>((t.title||t.name||'')).toLowerCase().includes(q.toLowerCase())).slice(0,12);
   if(!matches.length){ res.style.display='none'; return; }
   res.style.display='block';
-  res.innerHTML = matches.map(t=>`
-    <div onclick="selectThumbTrack('${t.name.replace(/'/g,"\\'")}','${(t.title||t.name).replace(/'/g,"\\'")}'')"
-      style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
-      onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
-      ${t.title||t.name}
-    </div>`).join('');
+  res.innerHTML = matches.map(t=>`<div onclick="selectImgTrack('${t.name.replace(/'/g,"\\'")}','${(t.title||t.name).replace(/'/g,"\\'")}'')"
+    style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
+    onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
+    ${t.title||t.name}</div>`).join('');
+}
+function selectImgTrack(name, title){
+  document.getElementById('img-track-name').value = name;
+  document.getElementById('img-track-search').value = title;
+  document.getElementById('img-track-results').style.display = 'none';
+  const wrap = document.getElementById('img-selected-wrap');
+  if(wrap){ wrap.style.display=''; wrap.textContent = name; }
 }
 
-function selectThumbTrack(name, title){
-  document.getElementById('thumb-track-name').value = name;
-  document.getElementById('thumb-search').value = title;
-  document.getElementById('thumb-track-results').style.display = 'none';
-  document.getElementById('thumb-selected-wrap').style.display = '';
-  document.getElementById('thumb-selected-label').textContent = name;
-}
+async function uploadImage(){
+  const file = document.getElementById('img-file').files[0];
+  const trackName = document.getElementById('img-track-name').value;
+  const role = document.querySelector('input[name="img-role"]:checked')?.value || 'thumb';
+  const statusEl = document.getElementById('img-status');
 
-function previewThumb(input){
-  const file = input.files[0]; if(!file) return;
-  const img = document.getElementById('thumb-preview');
-  img.src = URL.createObjectURL(file);
-  img.style.display = 'block';
-}
+  if(!file){ statusEl.textContent='Choose an image file.'; statusEl.className='m-msg show err'; return; }
+  if(!trackName){ statusEl.textContent='Select a track first.'; statusEl.className='m-msg show err'; return; }
 
-async function uploadThumb(){
-  const trackName = document.getElementById('thumb-track-name').value;
-  const file = document.getElementById('thumb-file').files[0];
-  const statusEl = document.getElementById('thumb-status');
+  statusEl.textContent='Uploading…'; statusEl.className='m-msg show info';
 
-  if(!trackName){ statusEl.textContent='Select a track first.';statusEl.className='m-msg show err';return; }
-  if(!file){ statusEl.textContent='Choose an image file.';statusEl.className='m-msg show err';return; }
-
-  statusEl.textContent='Uploading…';statusEl.className='m-msg show info';
-
-  // Derive thumb filename from track name: base + thumb.jpg
   const ext = file.name.split('.').pop().toLowerCase();
   const base = trackName.replace(/\.[^.]+$/, '').toLowerCase();
-  const thumbName = base + 'thumb.' + (ext==='png'?'png':'jpg');
 
-  try {
+  let destName;
+  if(role === 'gem'){
+    // Gems go to extras/ folder, named base_gem_timestamp.ext
+    destName = base + '_gem_' + Date.now() + '.' + ext;
+  } else {
+    // thumb / override both go to thumbs/ as basethumb.ext
+    destName = base + 'thumb.' + (ext==='png'?'png':'jpg');
+  }
+
+  try{
     const { data:{ session } } = await supa.auth.getSession();
     const formData = new FormData();
-    formData.append('file', file, thumbName);
+    formData.append('file', file, destName);
     formData.append('trackName', trackName);
-    formData.append('thumbName', thumbName);
+    formData.append('destName', destName);
+    formData.append('role', role);
 
-    const res = await fetch(EDGE_THUMB, {
+    const endpoint = role === 'gem' ? EDGE_EXTRAS : EDGE_THUMB;
+    const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + session.access_token },
       body: formData,
     });
     if(res.ok){
-      statusEl.textContent = '✓ Thumbnail uploaded as ' + thumbName;
+      statusEl.textContent = '✓ Uploaded as ' + destName + ' (' + role + ')';
       statusEl.className = 'm-msg show ok';
-      // Reset
-      document.getElementById('thumb-file').value = '';
-      document.getElementById('thumb-preview').style.display = 'none';
+      document.getElementById('img-file').value = '';
+      document.getElementById('img-preview').style.display = 'none';
     } else {
-      const txt = await res.text();
-      statusEl.textContent = 'Error: ' + txt;
+      statusEl.textContent = 'Error: ' + await res.text();
       statusEl.className = 'm-msg show err';
     }
-  } catch(e) {
+  }catch(e){
     statusEl.textContent = 'Upload failed: ' + e.message;
     statusEl.className = 'm-msg show err';
   }
+}
+
+// ── ADMIN: HASHTAGS ──
+let _hashTrackIdx = -1;
+
+function filterHashTrack(q){
+  const res = document.getElementById('hash-track-results');
+  if(!q||q.length<2){ res.style.display='none'; return; }
+  const matches = allTracks.filter(t=>((t.title||t.name||'')).toLowerCase().includes(q.toLowerCase())).slice(0,12);
+  if(!matches.length){ res.style.display='none'; return; }
+  res.style.display='block';
+  res.innerHTML = matches.map((t,i)=>`<div onclick="selectHashTrack('${t.name.replace(/'/g,"\\'")}','${(t.title||t.name).replace(/'/g,"\\'")}'')"
+    style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
+    onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
+    ${t.title||t.name}</div>`).join('');
+}
+
+function selectHashTrack(name, title){
+  document.getElementById('hash-track-name').value = name;
+  document.getElementById('hash-track-search').value = title;
+  document.getElementById('hash-track-results').style.display = 'none';
+  _hashTrackIdx = allTracks.findIndex(t => t.name === name);
+  if(_hashTrackIdx < 0) return;
+  const t = allTracks[_hashTrackIdx];
+  // Extract existing tags from details field
+  const details = t.details || '';
+  const tags = [...details.matchAll(/#([a-zA-Z0-9_-]+)/g)].map(m => m[1]);
+  document.getElementById('hash-current-tags').textContent = tags.length ? tags.map(t=>'#'+t).join(' ') : '(none)';
+  document.getElementById('hash-add-input').value = '';
+  document.getElementById('hash-remove-input').value = '';
+  document.getElementById('hash-hidden-input').value = t.hidden_tags || '';
+  document.getElementById('hash-track-info').style.display = '';
+}
+
+async function saveHashtags(){
+  if(_hashTrackIdx < 0) return;
+  const t = allTracks[_hashTrackIdx];
+  const addTag = document.getElementById('hash-add-input').value.trim().replace(/^#/,'');
+  const removeTag = document.getElementById('hash-remove-input').value.trim().replace(/^#/,'');
+  const hiddenRaw = document.getElementById('hash-hidden-input').value.trim();
+
+  let details = t.details || '';
+  if(addTag && !details.includes('#'+addTag)) details = (details + ' #' + addTag).trim();
+  if(removeTag) details = details.replace(new RegExp('#'+removeTag+'\\b','g'),'').replace(/\s+/g,' ').trim();
+  allTracks[_hashTrackIdx].details = details;
+  if(hiddenRaw) allTracks[_hashTrackIdx].hidden_tags = hiddenRaw;
+  else delete allTracks[_hashTrackIdx].hidden_tags;
+
+  const statusEl = document.getElementById('hash-status');
+  statusEl.textContent = 'Saving…'; statusEl.className = 'm-msg show info';
+  const ok = await pushManifest();
+  if(ok){
+    statusEl.textContent = '✓ Saved.'; statusEl.className = 'm-msg show ok';
+    // Refresh display
+    const tags = [...details.matchAll(/#([a-zA-Z0-9_-]+)/g)].map(m => m[1]);
+    document.getElementById('hash-current-tags').textContent = tags.length ? tags.map(t=>'#'+t).join(' ') : '(none)';
+  } else {
+    statusEl.textContent = 'Error saving.'; statusEl.className = 'm-msg show err';
+  }
+}
+
+// ── ADMIN: SHOPPE ──
+const EDGE_SHOPPE = 'https://auth.vvipmedia.net/functions/v1/update-shoppe';
+let shoppeAdminItems = [];
+
+async function loadShoppeAdmin(){
+  const el = document.getElementById('shoppe-item-list');
+  try{
+    const r = await fetch('/shoppe/shoppe.json', {cache:'no-store'});
+    shoppeAdminItems = r.ok ? await r.json() : [];
+  }catch{ shoppeAdminItems = []; }
+  renderShoppeAdmin();
+}
+
+function renderShoppeAdmin(){
+  const el = document.getElementById('shoppe-item-list');
+  if(!shoppeAdminItems.length){
+    el.innerHTML='<div style="padding:10px;font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">No items yet.</div>'; return;
+  }
+  el.innerHTML = shoppeAdminItems.map((it,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--border-light);font-family:Arial,sans-serif;font-size:12px">
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.title}</span>
+      <span style="flex-shrink:0;color:var(--muted)">${it.available?'●':'○'} $${it.price||0}</span>
+      <button onclick="toggleShoppeAvail(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 7px;cursor:pointer;color:var(--fg)">${it.available?'Disable':'Enable'}</button>
+      <button onclick="deleteShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:#5a0000;border:1px solid #880000;padding:1px 7px;cursor:pointer;color:#f0d0d0">Delete</button>
+    </div>`).join('');
+}
+
+async function addShoppeItem(){
+  const title = document.getElementById('sp-title').value.trim();
+  const price = parseFloat(document.getElementById('sp-price').value) || 0;
+  const desc = document.getElementById('sp-desc').value.trim();
+  const tagsRaw = document.getElementById('sp-tags').value.trim();
+  const stripeUrl = document.getElementById('sp-stripe').value.trim();
+  const bandcampUrl = document.getElementById('sp-bandcamp').value.trim();
+  const note = document.getElementById('sp-note').value.trim();
+  const available = document.getElementById('sp-available').checked;
+  const premium = document.getElementById('sp-premium').checked;
+  const statusEl = document.getElementById('shoppe-admin-status');
+
+  if(!title){ statusEl.textContent='Title required.'; statusEl.className='m-msg show err'; return; }
+
+  const newItem = {
+    id: title.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,32) + '-' + Date.now(),
+    title, description: desc, price, currency: 'CAD', available,
+    tags: tagsRaw ? tagsRaw.split(',').map(t=>t.trim().replace(/^#/,'')).filter(Boolean) : [],
+    images: [],
+  };
+  if(stripeUrl) newItem.stripe_url = stripeUrl;
+  if(bandcampUrl) newItem.bandcamp_url = bandcampUrl;
+  if(note) newItem.note = note;
+  if(premium) newItem.premium = true;
+
+  shoppeAdminItems.push(newItem);
+  statusEl.textContent = 'Saving…'; statusEl.className = 'm-msg show info';
+  const ok = await pushShoppe();
+  if(ok){
+    statusEl.textContent = '✓ Item added.'; statusEl.className = 'm-msg show ok';
+    renderShoppeAdmin();
+    ['sp-title','sp-price','sp-desc','sp-tags','sp-stripe','sp-bandcamp','sp-note'].forEach(id=>document.getElementById(id).value='');
+  } else {
+    statusEl.textContent = 'Error saving shoppe.'; statusEl.className = 'm-msg show err';
+    shoppeAdminItems.pop();
+  }
+}
+
+async function deleteShoppeItem(i){
+  if(!confirm('Delete "' + shoppeAdminItems[i].title + '"?')) return;
+  const removed = shoppeAdminItems.splice(i, 1);
+  const statusEl = document.getElementById('shoppe-admin-status');
+  statusEl.textContent = 'Saving…'; statusEl.className = 'm-msg show info';
+  const ok = await pushShoppe();
+  if(ok){ statusEl.textContent = '✓ Deleted.'; statusEl.className = 'm-msg show ok'; renderShoppeAdmin(); }
+  else { statusEl.textContent = 'Error.'; statusEl.className = 'm-msg show err'; shoppeAdminItems.splice(i,0,...removed); }
+}
+
+async function toggleShoppeAvail(i){
+  shoppeAdminItems[i].available = !shoppeAdminItems[i].available;
+  const statusEl = document.getElementById('shoppe-admin-status');
+  statusEl.textContent = 'Saving…'; statusEl.className = 'm-msg show info';
+  const ok = await pushShoppe();
+  if(ok){ statusEl.textContent = '✓ Saved.'; statusEl.className = 'm-msg show ok'; renderShoppeAdmin(); }
+  else { shoppeAdminItems[i].available = !shoppeAdminItems[i].available; statusEl.textContent = 'Error.'; statusEl.className = 'm-msg show err'; }
+}
+
+async function pushShoppe(){
+  try{
+    const { data:{ session } } = await supa.auth.getSession();
+    const res = await fetch(EDGE_SHOPPE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+      body: JSON.stringify({ items: shoppeAdminItems }),
+    });
+    return res.ok;
+  }catch(e){ console.error('pushShoppe', e); return false; }
 }
 
 // ── ADMIN: USER MANAGEMENT ──
