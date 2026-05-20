@@ -745,7 +745,7 @@ body.hide-titles .t-title-file{display:inline !important}
 </div>
 
 <script>
-const ASSET_VERSION=21;
+const ASSET_VERSION=20;
 // ── Supabase config ── fill in your project URL + anon key ──
 const SUPA_URL='https://auth.vvipmedia.net';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
@@ -839,9 +839,9 @@ function extractTags(s){if(!s)return[];return[...s.matchAll(/#([a-zA-Z0-9_-]+)/g
 // ── Auth ──
 async function initAuth(){
   if(!supa)return;
-  const urlParams=new URLSearchParams(window.location.search);
-  const hasCode=urlParams.has('code');
-  const hasOAuthHash=window.location.hash.includes('access_token')||window.location.hash.includes('error=');
+  const urlParams = new URLSearchParams(window.location.search);
+  const hasCode = urlParams.has('code');
+  const hasOAuthHash = window.location.hash.includes('access_token')||window.location.hash.includes('error=');
   if(hasOAuthHash) history.replaceState(null,'',window.location.pathname);
 
   let sessionResolved=false;
@@ -851,17 +851,20 @@ async function initAuth(){
   });
 
   if(hasCode){
+    // Safari PKCE fix — explicitly exchange the code rather than relying on
+    // detectSessionInUrl (which needs sessionStorage to survive the redirect)
     try{
       const{data,error}=await supa.auth.exchangeCodeForSession(urlParams.get('code'));
       history.replaceState(null,'',window.location.pathname);
       if(data?.session&&!sessionResolved){sessionResolved=true;await onSession(data.session);return;}
-      if(error) console.warn('[vvip] index exchange error:',error.message);
-    }catch(e){ console.warn('[vvip] index exchange threw:',e.message); }
+    }catch(e){}
     if(!sessionResolved){
-      try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}}catch{}
+      const{data:{session}}=await supa.auth.getSession();
+      if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}
     }
   } else if(!hasOAuthHash){
-    try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}}catch{}
+    const{data:{session}}=await supa.auth.getSession();
+    if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}
   }
 }
 async function onSession(session){
@@ -1922,7 +1925,7 @@ const SHOPPE_FALLBACK=[
 
 async function loadShoppe(){
   try{
-    const r=await fetch('/shoppe/shoppe.json?v='+ASSET_VERSION,{cache:'no-store'});
+    const r=await fetch('/shoppe/shoppe.json',{cache:'no-store'});
     if(r.ok){
       const raw=await r.json();
       // Normalize shoppe.json format → internal format
@@ -1973,14 +1976,17 @@ function shoppeVisibleItems(){
 
 function renderShoppe(){
   const hasPremium=isPremium||isAdmin;
-  // Render category tabs
   const catsEl=document.getElementById('shoppe-cats');
   if(catsEl){
     catsEl.innerHTML=SHOPPE_CATEGORIES
       .filter(c=>!c.premium||hasPremium)
-      .map(c=>`<button class="shoppe-cat${shoppeCat===c.id?' active':''}" onclick="setShoppeCat('${c.id}')">${c.label}${c.premium?'<span class="shoppe-vvip-only">VVIP+</span>':''}</button>`)
+      .map(c=>`<button class="shoppe-cat${shoppeCat===c.id?' active':''}" data-cat-id="${c.id}" onclick="setShoppeCat('${c.id}')">${c.label}${c.premium?'<span class="shoppe-vvip-only">VVIP+</span>':''}</button>`)
       .join('');
   }
+  renderShoppeItems();
+}
+
+function renderShoppeItems(){
   const items=shoppeVisibleItems();
   const countEl=document.getElementById('shoppe-count');
   if(countEl) countEl.textContent=items.length+' item'+(items.length!==1?'s':'');
@@ -2027,15 +2033,19 @@ function renderShoppe(){
 }
 
 function setShoppeCat(cat){
-  shoppeCat=cat;shoppeExpanded=null;renderShoppe();
+  shoppeCat=cat;shoppeExpanded=null;
+  document.querySelectorAll('#shoppe-cats .shoppe-cat').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.catId===cat);
+  });
+  renderShoppeItems();
 }
 
 function toggleShoppeItem(e,id){
-  if(e.target.closest('a,.shoppe-qty'))return; // don't collapse on link/qty click
+  if(e.target.closest('a,.shoppe-qty'))return;
   const item=shoppeItems.find(it=>it.id===id);
   if(item&&!item.available)return;
   shoppeExpanded=shoppeExpanded===id?null:id;
-  renderShoppe();
+  renderShoppeItems();
 }
 </script>
 </body>
