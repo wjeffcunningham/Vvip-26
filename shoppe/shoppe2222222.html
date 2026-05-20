@@ -395,7 +395,7 @@ const SITE_URL='https://vvipmedia.net';
 const BASE_IMG='https://vvipmedia.net/shoppe/';
 
 let supa=null;
-try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true}}); }catch(e){}
+try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 
 let vvipUser=null, isPremium=false, isAdmin=false, vvipUsername='';
 let shoppeItems=[], shoppeCat='all', shoppeExpanded=null;
@@ -422,24 +422,18 @@ document.addEventListener('click',e=>{
 // ── Auth ──
 async function initAuth(){
   if(!supa){ renderAuthNav(); return; }
-  const hasHash=window.location.hash.includes('access_token')||window.location.hash.includes('error=');
-  if(hasHash) setTimeout(()=>history.replaceState(null,'',window.location.pathname),100);
+  const hasOAuthHash=window.location.hash.includes('access_token')||window.location.hash.includes('error=');
+  if(hasOAuthHash) history.replaceState(null,'',window.location.pathname);
   let sessionResolved=false;
   supa.auth.onAuthStateChange(async(event,s)=>{
-    if(event==='SIGNED_OUT'){sessionResolved=false;vvipUser=null;isPremium=false;isAdmin=false;vvipUsername='';renderAuthNav();renderShoppe();return;}
-    if(event==='SIGNED_IN'&&s&&!sessionResolved){sessionResolved=true;await onSession(s);return;}
+    if(sessionResolved&&event!=='SIGNED_OUT')return;
     if(s&&!sessionResolved){sessionResolved=true;await onSession(s);}
-    else if(!s&&!sessionResolved){renderAuthNav();}
+    else if(event==='SIGNED_OUT'){sessionResolved=false;vvipUser=null;isPremium=false;isAdmin=false;vvipUsername='';renderAuthNav();renderShoppe();}
   });
-  if(hasHash){
-    setTimeout(async()=>{
-      if(!sessionResolved){
-        try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}else if(!sessionResolved)renderAuthNav();}catch{renderAuthNav();}
-      }
-    },800);
-  } else {
-    try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}else if(!sessionResolved)renderAuthNav();}
-    catch{renderAuthNav();}
+  if(!hasOAuthHash){
+    const{data:{session}}=await supa.auth.getSession();
+    if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}
+    else if(!session&&!sessionResolved){renderAuthNav();}
   }
 }
 async function onSession(s){
@@ -477,23 +471,22 @@ function renderAuthNav(){
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='none';
   } else if(isAdmin){
-    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'⬡ Admin';}
+    if(adminEl)adminEl.style.display='';
     if(gearJoin)gearJoin.style.display='none';
     if(gearUser)gearUser.style.display='';
     if(gearLink)gearLink.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else if(isPremium){
-    const welcome=vvipUsername?'Welcome, @'+vvipUsername:'✦ VVIP+';
-    if(userEl){userEl.style.display='';userEl.textContent=welcome;}
+    const display=vvipUsername?('@'+vvipUsername):'VVIP+';
+    if(userEl){userEl.style.display='';userEl.textContent=display;}
     if(gearJoin)gearJoin.style.display='none';
     if(gearUser)gearUser.style.display='';
     if(gearLink)gearLink.textContent='✦ '+(vvipUsername?('@'+vvipUsername):'VVIP+ Member');
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else {
-    if(vvipUsername){if(userEl){userEl.style.display='';userEl.textContent='Welcome, @'+vvipUsername;}}
-    else{if(vvipEl)vvipEl.style.display='';}
+    if(vvipEl)vvipEl.style.display='';
     if(gearJoin)gearJoin.style.display='none';
     if(gearUser)gearUser.style.display='';
     if(gearLink)gearLink.textContent=vvipUsername?('@'+vvipUsername):'My Account';

@@ -597,7 +597,7 @@ body.hide-titles .t-title-file{display:inline !important}
   <div id="site-nav">
     <a href="/" onclick="return showHome()">Home</a>
     <button onclick="toggleAbout()">About</button>
-    <a href="/shoppe/">Shoppe</a>
+    <a href="/shoppe/" onclick="event.preventDefault();document.querySelector('.view-tab[data-view=shoppe]')?.click()">Shoppe</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
     <!-- Auth nav — mutually exclusive states -->
@@ -751,7 +751,7 @@ const SUPA_URL='https://auth.vvipmedia.net';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
 const SITE_URL='https://vvipmedia.net';
 let supa=null,vvipUser=null,isPremium=false,isAdmin=false,vvipUsername='';
-try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true}}); }catch(e){}
+try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY); }catch(e){}
 const PREFERRED_TAG='bestvvip';
 const BASE_MP3='https://media.vvipmedia.net/ACCESS/';
 const BASE_WAV='https://media.vvipmedia.net/WAV/';
@@ -841,35 +841,26 @@ async function initAuth(){
   if(!supa)return;
   const urlParams=new URLSearchParams(window.location.search);
   const hasCode=urlParams.has('code');
-  const hasHash=window.location.hash.includes('access_token')||window.location.hash.includes('error=');
-  // Clean hash/code after Supabase reads it
-  if(hasHash) setTimeout(()=>history.replaceState(null,'',window.location.pathname),100);
+  const hasOAuthHash=window.location.hash.includes('access_token')||window.location.hash.includes('error=');
+  if(hasOAuthHash) history.replaceState(null,'',window.location.pathname);
 
   let sessionResolved=false;
   supa.auth.onAuthStateChange(async(event,s)=>{
     if(event==='SIGNED_OUT'){sessionResolved=false;clearSession();return;}
-    if(event==='SIGNED_IN'&&s&&!sessionResolved){sessionResolved=true;await onSession(s);return;}
     if(s&&!sessionResolved){sessionResolved=true;await onSession(s);}
   });
 
-  if(hasHash){
-    // Implicit flow — Supabase reads token from hash, fires SIGNED_IN; poll as fallback
-    setTimeout(async()=>{
-      if(!sessionResolved){
-        try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}}catch{}
-      }
-    }, 800);
-  } else if(hasCode){
+  if(hasCode){
     try{
       const{data,error}=await supa.auth.exchangeCodeForSession(urlParams.get('code'));
       history.replaceState(null,'',window.location.pathname);
       if(data?.session&&!sessionResolved){sessionResolved=true;await onSession(data.session);return;}
-      if(error) console.warn('[vvip] exchange error:',error.message);
-    }catch(e){ console.warn('[vvip] exchange threw:',e.message); }
+      if(error) console.warn('[vvip] index exchange error:',error.message);
+    }catch(e){ console.warn('[vvip] index exchange threw:',e.message); }
     if(!sessionResolved){
       try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}}catch{}
     }
-  } else {
+  } else if(!hasOAuthHash){
     try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}}catch{}
   }
 }
@@ -902,30 +893,30 @@ function renderAuthNav(){
   const gearUpsell=document.getElementById('gear-vvip-upsell');
   const gearSO=document.getElementById('gear-signout');
   if(!vvipUser){
+    // Logged out: show Join Free in nav + gear
     if(joinEl)joinEl.style.display='';
     if(gearJoin)gearJoin.style.display='';
     if(gearUser)gearUser.style.display='none';
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='none';
   } else if(isAdmin){
-    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'⬡ Admin';}
+    // Admin: show "Admin" in nav, username in gear
+    if(adminEl)adminEl.style.display='';
     if(gearJoin)gearJoin.style.display='none';
     if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else if(isPremium){
-    const welcome=vvipUsername?'Welcome, @'+vvipUsername:'✦ VVIP+';
-    if(userEl){userEl.style.display='';userEl.textContent=welcome;}
+    // VVIP+: show username (or VVIP+) in nav, username in gear, no upsell
+    const display=vvipUsername?('@'+vvipUsername):'VVIP+';
+    if(userEl){userEl.style.display='';userEl.textContent=display;}
     if(gearJoin)gearJoin.style.display='none';
     if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='✦ '+(vvipUsername?('@'+vvipUsername):'VVIP+ Member');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else {
-    if(vvipUsername){
-      if(userEl){userEl.style.display='';userEl.textContent='Welcome, @'+vvipUsername;}
-    } else {
-      if(vvipEl)vvipEl.style.display='';
-    }
+    // Free member: show VVIP+ link in nav, username+upsell in gear
+    if(vvipEl)vvipEl.style.display='';
     if(gearJoin)gearJoin.style.display='none';
     if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent=vvipUsername?('@'+vvipUsername):'My Account';}
     if(gearUpsell)gearUpsell.style.display='';
@@ -1103,10 +1094,7 @@ $$('.view-tab').forEach(btn=>btn.addEventListener('click',()=>{
   state.viewMode=btn.dataset.view;
   document.body.classList.toggle('view-video', btn.dataset.view==='video');
   updateToolbarVisibility();
-  const shoppeView=document.getElementById('shoppe-view');
-  if(shoppeView) shoppeView.style.display=btn.dataset.view==='shoppe'?'block':'none';
-  if(btn.dataset.view==='shoppe') renderShoppe();
-  else applyFilterSort();
+  if(btn.dataset.view!=='shoppe') applyFilterSort();
 }));
 
 window.addEventListener('beforeunload',()=>{try{send({cmd:'report'})}catch{}});

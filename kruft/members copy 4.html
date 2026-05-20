@@ -1089,8 +1089,9 @@ async function init(){
   });
 
   if(hasHash){
-    // Implicit flow — token in hash, Supabase picks it up via detectSessionInUrl
-    // onAuthStateChange SIGNED_IN fires automatically; poll as fallback
+    // Implicit flow — token is in the hash, Supabase picks it up via detectSessionInUrl
+    // onAuthStateChange SIGNED_IN fires automatically; just wait for it
+    // Fallback: poll getSession after a tick in case it fires before our listener
     setTimeout(async()=>{
       if(!sessionResolved){
         try{ const{data:{session}}=await supa.auth.getSession(); await resolveOnce(session||null); }
@@ -1098,8 +1099,9 @@ async function init(){
       }
     }, 800);
   } else if(hasCode){
-    // PKCE fallback path
+    // PKCE fallback — try explicit exchange first
     try{
+      console.log('[vvip] exchanging code…');
       const{data,error}=await supa.auth.exchangeCodeForSession(urlParams.get('code'));
       if(error) console.warn('[vvip] exchange error:',error.message);
       if(data?.session){ await resolveOnce(data.session); return; }
@@ -1109,7 +1111,7 @@ async function init(){
       catch{ await resolveOnce(null); }
     }
   } else {
-    // Normal load — check existing session
+    // Normal load — check for existing session
     try{ const{data:{session}}=await supa.auth.getSession(); await resolveOnce(session||null); }
     catch{ await resolveOnce(null); }
   }
