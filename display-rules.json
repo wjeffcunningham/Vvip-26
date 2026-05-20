@@ -29,18 +29,6 @@
       }
     ]
   },
-    "dreaming again": {
-    "modes": "both",
-    "segments": [
-      {
-        "text": "Again",
-        "style": "font-style:italic"
-      },
-      {
-        "text": " Dreaming"
-      }
-    ]
-  },
   "lit(e) rail": {
     "modes": "dark",
     "_comment": "Handled inline in JS — subtle off-white gauze on the 'e'. No segments needed here.",
