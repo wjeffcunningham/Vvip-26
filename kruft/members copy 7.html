@@ -934,16 +934,9 @@ let supa = null;
 try {
   supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
     auth: {
-      flowType: 'pkce',
+      flowType: 'implicit',
       detectSessionInUrl: true,
       persistSession: true,
-      // Store PKCE code verifier in localStorage instead of sessionStorage
-      // sessionStorage is wiped by Safari and some Chrome configs on cross-origin redirect
-      storage: {
-        getItem: (key) => localStorage.getItem(key),
-        setItem: (key, value) => localStorage.setItem(key, value),
-        removeItem: (key) => localStorage.removeItem(key),
-      },
     }
   });
 } catch(e){}
@@ -1068,37 +1061,45 @@ async function init(){
     return;
   }
 
-  // Show login form immediately — no spinner ever.
-  // If already logged in, INITIAL_SESSION fires and we swap to member view within ~500ms.
+  // Show login form immediately — no spinner, no waiting.
+  // If a session exists, onAuthStateChange fires SIGNED_IN within ~1s and we swap views.
   setNavLoggedOut();
   show('view-auth');
 
   const urlParams = new URLSearchParams(window.location.search);
   const hasCode = urlParams.has('code');
+  const hasHash = window.location.hash.includes('access_token');
+
   let sessionResolved = false;
 
   const resolveOnce = async (session) => {
     if(sessionResolved) return;
     sessionResolved = true;
-    if(hasCode) history.replaceState(null, '', window.location.pathname);
+    if(hasCode || hasHash) history.replaceState(null, '', window.location.pathname);
     if(session) await onSession(session);
-    // no session = stay on view-auth (already shown)
+    // if no session, we're already showing view-auth — nothing to do
   };
 
+  // onAuthStateChange is the primary mechanism
   supa.auth.onAuthStateChange(async(event, s) => {
-    if(event === 'SIGNED_OUT'){ sessionResolved=false; currentUser=null; profile=null; setNavLoggedOut(); show('view-auth'); return; }
+    if(event === 'SIGNED_OUT'){
+      sessionResolved = false;
+      currentUser = null; profile = null;
+      setNavLoggedOut(); show('view-auth');
+      return;
+    }
     if(event === 'SIGNED_IN' && s){ await resolveOnce(s); return; }
     if(event === 'INITIAL_SESSION' && s){ await resolveOnce(s); return; }
-    // INITIAL_SESSION with no session = not logged in, already on auth form
+    // INITIAL_SESSION with no session = not logged in, already showing auth form
   });
 
-  // If returning from OAuth, PKCE verifier is now in localStorage so exchange works
+  // Also try getSession() as a backup, but race it against 2s timeout
+  // (Supabase implicit flow can hang getSession() indefinitely — this prevents that)
   if(hasCode){
     try{
       const{data,error}=await supa.auth.exchangeCodeForSession(urlParams.get('code'));
-      if(error) console.warn('[vvip] exchange error:',error.message);
-      if(data?.session) await resolveOnce(data.session);
-    }catch(e){ console.warn('[vvip] exchange threw:',e.message); }
+      if(data?.session){ await resolveOnce(data.session); }
+    }catch(e){ console.warn('[vvip] exchange error:',e.message); }
   }
 }
 
