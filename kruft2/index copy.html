@@ -908,9 +908,9 @@ function renderAuthNav(){
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='none';
   } else if(isAdmin){
-    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'⬡ Admin';}
+    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'Admin';}
     if(gearJoin)gearJoin.style.display='none';
-    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');}
+    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='Admin'+(vvipUsername?' · @'+vvipUsername:'');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else if(isPremium){
@@ -1706,41 +1706,7 @@ function applyDisplayRule(title){
     if(mode==='light'&&isDark)continue;
     if(rule.segments){
       return rule.segments.map(seg=>{
-        const raw=seg.text||'';
-        const esc=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-        // ── anim: q-variants ──
-        // Pick one of the listed variants randomly (seeded per title so stable per load)
-        if(seg.anim==='q-variants'&&seg.variants&&seg.variants.length){
-          const v=seg.variants[Math.floor(titleRng('q-bits')*seg.variants.length)];
-          return seg.style?`<span style="${seg.style}">${v}</span>`:v;
-        }
-
-        // ── anim: ascii-mart ──
-        // 50% chance: replace with random ASCII art characters (seeded, stable per load)
-        if(seg.anim==='ascii-mart'){
-          if(titleRng('ascii-mart')>=0.5){
-            const chars='!#$%&*+-./:;<=>?@[]^_{|}~';
-            const seed=titleRng('ascii-mart'); // already seeded above
-            // generate same-length string of pseudo-random ASCII
-            const out=Array.from({length:raw.length},(_,i)=>{
-              // deterministic per position using a simple hash
-              const h=Math.abs(Math.sin(seed*31+i*17))*chars.length|0;
-              return raw[i]===' '?' ':chars[h%chars.length];
-            }).join('');
-            return seg.style?`<span style="${seg.style}">${out}</span>`:out;
-          }
-          // other 50%: render normally, fall through
-          return seg.style?`<span style="${seg.style}">${esc}</span>`:esc;
-        }
-
-        // ── anim: arrow-swap ──
-        // Alternates between → and ← on a 1s interval via a CSS animation
-        if(seg.anim==='arrow-swap'){
-          const st=(seg.style||'')+'display:inline-block';
-          return `<span class="anim-arrow-swap" style="${st}">→</span>`;
-        }
-
+        const esc=seg.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         if(seg.css_class)return`<span class="${seg.css_class}">${esc}</span>`;
         if(seg.style)return`<span style="${seg.style}">${esc}</span>`;
         return esc;

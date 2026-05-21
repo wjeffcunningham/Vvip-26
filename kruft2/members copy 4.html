@@ -1166,9 +1166,9 @@ async function init(){
     return;
   }
 
-  // Show "Please wait" briefly — if a valid session exists in localStorage,
-  // Supabase fires INITIAL_SESSION within ~300ms and we go straight to member view.
-  // Only falls back to auth form if no session exists.
+  // Show "Please wait" briefly. INITIAL_SESSION fires within ~300ms if a
+  // valid token exists in localStorage — swaps to member view immediately.
+  // Only falls back to the auth form if there is genuinely no session.
   setNavLoggedOut();
   show('view-loading');
 
@@ -1190,18 +1190,18 @@ async function init(){
       currentUser = null; profile = null;
       setNavLoggedOut(); show('view-auth'); return;
     }
-    // SIGNED_IN always calls onSession directly — never blocked by sessionResolved
+    // SIGNED_IN fires after OAuth/magic-link completes — bypass any prior resolved state
     if(event === 'SIGNED_IN' && s){ sessionResolved = true; await onSession(s); return; }
-    // INITIAL_SESSION fires once on page load — with or without a session
+    // INITIAL_SESSION: fires once on page load with existing session (or null)
     if(event === 'INITIAL_SESSION'){ await resolveOnce(s || null); return; }
   });
 
-  // Safety: if INITIAL_SESSION never fires (network stall), show auth form after 3s
+  // Safety fallback: if INITIAL_SESSION never fires (network stall etc), show auth after 3s
   const _authFallback = setTimeout(() => {
     if(!sessionResolved){ sessionResolved = true; show('view-auth'); }
   }, 3000);
 
-  // OAuth code exchange (Google/GitHub redirect)
+  // OAuth code exchange (Google redirect)
   if(hasCode){
     try{
       const{data,error} = await supa.auth.exchangeCodeForSession(urlParams.get('code'));
