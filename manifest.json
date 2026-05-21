@@ -71,7 +71,7 @@
     "bpm": 117,
     "bpm_min": null,
     "bpm_max": null,
-    "details": "",
+    "details": "#atlassound; #stereolab; #kraftwerk",
     "length": 0,
     "date": "2026-04-27",
     "year": 2026,
@@ -250,7 +250,6 @@
     "year": 2025,
     "month": 11,
     "day": 13,
-    "unavailable": true
   },
   {
     "name": "25.10.21.102.mp3",
