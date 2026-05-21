@@ -443,7 +443,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 <div id="site-header">
   <div id="site-name">VVIP Media.NET</div>
   <div id="site-nav">
-    <a href="/">Home</a>
+    <a href="/" onclick="return false;window.location='/'">Home</a>
     <button onclick="toggleAbout()">About</button>
     <a href="/shoppe/">Shoppe</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
@@ -997,7 +997,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
   </div><!-- /admin-panel -->
 
   <!-- Loading state -->
-  <div id="view-loading" style="text-align:center;padding:60px 40px;font-family:'Times New Roman',Times,serif;font-size:16px;color:var(--fg)">
+  <div id="view-loading" style="text-align:center;padding:60px 40px;font-family:'Times New Roman',Times,serif;font-size:16px;color:var(--muted)">
     Please wait…
   </div>
 
@@ -1166,9 +1166,8 @@ async function init(){
     return;
   }
 
-  // Show "Please wait" briefly. INITIAL_SESSION fires within ~300ms if a
-  // valid token exists in localStorage — swaps to member view immediately.
-  // Only falls back to the auth form if there is genuinely no session.
+  // Brief loading state — if a session exists, INITIAL_SESSION fires within ~300ms.
+  // This prevents the flash to the login form when navigating back from another page.
   setNavLoggedOut();
   show('view-loading');
 
@@ -1185,29 +1184,22 @@ async function init(){
   };
 
   supa.auth.onAuthStateChange(async(event, s) => {
-    if(event === 'SIGNED_OUT'){
-      sessionResolved = false;
-      currentUser = null; profile = null;
-      setNavLoggedOut(); show('view-auth'); return;
-    }
-    // SIGNED_IN fires after OAuth/magic-link completes — bypass any prior resolved state
-    if(event === 'SIGNED_IN' && s){ sessionResolved = true; await onSession(s); return; }
-    // INITIAL_SESSION: fires once on page load with existing session (or null)
-    if(event === 'INITIAL_SESSION'){ await resolveOnce(s || null); return; }
+    if(event === 'SIGNED_OUT'){ sessionResolved=false; currentUser=null; profile=null; setNavLoggedOut(); show('view-auth'); return; }
+    // SIGNED_IN always fires onSession directly — bypasses sessionResolved guard
+    // (INITIAL_SESSION null may have already locked the gate before login completed)
+    if(event === 'SIGNED_IN' && s){ sessionResolved=true; await onSession(s); return; }
+    if(event === 'INITIAL_SESSION'){ await resolveOnce(s||null); return; }
   });
+  // Safety net: if INITIAL_SESSION never fires within 3s, show auth form
+  setTimeout(()=>{ if(!sessionResolved){ sessionResolved=true; show('view-auth'); } }, 3000);
 
-  // Safety fallback: if INITIAL_SESSION never fires (network stall etc), show auth after 3s
-  const _authFallback = setTimeout(() => {
-    if(!sessionResolved){ sessionResolved = true; show('view-auth'); }
-  }, 3000);
-
-  // OAuth code exchange (Google redirect)
+  // If returning from OAuth code exchange
   if(hasCode){
     try{
-      const{data,error} = await supa.auth.exchangeCodeForSession(urlParams.get('code'));
-      if(error) console.warn('[vvip] exchange error:', error.message);
-      if(data?.session){ clearTimeout(_authFallback); await resolveOnce(data.session); }
-    }catch(e){ console.warn('[vvip] exchange threw:', e.message); }
+      const{data,error}=await supa.auth.exchangeCodeForSession(urlParams.get('code'));
+      if(error) console.warn('[vvip] exchange error:',error.message);
+      if(data?.session) await resolveOnce(data.session);
+    }catch(e){ console.warn('[vvip] exchange threw:',e.message); }
   }
 }
 
