@@ -269,35 +269,17 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 
 /* Admin tools */
 #admin-panel .m-section-head{background:linear-gradient(90deg,#0c0a22,#1a1860);color:#99aaee}
+.admin-tab-row{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px}
+.admin-tab{
+  font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.04em;
+  padding:5px 14px;background:var(--tab-inactive);border:1px solid var(--border);
+  border-bottom:none;cursor:pointer;color:var(--fg);margin-right:2px;
+  position:relative;top:1px;text-transform:uppercase;
+}
+.admin-tab.active{background:var(--bg);font-weight:bold}
+.admin-tab:hover:not(.active){background:var(--hover)}
 .admin-pane{display:none}
 .admin-pane.active{display:block}
-/* Admin tiles */
-.admin-tile{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:6px;padding:14px 8px;
-  background:var(--card);border:1px solid var(--border);cursor:pointer;
-  transition:background 0.15s,border-color 0.15s;
-}
-.admin-tile:hover{background:var(--hover);border-color:var(--gold-bg)}
-.admin-tile-icon{font-size:22px;line-height:1}
-.admin-tile-label{font-family:Arial,sans-serif;font-size:10px;font-weight:bold;
-  text-transform:uppercase;letter-spacing:0.06em;color:var(--fg)}
-/* Image uploader category buttons */
-.img-cat-btn{
-  font-family:Arial,sans-serif;font-size:11px;font-weight:bold;
-  padding:4px 12px;background:var(--card);border:1px solid var(--border);
-  cursor:pointer;color:var(--muted);letter-spacing:0.04em;
-}
-.img-cat-btn.active{background:var(--gold-bg);color:#000;border-color:var(--gold-bg)}
-/* Staged image tiles */
-.img-staged-tile{position:relative;aspect-ratio:1;overflow:hidden;background:var(--card)}
-.img-staged-tile img{width:100%;height:100%;object-fit:cover;display:block}
-.img-staged-tile .img-remove{
-  position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);
-  color:#fff;border:none;cursor:pointer;width:18px;height:18px;
-  font-size:10px;display:flex;align-items:center;justify-content:center;
-  border-radius:2px;
-}
 
 /* Upload form */
 .upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -444,8 +426,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 <div id="site-header">
   <div id="site-name">VVIP Media.NET</div>
   <div id="site-nav">
-    <a href="/" onclick="return false;window.location='/'">Home</a>
-    <button onclick="toggleAbout()">About</button>
+    <a href="/">Home</a>
     <a href="/shoppe/">Shoppe</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
@@ -758,241 +739,161 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 
   </div><!-- /view-member -->
 
-  <!-- STATE: admin tools -->
+  <!-- STATE: admin tools (appended below member view when isAdmin) -->
   <div id="admin-panel" class="m-section" style="display:none">
     <div class="m-section-head">⬡ Admin Tools</div>
     <div class="m-section-body">
 
-      <!-- TILED TOOL LAUNCHER -->
-      <div id="admin-tiles" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px">
-        <button class="admin-tile" onclick="openAdminTool('upload')">
-          <span class="admin-tile-icon">⬆</span>
-          <span class="admin-tile-label">Upload Track</span>
-        </button>
-        <button class="admin-tile" onclick="openAdminTool('edit')">
-          <span class="admin-tile-icon">✏</span>
-          <span class="admin-tile-label">Edit Song Info</span>
-        </button>
-        <button class="admin-tile" onclick="openAdminTool('images')">
-          <span class="admin-tile-icon">🖼</span>
-          <span class="admin-tile-label">Image Uploader</span>
-        </button>
-        <button class="admin-tile" onclick="openAdminTool('hashtags')">
-          <span class="admin-tile-icon">#</span>
-          <span class="admin-tile-label">Hashtags</span>
-        </button>
-        <button class="admin-tile" onclick="openAdminTool('shoppe')">
-          <span class="admin-tile-icon">🛍</span>
-          <span class="admin-tile-label">Shoppe Items</span>
-        </button>
-        <button class="admin-tile" onclick="openAdminTool('users')">
-          <span class="admin-tile-icon">👤</span>
-          <span class="admin-tile-label">Users</span>
-        </button>
+      <div class="admin-tab-row">
+        <button class="admin-tab active" onclick="adminTab('upload',this)">Upload Track</button>
+        <button class="admin-tab" onclick="adminTab('edit',this)">Edit Song Info</button>
+        <button class="admin-tab" onclick="adminTab('thumb',this)">Thumbnails</button>
+        <button class="admin-tab" onclick="adminTab('users',this)">Users</button>
       </div>
 
-      <!-- IN-PAGE APP VIEWER — opens when a tile is clicked -->
-      <div id="admin-app-viewer" style="display:none;border:1px solid var(--border);background:var(--card);margin-bottom:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#0c0a22,#1a1860)">
-          <span id="admin-viewer-title" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#99aaee;letter-spacing:0.05em"></span>
-          <button onclick="closeAdminTool()" style="background:none;border:none;color:#99aaee;font-size:16px;cursor:pointer;padding:0 4px;line-height:1">✕</button>
+      <!-- Upload pane -->
+      <div class="admin-pane active" id="pane-upload">
+        <div class="upload-grid">
+          <div class="m-field upload-full">
+            <label class="m-label">MP3 File</label>
+            <input type="file" id="up-file" accept=".mp3" class="m-file-input">
+          </div>
+          <div class="m-field">
+            <label class="m-label">Display Title</label>
+            <input class="m-input" type="text" id="up-title" placeholder="e.g. Analog TV">
+          </div>
+          <div class="m-field">
+            <label class="m-label">BPM (optional)</label>
+            <input class="m-input" type="number" id="up-bpm" placeholder="e.g. 120" min="40" max="300">
+          </div>
+          <div class="m-field">
+            <label class="m-label">BPM Range min (optional)</label>
+            <input class="m-input" type="number" id="up-bpm-min" placeholder="e.g. 90">
+          </div>
+          <div class="m-field">
+            <label class="m-label">BPM Range max (optional)</label>
+            <input class="m-input" type="number" id="up-bpm-max" placeholder="e.g. 130">
+          </div>
+          <div class="m-field">
+            <label class="m-label">Date (YYYY-MM-DD)</label>
+            <input class="m-input" type="date" id="up-date">
+          </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Tags / Details (e.g. #bestvvip #ij)</label>
+            <input class="m-input" type="text" id="up-details" placeholder="#bestvvip #ambient">
+          </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Length (mm:ss, optional)</label>
+            <input class="m-input" type="text" id="up-length" placeholder="3:42">
+          </div>
         </div>
-        <div id="admin-viewer-body" style="padding:16px">
+        <div class="m-btn-row">
+          <button class="m-btn gold" onclick="uploadTrack()">Upload &amp; Add to Manifest</button>
+        </div>
+        <div id="upload-status"></div>
+      </div>
 
-          <!-- UPLOAD TRACK PANE -->
-          <div class="admin-pane" id="pane-upload">
-            <div class="upload-grid">
-              <div class="m-field upload-full">
-                <label class="m-label">MP3 File</label>
-                <input type="file" id="up-file" accept=".mp3" class="m-file-input">
-              </div>
-              <div class="m-field">
-                <label class="m-label">Title</label>
-                <input class="m-input" type="text" id="up-title" placeholder="Track title">
-              </div>
-              <div class="m-field">
-                <label class="m-label">Artist</label>
-                <input class="m-input" type="text" id="up-artist" placeholder="Artist name">
-              </div>
-              <div class="m-field">
-                <label class="m-label">Hashtags (comma-sep)</label>
-                <input class="m-input" type="text" id="up-tags" placeholder="#electronic, #ambient">
-              </div>
-              <div class="m-field upload-full">
-                <label class="m-label">Notes</label>
-                <textarea class="m-input" id="up-notes" rows="2" placeholder="Optional notes"></textarea>
-              </div>
-            </div>
-            <div class="m-btn-row">
-              <button class="m-btn gold" onclick="uploadTrack()">Upload Track</button>
-            </div>
-            <div id="up-status" class="m-msg"></div>
-            <div id="up-progress" style="display:none;margin-top:10px">
-              <div style="background:var(--border);border-radius:2px;height:4px;overflow:hidden">
-                <div id="up-bar" style="background:var(--gold-bg);height:100%;width:0%;transition:width 0.3s"></div>
-              </div>
-              <div id="up-pct" style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);text-align:right;margin-top:4px">0%</div>
-            </div>
-          </div>
-
-          <!-- EDIT SONG INFO PANE -->
-          <div class="admin-pane" id="pane-edit">
+      <!-- Edit pane -->
+      <div class="admin-pane" id="pane-edit">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">Click any track to edit its metadata.</p>
+        <div id="song-list-wrap">
+          <div id="song-list" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);padding:10px">Loading tracks…</div>
+        </div>
+        <div id="song-edit-form">
+          <input type="hidden" id="edit-orig-name">
+          <div class="upload-grid">
             <div class="m-field">
-              <label class="m-label">Search track</label>
-              <input class="m-input" type="text" id="edit-search" placeholder="e.g. analog tv" oninput="filterEditTrack(this.value)">
-              <div id="edit-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
+              <label class="m-label">Display Title</label>
+              <input class="m-input" type="text" id="edit-title">
             </div>
-            <div id="edit-form" style="display:none">
-              <div class="upload-grid">
-                <div class="m-field">
-                  <label class="m-label">Title</label>
-                  <input class="m-input" type="text" id="edit-title">
-                </div>
-                <div class="m-field">
-                  <label class="m-label">Artist</label>
-                  <input class="m-input" type="text" id="edit-artist">
-                </div>
-                <div class="m-field upload-full">
-                  <label class="m-label">Hashtags (comma-sep)</label>
-                  <input class="m-input" type="text" id="edit-tags">
-                </div>
-                <div class="m-field upload-full">
-                  <label class="m-label">Notes</label>
-                  <textarea class="m-input" id="edit-notes" rows="2"></textarea>
-                </div>
-              </div>
-              <div class="m-btn-row">
-                <button class="m-btn gold" onclick="saveEditTrack()">Save Changes</button>
-                <button class="m-btn" onclick="deleteTrack()" style="color:#c44;border-color:#c44">Delete Track</button>
-              </div>
-              <div id="edit-status" class="m-msg"></div>
-            </div>
-          </div>
-
-          <!-- IMAGE UPLOADER PANE -->
-          <div class="admin-pane" id="pane-images">
-            <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 14px">
-              Upload images from iPhone or web. Sort into: Primary Thumbnail, Override Thumbnail, Gem, or Misc Photo.
-            </p>
-
-            <!-- Upload area -->
-            <div id="img-dropzone" style="border:2px dashed var(--border);border-radius:4px;padding:24px 16px;text-align:center;cursor:pointer;margin-bottom:14px;transition:border-color 0.2s"
-              ondragover="event.preventDefault();this.style.borderColor='var(--gold-bg)'"
-              ondragleave="this.style.borderColor='var(--border)'"
-              ondrop="handleImgDrop(event)"
-              onclick="document.getElementById('img-file-input').click()">
-              <div style="font-size:28px;margin-bottom:6px">📷</div>
-              <div style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Tap or drag images here</div>
-              <div style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin-top:3px">JPG · PNG · WEBP · HEIC</div>
-            </div>
-            <input type="file" id="img-file-input" accept="image/*" multiple capture="environment" style="display:none" onchange="handleImgFiles(this.files)">
-
-            <!-- Preview grid of staged images -->
-            <div id="img-staged" style="display:none;margin-bottom:14px">
-              <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Staged for upload</div>
-              <div id="img-staged-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px"></div>
-            </div>
-
-            <!-- Category selector -->
-            <div id="img-category-row" style="display:none;margin-bottom:14px">
-              <div style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Upload as</div>
-              <div style="display:flex;flex-wrap:wrap;gap:8px">
-                <button class="img-cat-btn active" data-cat="primary" onclick="selectImgCat('primary',this)">Primary Thumb</button>
-                <button class="img-cat-btn" data-cat="override" onclick="selectImgCat('override',this)">Override Thumb</button>
-                <button class="img-cat-btn" data-cat="gem" onclick="selectImgCat('gem',this)">Gem</button>
-                <button class="img-cat-btn" data-cat="misc" onclick="selectImgCat('misc',this)">Misc Photo</button>
-              </div>
-            </div>
-
-            <!-- Track selector (shown for primary/override/gem) -->
-            <div id="img-track-row" style="display:none;margin-bottom:14px">
-              <label class="m-label">Associate with track (optional for Misc)</label>
-              <input class="m-input" type="text" id="img-track-search" placeholder="Search track…" oninput="filterImgTrack(this.value)">
-              <div id="img-track-results" style="border:1px solid var(--border);max-height:160px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
-              <input type="hidden" id="img-track-name">
-            </div>
-
-            <!-- Upload button -->
-            <div id="img-upload-row" style="display:none">
-              <div class="m-btn-row">
-                <button class="m-btn gold" onclick="uploadImages()">Upload Images</button>
-                <button class="m-btn" onclick="clearStagedImages()">Clear</button>
-              </div>
-              <div id="img-status" class="m-msg" style="margin-top:8px"></div>
-              <div id="img-progress-wrap" style="display:none;margin-top:10px">
-                <div style="background:var(--border);border-radius:2px;height:4px;overflow:hidden">
-                  <div id="img-bar" style="background:var(--gold-bg);height:100%;width:0%;transition:width 0.2s"></div>
-                </div>
-                <div id="img-progress-label" style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-top:4px">0 / 0</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- HASHTAGS PANE -->
-          <div class="admin-pane" id="pane-hashtags">
             <div class="m-field">
-              <label class="m-label">Search track</label>
-              <input class="m-input" type="text" id="ht-search" placeholder="e.g. analog tv" oninput="filterHtTrack(this.value)">
-              <div id="ht-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
+              <label class="m-label">BPM</label>
+              <input class="m-input" type="number" id="edit-bpm">
             </div>
-            <div id="ht-form" style="display:none">
-              <div id="ht-current-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"></div>
-              <div class="m-field">
-                <label class="m-label">Add tag</label>
-                <div style="display:flex;gap:6px">
-                  <input class="m-input" type="text" id="ht-new-tag" placeholder="#newtag" style="flex:1">
-                  <button class="m-btn gold" onclick="addHashtag()" style="white-space:nowrap">Add</button>
-                </div>
-              </div>
-              <div id="ht-status" class="m-msg"></div>
-            </div>
-          </div>
-
-          <!-- SHOPPE ITEMS PANE -->
-          <div class="admin-pane" id="pane-shoppe">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-              <span style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Manage shoppe items</span>
-              <button class="m-btn gold" onclick="toggleAddShoppeForm()" style="font-size:11px">+ Add Item</button>
-            </div>
-            <div id="shoppe-add-form" style="display:none;border:1px solid var(--border);padding:12px;margin-bottom:14px;background:var(--card)">
-              <div class="upload-grid">
-                <div class="m-field"><label class="m-label">Name</label><input class="m-input" id="si-name" type="text"></div>
-                <div class="m-field"><label class="m-label">Price</label><input class="m-input" id="si-price" type="text" placeholder="$25"></div>
-                <div class="m-field upload-full"><label class="m-label">Description</label><textarea class="m-input" id="si-desc" rows="2"></textarea></div>
-                <div class="m-field upload-full"><label class="m-label">Stripe Link</label><input class="m-input" id="si-link" type="url"></div>
-                <div class="m-field"><label class="m-label">Category</label><input class="m-input" id="si-cat" type="text" placeholder="apparel"></div>
-                <div class="m-field"><label class="m-label">VVIP+ only?</label>
-                  <select class="m-input" id="si-vvip"><option value="false">No</option><option value="true">Yes</option></select></div>
-              </div>
-              <div class="m-btn-row"><button class="m-btn gold" onclick="saveNewShoppeItem()">Save Item</button></div>
-            </div>
-            <div id="shoppe-admin-list" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Loading…</div>
-          </div>
-
-          <!-- USERS PANE -->
-          <div class="admin-pane" id="pane-users">
-            <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 14px">
-              Grant or revoke admin / VVIP+ status by email.
-            </p>
             <div class="m-field">
-              <label class="m-label">User email</label>
-              <input class="m-input" type="email" id="admin-user-email" placeholder="user@example.com" autocomplete="off">
+              <label class="m-label">BPM min</label>
+              <input class="m-input" type="number" id="edit-bpm-min">
             </div>
-            <div class="m-btn-row" style="flex-wrap:wrap;gap:8px">
-              <button class="m-btn gold" onclick="setUserRole('is_admin',true)">Make Admin</button>
-              <button class="m-btn" onclick="setUserRole('is_admin',false)">Remove Admin</button>
-              <button class="m-btn gold" onclick="setUserRole('is_premium',true)">Grant VVIP+</button>
-              <button class="m-btn" onclick="setUserRole('is_premium',false)">Revoke VVIP+</button>
+            <div class="m-field">
+              <label class="m-label">BPM max</label>
+              <input class="m-input" type="number" id="edit-bpm-max">
             </div>
-            <div id="users-msg" class="m-msg"></div>
-            <div style="margin-top:18px">
-              <button class="m-btn" onclick="loadUserList()" style="font-size:11px">Load all users</button>
-              <div id="user-list" style="margin-top:10px;max-height:320px;overflow-y:auto;border:1px solid var(--border);display:none"></div>
+            <div class="m-field">
+              <label class="m-label">Date</label>
+              <input class="m-input" type="date" id="edit-date">
+            </div>
+            <div class="m-field">
+              <label class="m-label">Length (mm:ss)</label>
+              <input class="m-input" type="text" id="edit-length">
+            </div>
+            <div class="m-field upload-full">
+              <label class="m-label">Tags / Details (e.g. #bestvvip #ambient)</label>
+              <input class="m-input" type="text" id="edit-details">
+            </div>
+            <div class="m-field upload-full">
+              <label class="m-label">Hashtags (e.g. #moody #late-night)</label>
+              <input class="m-input" type="text" id="edit-hashtags" placeholder="#tag1 #tag2">
             </div>
           </div>
+          <div class="m-btn-row">
+            <button class="m-btn gold" onclick="saveEdit()">Save Changes</button>
+            <button class="m-btn" onclick="cancelEdit()">Cancel</button>
+          </div>
+          <div id="edit-msg" class="m-msg"></div>
+        </div>
+      </div>
 
-        </div><!-- /admin-viewer-body -->
-      </div><!-- /admin-app-viewer -->
+      <!-- Thumbnail pane -->
+      <div class="admin-pane" id="pane-thumb">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 12px">
+          Upload a thumbnail override for any track. Overrides the cascade for that specific track only. JPG or PNG, ideally square.
+        </p>
+        <div class="upload-grid">
+          <div class="m-field upload-full">
+            <label class="m-label">Search track</label>
+            <input class="m-input" type="text" id="thumb-search" placeholder="e.g. analog tv" oninput="filterThumbTrack(this.value)">
+            <div id="thumb-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
+            <input type="hidden" id="thumb-track-name">
+          </div>
+          <div class="m-field upload-full" id="thumb-selected-wrap" style="display:none">
+            <label class="m-label">Selected</label>
+            <div id="thumb-selected-label" style="font-family:Arial,sans-serif;font-size:12px;padding:4px 8px;background:var(--card);border:1px solid var(--border)"></div>
+          </div>
+          <div class="m-field upload-full">
+            <label class="m-label">Image (JPG / PNG)</label>
+            <input type="file" id="thumb-file" accept=".jpg,.jpeg,.png,.webp" class="m-file-input" onchange="previewThumb(this)">
+          </div>
+          <div class="m-field upload-full">
+            <img id="thumb-preview" style="display:none;width:120px;height:120px;object-fit:cover;border:2px solid var(--border)" alt="preview">
+          </div>
+        </div>
+        <div class="m-btn-row">
+          <button class="m-btn gold" onclick="uploadThumb()">Upload Thumbnail</button>
+        </div>
+        <div id="thumb-status" class="m-msg"></div>
+      </div>
+
+      <!-- Users pane -->
+      <div class="admin-pane" id="pane-users">
+        <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 14px">
+          Grant or revoke admin / VVIP+ status by email.
+        </p>
+        <div class="m-field">
+          <label class="m-label">User email</label>
+          <input class="m-input" type="email" id="admin-user-email" placeholder="user@example.com" autocomplete="off">
+        </div>
+        <div class="m-btn-row" style="flex-wrap:wrap;gap:8px">
+          <button class="m-btn gold" onclick="setUserRole('is_admin',true)">Make Admin</button>
+          <button class="m-btn" onclick="setUserRole('is_admin',false)">Remove Admin</button>
+          <button class="m-btn gold" onclick="setUserRole('is_premium',true)">Grant VVIP+</button>
+          <button class="m-btn" onclick="setUserRole('is_premium',false)">Revoke VVIP+</button>
+        </div>
+        <div id="users-msg" class="m-msg"></div>
+        <div style="margin-top:18px">
+          <button class="m-btn" onclick="loadUserList()" style="font-size:11px">Load all users</button>
+          <div id="user-list" style="margin-top:10px;max-height:320px;overflow-y:auto;border:1px solid var(--border);display:none"></div>
+        </div>
+      </div>
 
     </div>
   </div><!-- /admin-panel -->
@@ -1033,7 +934,7 @@ let supa = null;
 try {
   supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
     auth: {
-      flowType: 'implicit',
+      flowType: 'pkce',
       detectSessionInUrl: true,
       persistSession: true,
       // Store PKCE code verifier in localStorage instead of sessionStorage
@@ -1186,9 +1087,7 @@ async function init(){
 
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){ sessionResolved=false; currentUser=null; profile=null; setNavLoggedOut(); show('view-auth'); return; }
-    // SIGNED_IN always calls onSession directly — bypasses sessionResolved guard
-    // because INITIAL_SESSION(null) may have already locked the gate before login completed
-    if(event === 'SIGNED_IN' && s){ sessionResolved=true; await onSession(s); return; }
+    if(event === 'SIGNED_IN' && s){ await resolveOnce(s); return; }
     if(event === 'INITIAL_SESSION' && s){ await resolveOnce(s); return; }
     // INITIAL_SESSION with no session = not logged in, already on auth form
   });
@@ -1579,348 +1478,92 @@ function showEditMsg(t,cls){
   el.textContent=t;el.className='m-msg show '+(cls||'info');
   if(cls==='ok')setTimeout(()=>el.classList.remove('show'),3000);
 }
-// ── ADMIN: TOOL VIEWER ──
-const TOOL_LABELS = {
-  upload:'Upload Track', edit:'Edit Song Info', images:'Image Uploader',
-  hashtags:'Hashtags', shoppe:'Shoppe Items', users:'Users'
-};
-function openAdminTool(name){
-  const viewer = document.getElementById('admin-app-viewer');
-  const body = document.getElementById('admin-viewer-body');
+function adminTab(name, btn){
+  document.querySelectorAll('.admin-tab').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.admin-pane').forEach(p=>p.classList.remove('active'));
-  const pane = document.getElementById('pane-'+name);
-  if(pane) pane.classList.add('active');
-  document.getElementById('admin-viewer-title').textContent = (TOOL_LABELS[name]||name).toUpperCase();
-  viewer.style.display = '';
-  viewer.scrollIntoView({behavior:'smooth',block:'nearest'});
-  // Auto-load for certain panes
-  if(name==='shoppe') loadShoppeAdmin();
-}
-function closeAdminTool(){
-  document.getElementById('admin-app-viewer').style.display='none';
-  document.querySelectorAll('.admin-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-'+name).classList.add('active');
 }
 
 // ── ADMIN: THUMBNAILS ──
 const THUMB_BASE = 'assets/thumbs/';
 const EDGE_THUMB = 'https://auth.vvipmedia.net/functions/v1/upload-thumb';
 
-// ── ADMIN: IMAGE UPLOADER ──
-const EDGE_EXTRAS = 'https://auth.vvipmedia.net/functions/v1/upload-extras';
-let stagedImages = []; // [{file, objectUrl}]
-let selectedImgCat = 'primary';
-
-function handleImgDrop(e){
-  e.preventDefault();
-  document.getElementById('img-dropzone').style.borderColor='var(--border)';
-  handleImgFiles(e.dataTransfer.files);
-}
-function handleImgFiles(fileList){
-  const allowed = ['image/jpeg','image/png','image/webp','image/heic','image/heif'];
-  for(const f of fileList){
-    if(!allowed.includes(f.type) && !f.name.match(/\.(jpg|jpeg|png|webp|heic|heif)$/i)) continue;
-    stagedImages.push({file:f, objectUrl:URL.createObjectURL(f)});
-  }
-  renderStagedImages();
-}
-function renderStagedImages(){
-  const grid = document.getElementById('img-staged-grid');
-  const staged = document.getElementById('img-staged');
-  const catRow = document.getElementById('img-category-row');
-  const uploadRow = document.getElementById('img-upload-row');
-  const trackRow = document.getElementById('img-track-row');
-  if(!stagedImages.length){
-    staged.style.display='none'; catRow.style.display='none';
-    uploadRow.style.display='none'; trackRow.style.display='none';
-    return;
-  }
-  staged.style.display=''; catRow.style.display=''; uploadRow.style.display='';
-  trackRow.style.display = (selectedImgCat !== 'misc') ? '' : 'none';
-  grid.innerHTML = stagedImages.map((img,i)=>`
-    <div class="img-staged-tile">
-      <img src="${img.objectUrl}" alt="">
-      <button class="img-remove" onclick="removeStagedImage(${i})">✕</button>
-    </div>`).join('');
-}
-function removeStagedImage(i){
-  URL.revokeObjectURL(stagedImages[i].objectUrl);
-  stagedImages.splice(i,1);
-  renderStagedImages();
-}
-function clearStagedImages(){
-  stagedImages.forEach(img=>URL.revokeObjectURL(img.objectUrl));
-  stagedImages=[];
-  renderStagedImages();
-  document.getElementById('img-status').textContent='';
-}
-function selectImgCat(cat, btn){
-  selectedImgCat=cat;
-  document.querySelectorAll('.img-cat-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const trackRow=document.getElementById('img-track-row');
-  if(trackRow) trackRow.style.display=(cat!=='misc')?'':'none';
-}
-function filterImgTrack(q){
-  const res=document.getElementById('img-track-results');
-  if(!q||q.length<2){res.style.display='none';return;}
-  const matches=allTracks.filter(t=>(t.title||t.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,12);
-  if(!matches.length){res.style.display='none';return;}
+function filterThumbTrack(q){
+  const res = document.getElementById('thumb-track-results');
+  if(!q||q.length<2){ res.style.display='none'; return; }
+  const matches = allTracks.filter(t=>{
+    const title = (t.title||t.name||'').toLowerCase();
+    return title.includes(q.toLowerCase());
+  }).slice(0,12);
+  if(!matches.length){ res.style.display='none'; return; }
   res.style.display='block';
-  res.innerHTML=matches.map(t=>`
-    <div onclick="selectImgTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
+  res.innerHTML = matches.map(t=>`
+    <div onclick="selectThumbTrack('${t.name.replace(/'/g,"\\'")}','${(t.title||t.name).replace(/'/g,"\\'")}'')"
       style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
       onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
       ${t.title||t.name}
     </div>`).join('');
 }
-function selectImgTrack(name,title){
-  document.getElementById('img-track-name').value=name;
-  document.getElementById('img-track-search').value=title;
-  document.getElementById('img-track-results').style.display='none';
+
+function selectThumbTrack(name, title){
+  document.getElementById('thumb-track-name').value = name;
+  document.getElementById('thumb-search').value = title;
+  document.getElementById('thumb-track-results').style.display = 'none';
+  document.getElementById('thumb-selected-wrap').style.display = '';
+  document.getElementById('thumb-selected-label').textContent = name;
 }
-async function uploadImages(){
-  if(!stagedImages.length){ return; }
-  const statusEl=document.getElementById('img-status');
-  const progressWrap=document.getElementById('img-progress-wrap');
-  const bar=document.getElementById('img-bar');
-  const label=document.getElementById('img-progress-label');
-  const trackName=document.getElementById('img-track-name').value;
-  const cat=selectedImgCat;
 
-  if(cat!=='misc'&&!trackName){
-    statusEl.textContent='Select a track (or choose Misc Photo for unassigned uploads).';
-    statusEl.className='m-msg show err'; return;
-  }
+function previewThumb(input){
+  const file = input.files[0]; if(!file) return;
+  const img = document.getElementById('thumb-preview');
+  img.src = URL.createObjectURL(file);
+  img.style.display = 'block';
+}
 
-  statusEl.textContent='Uploading…'; statusEl.className='m-msg show info';
-  progressWrap.style.display='';
+async function uploadThumb(){
+  const trackName = document.getElementById('thumb-track-name').value;
+  const file = document.getElementById('thumb-file').files[0];
+  const statusEl = document.getElementById('thumb-status');
 
-  let {data:{session}} = await supa.auth.getSession();
+  if(!trackName){ statusEl.textContent='Select a track first.';statusEl.className='m-msg show err';return; }
+  if(!file){ statusEl.textContent='Choose an image file.';statusEl.className='m-msg show err';return; }
 
-  let done=0, errors=[];
-  for(const img of stagedImages){
-    const ext=(img.file.name.split('.').pop()||'jpg').toLowerCase().replace('jpeg','jpg');
-    const base=(trackName||'misc').replace(/\.[^.]+$/,'').toLowerCase().replace(/\s+/g,'-');
-    const ts=Date.now();
-    let path, edgeUrl;
-    if(cat==='gem'){
-      path=`MEDIA/extras/${base}-gem-${ts}.${ext}`;
-      edgeUrl=EDGE_EXTRAS;
-    } else if(cat==='misc'){
-      path=`MEDIA/misc/${ts}-${img.file.name.replace(/\s+/g,'-')}`;
-      edgeUrl=EDGE_EXTRAS;
+  statusEl.textContent='Uploading…';statusEl.className='m-msg show info';
+
+  // Derive thumb filename from track name: base + thumb.jpg
+  const ext = file.name.split('.').pop().toLowerCase();
+  const base = trackName.replace(/\.[^.]+$/, '').toLowerCase();
+  const thumbName = base + 'thumb.' + (ext==='png'?'png':'jpg');
+
+  try {
+    const { data:{ session } } = await supa.auth.getSession();
+    const formData = new FormData();
+    formData.append('file', file, thumbName);
+    formData.append('trackName', trackName);
+    formData.append('thumbName', thumbName);
+
+    const res = await fetch(EDGE_THUMB, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + session.access_token },
+      body: formData,
+    });
+    if(res.ok){
+      statusEl.textContent = '✓ Thumbnail uploaded as ' + thumbName;
+      statusEl.className = 'm-msg show ok';
+      // Reset
+      document.getElementById('thumb-file').value = '';
+      document.getElementById('thumb-preview').style.display = 'none';
     } else {
-      // primary or override both use upload-thumb; category distinguishes in formData
-      path=`assets/thumbs/${base}thumb.${ext}`;
-      edgeUrl=EDGE_THUMB;
+      const txt = await res.text();
+      statusEl.textContent = 'Error: ' + txt;
+      statusEl.className = 'm-msg show err';
     }
-    const fd=new FormData();
-    fd.append('file', img.file, path.split('/').pop());
-    fd.append('trackName', trackName||'');
-    fd.append('thumbName', path.split('/').pop());
-    fd.append('category', cat);
-    fd.append('destPath', path);
-    try{
-      const r=await fetch(edgeUrl,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token},body:fd});
-      if(!r.ok) errors.push(img.file.name+': '+(await r.text()));
-    }catch(e){ errors.push(img.file.name+': '+e.message); }
-    done++;
-    const pct=Math.round(done/stagedImages.length*100);
-    bar.style.width=pct+'%';
-    label.textContent=done+' / '+stagedImages.length;
-  }
-
-  if(!errors.length){
-    statusEl.textContent=`✓ ${done} image${done>1?'s':''} uploaded as ${cat}.`;
-    statusEl.className='m-msg show ok';
-    clearStagedImages();
-  } else {
-    statusEl.textContent='Some errors: '+errors.join(' | ');
-    statusEl.className='m-msg show err';
+  } catch(e) {
+    statusEl.textContent = 'Upload failed: ' + e.message;
+    statusEl.className = 'm-msg show err';
   }
 }
-
-// ── ADMIN: HASHTAGS ──
-function filterHtTrack(q){
-  const res=document.getElementById('ht-track-results');
-  if(!q||q.length<2){res.style.display='none';return;}
-  const matches=allTracks.filter(t=>(t.title||t.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,12);
-  if(!matches.length){res.style.display='none';return;}
-  res.style.display='block';
-  res.innerHTML=matches.map(t=>`
-    <div onclick="selectHtTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
-      style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
-      onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
-      ${t.title||t.name}
-    </div>`).join('');
-}
-let htCurrentTrack=null;
-function selectHtTrack(name,title){
-  htCurrentTrack=allTracks.find(t=>t.name===name);
-  document.getElementById('ht-search').value=title;
-  document.getElementById('ht-track-results').style.display='none';
-  document.getElementById('ht-form').style.display='';
-  renderHtTags();
-}
-function renderHtTags(){
-  const container=document.getElementById('ht-current-tags');
-  if(!htCurrentTrack){container.innerHTML='';return;}
-  const tags=(htCurrentTrack.hashtags||[]);
-  container.innerHTML=tags.length
-    ? tags.map(tag=>`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--card);border:1px solid var(--border);font-family:Arial,sans-serif;font-size:11px">${tag} <button onclick="removeHashtag('${tag.replace(/'/g,"\'")}'" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:0">✕</button></span>`).join('')
-    : '<span style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted)">No tags yet.</span>';
-}
-async function addHashtag(){
-  if(!htCurrentTrack) return;
-  const input=document.getElementById('ht-new-tag');
-  let tag=input.value.trim();
-  if(!tag) return;
-  if(!tag.startsWith('#')) tag='#'+tag;
-  const tags=[...(htCurrentTrack.hashtags||[])];
-  if(tags.includes(tag)) return;
-  tags.push(tag);
-  await saveHtTrackTags(tags);
-  input.value='';
-}
-async function removeHashtag(tag){
-  if(!htCurrentTrack) return;
-  const tags=(htCurrentTrack.hashtags||[]).filter(t=>t!==tag);
-  await saveHtTrackTags(tags);
-}
-async function saveHtTrackTags(tags){
-  const statusEl=document.getElementById('ht-status');
-  statusEl.textContent='Saving…';statusEl.className='m-msg show info';
-  htCurrentTrack.hashtags=tags;
-  const{data:{session}}=await supa.auth.getSession();
-  // Build minimal patch manifest entry
-  const patch={name:htCurrentTrack.name,hashtags:tags};
-  const r=await fetch(EDGE_MANIFEST,{method:'POST',
-    headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
-    body:JSON.stringify({action:'patch',track:patch})});
-  if(r.ok){
-    statusEl.textContent='✓ Tags saved.';statusEl.className='m-msg show ok';
-    renderHtTags();
-  } else {
-    statusEl.textContent='Error: '+(await r.text());statusEl.className='m-msg show err';
-  }
-}
-
-// ── ADMIN: EDIT SONG INFO ──
-let editCurrentTrack = null;
-function filterEditTrack(q){
-  const res=document.getElementById('edit-track-results');
-  if(!q||q.length<2){res.style.display='none';return;}
-  const matches=allTracks.filter(t=>(t.title||t.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,12);
-  if(!matches.length){res.style.display='none';return;}
-  res.style.display='block';
-  res.innerHTML=matches.map(t=>`<div onclick="selectEditTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
-    style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
-    onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">${t.title||t.name}</div>`).join('');
-}
-function selectEditTrack(name,title){
-  editCurrentTrack=allTracks.find(t=>t.name===name);
-  document.getElementById('edit-search').value=title;
-  document.getElementById('edit-track-results').style.display='none';
-  const form=document.getElementById('edit-form');
-  form.style.display='';
-  if(editCurrentTrack){
-    document.getElementById('edit-title').value=editCurrentTrack.title||'';
-    document.getElementById('edit-artist').value=editCurrentTrack.artist||'';
-    document.getElementById('edit-tags').value=(editCurrentTrack.hashtags||[]).join(', ');
-    document.getElementById('edit-notes').value=editCurrentTrack.details||'';
-  }
-}
-async function saveEditTrack(){
-  if(!editCurrentTrack) return;
-  const statusEl=document.getElementById('edit-status');
-  statusEl.textContent='Saving…';statusEl.className='m-msg show info';
-  const idx=allTracks.findIndex(t=>t.name===editCurrentTrack.name);
-  const updated={...allTracks[idx],
-    title:document.getElementById('edit-title').value.trim()||undefined,
-    artist:document.getElementById('edit-artist').value.trim()||undefined,
-    hashtags:document.getElementById('edit-tags').value.split(',').map(s=>s.trim()).filter(Boolean),
-    details:document.getElementById('edit-notes').value.trim()||undefined
-  };
-  Object.keys(updated).forEach(k=>updated[k]===undefined&&delete updated[k]);
-  allTracks[idx]=updated;
-  editCurrentTrack=updated;
-  const ok=await pushManifest();
-  if(ok){statusEl.textContent='✓ Saved.';statusEl.className='m-msg show ok';}
-  else{statusEl.textContent='Error saving.';statusEl.className='m-msg show err';}
-}
-async function deleteTrack(){
-  if(!editCurrentTrack) return;
-  if(!confirm('Delete track '+editCurrentTrack.name+'? The file stays on R2.')) return;
-  const idx=allTracks.findIndex(t=>t.name===editCurrentTrack.name);
-  allTracks.splice(idx,1);
-  const ok=await pushManifest();
-  if(ok){
-    document.getElementById('edit-form').style.display='none';
-    document.getElementById('edit-search').value='';
-    editCurrentTrack=null;
-  }
-}
-
-// ── ADMIN: SHOPPE ──
-const EDGE_SHOPPE='https://auth.vvipmedia.net/functions/v1/update-shoppe';
-let shoppeAdminItems=[];
-async function loadShoppeAdmin(){
-  const el=document.getElementById('shoppe-admin-list');
-  if(!el) return;
-  el.textContent='Loading…';
-  try{
-    const r=await fetch('https://cdn.vvipmedia.net/shoppe/shoppe.json?v='+Date.now());
-    const data=await r.json();
-    shoppeAdminItems=data.items||[];
-    el.innerHTML=shoppeAdminItems.map((item,i)=>`
-      <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-family:Arial,sans-serif;font-size:12px">
-        <span style="flex:1;font-weight:bold">${item.name}</span>
-        <span style="color:var(--muted)">${item.price||''}</span>
-        <span style="font-size:10px;padding:1px 6px;background:${item.enabled?'var(--card)':'#c4444433'};border:1px solid var(--border)">${item.enabled?'on':'off'}</span>
-        <button onclick="toggleShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">${item.enabled?'Disable':'Enable'}</button>
-        <button onclick="deleteShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid #c44;padding:1px 6px;cursor:pointer;color:#c44">✕</button>
-      </div>`).join('');
-  }catch(e){el.textContent='Failed to load: '+e.message;}
-}
-async function toggleShoppeItem(i){
-  shoppeAdminItems[i].enabled=!shoppeAdminItems[i].enabled;
-  await saveShoppeAdmin();
-}
-async function deleteShoppeItem(i){
-  shoppeAdminItems.splice(i,1);
-  await saveShoppeAdmin();
-}
-async function saveNewShoppeItem(){
-  const item={
-    id:'item-'+Date.now(),
-    name:document.getElementById('si-name').value.trim(),
-    price:document.getElementById('si-price').value.trim(),
-    description:document.getElementById('si-desc').value.trim(),
-    stripeLink:document.getElementById('si-link').value.trim(),
-    category:document.getElementById('si-cat').value.trim(),
-    vvipOnly:document.getElementById('si-vvip').value==='true',
-    enabled:true
-  };
-  if(!item.name){return;}
-  shoppeAdminItems.push(item);
-  await saveShoppeAdmin();
-  document.getElementById('shoppe-add-form').style.display='none';
-}
-async function saveShoppeAdmin(){
-  const{data:{session}}=await supa.auth.getSession();
-  const r=await fetch(EDGE_SHOPPE,{method:'POST',
-    headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
-    body:JSON.stringify({items:shoppeAdminItems})});
-  if(r.ok) loadShoppeAdmin();
-}
-function toggleAddShoppeForm(){
-  const f=document.getElementById('shoppe-add-form');
-  f.style.display=f.style.display==='none'?'':'none';
-}
-
-// ── ADMIN: THUMBNAILS (legacy compat) ──
-function filterThumbTrack(q){ filterImgTrack(q); }
-function previewThumb(input){}
 
 // ── ADMIN: USER MANAGEMENT ──
 async function setUserRole(field, value){
