@@ -1,6 +1,6 @@
 // Supabase Edge Function: upload-extras
-// Receives a multipart form upload, stores the file in R2 at MEDIA/extras/
-// and updates extras.json to register the gem against the track.
+// Uploads gem images to MEDIA/extras/ and misc photos to MEDIA/misc/
+// For gems: also patches the manifest extras array for that track
 // Deploy: supabase functions deploy upload-extras --project-ref fyyfiimnltaktrsczjdq --use-api
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -31,10 +31,10 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
-
     const { data: { user }, error: authErr } = await supa.auth.getUser(token);
     if (authErr || !user) return json({ error: "Unauthorized" }, 401);
 
+    // 2. Admin check
     const { data: profile } = await supa
       .from("profiles")
       .select("is_admin")
@@ -42,74 +42,103 @@ serve(async (req) => {
       .single();
     if (!profile?.is_admin) return json({ error: "Forbidden" }, 403);
 
-    // 2. Parse multipart form
+    // 3. Parse multipart form
     const form = await req.formData();
-    const file     = form.get("file") as File | null;
-    const trackName = (form.get("trackName") as string || "").trim();
-    const destName  = (form.get("destName")  as string || "").trim();
+    const file      = form.get("file") as File;
+    const category  = (form.get("category") as string | null) || "misc"; // "gem" | "misc"
+    const trackName = (form.get("trackName") as string | null) || "";
+    const destPath  = form.get("destPath") as string | null; // full path from client
 
-    if (!file)      return json({ error: "No file provided" }, 400);
-    if (!trackName) return json({ error: "trackName required" }, 400);
-    if (!destName)  return json({ error: "destName required" }, 400);
+    if (!file) return json({ error: "Missing file" }, 400);
 
     const accountId = Deno.env.get("CLOUDFLARE_ACCOUNT_ID")!;
     const accessKey = Deno.env.get("R2_ACCESS_KEY_ID")!;
     const secretKey = Deno.env.get("R2_SECRET_ACCESS_KEY")!;
     const bucket    = Deno.env.get("R2_BUCKET_NAME")!;
+    const endpoint  = `https://${accountId}.r2.cloudflarestorage.com`;
 
-    const endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
-    const aws = new AwsClient({ accessKeyId: accessKey, secretAccessKey: secretKey });
-
-    // 3. Upload image/video to MEDIA/extras/
-    const fileBytes = await file.arrayBuffer();
-    const r2FileUrl = `${endpoint}/${bucket}/MEDIA/extras/${destName}`;
-
-    const uploadRes = await aws.fetch(r2FileUrl, {
-      method: "PUT",
-      headers: {
-        "Content-Type": file.type || "application/octet-stream",
-        "Cache-Control": "public, max-age=31536000",
-      },
-      body: fileBytes,
+    const r2 = new AwsClient({
+      accessKeyId: accessKey,
+      secretAccessKey: secretKey,
+      service: "s3",
+      region: "auto",
     });
 
-    if (!uploadRes.ok) {
-      const msg = await uploadRes.text();
-      return json({ error: "File upload failed: " + msg }, 502);
+    // 4. Determine upload path
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const contentType = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+    const ts = Date.now();
+
+    let uploadPath: string;
+    if (destPath) {
+      uploadPath = destPath;
+    } else if (category === "gem" && trackName) {
+      const base = trackName.replace(/\.[^.]+$/, "").toLowerCase().replace(/\s+/g, "-");
+      uploadPath = `MEDIA/extras/${base}-gem-${ts}.${ext}`;
+    } else {
+      uploadPath = `MEDIA/misc/${ts}-${file.name.replace(/\s+/g, "-")}`;
     }
 
-    // 4. Fetch current extras.json, add entry, write back
-    const extrasUrl = `${endpoint}/${bucket}/extras.json`;
+    const filename = uploadPath.split("/").pop()!;
 
-    let extras: Record<string, string[]> = {};
-    try {
-      const existing = await aws.fetch(extrasUrl, { method: "GET" });
-      if (existing.ok) extras = await existing.json();
-    } catch { /* first gem — extras.json doesn't exist yet */ }
-
-    // Key is track base name (no extension, lowercase)
-    const base = trackName.replace(/\.[^.]+$/, "").toLowerCase();
-    if (!extras[base]) extras[base] = [];
-    if (!extras[base].includes(destName)) extras[base].push(destName);
-
-    const extrasWriteRes = await aws.fetch(extrasUrl, {
+    // 5. Upload file
+    const imageBytes = await file.arrayBuffer();
+    const putRes = await r2.fetch(`${endpoint}/${bucket}/${uploadPath}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache, no-store",
-      },
-      body: JSON.stringify(extras, null, 2),
+      headers: { "Content-Type": contentType },
+      body: imageBytes,
     });
-
-    if (!extrasWriteRes.ok) {
-      // File uploaded fine, just extras.json update failed — warn but don't fail
-      console.warn("extras.json update failed:", await extrasWriteRes.text());
-      return json({ ok: true, destName, warning: "extras.json not updated" });
+    if (!putRes.ok) {
+      const txt = await putRes.text();
+      return json({ error: "Upload failed: " + txt }, 502);
     }
 
-    return json({ ok: true, destName, base });
+    // 6. For gems: patch manifest to add this file to track's extras array
+    if (category === "gem" && trackName) {
+      try {
+        const mRes = await r2.fetch(`${endpoint}/${bucket}/manifest.json`);
+        if (mRes.ok) {
+          const manifest = await mRes.json() as Record<string, unknown>[];
+          const idx = manifest.findIndex(t => t.name === trackName);
+          if (idx >= 0) {
+            const existing = (manifest[idx].extras as string[] | undefined) || [];
+            if (!existing.includes(filename)) {
+              manifest[idx] = { ...manifest[idx], extras: [...existing, filename] };
+              await r2.fetch(`${endpoint}/${bucket}/manifest.json`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(manifest),
+              });
+            }
+          }
+        }
+
+        // Also patch extras.json if it exists
+        try {
+          const exRes = await r2.fetch(`${endpoint}/${bucket}/extras.json`);
+          if (exRes.ok) {
+            const extrasMap = await exRes.json() as Record<string, string[]>;
+            const key = trackName.replace(/\.[^.]+$/, "");
+            const arr = extrasMap[key] || [];
+            if (!arr.includes(filename)) {
+              extrasMap[key] = [...arr, filename];
+              await r2.fetch(`${endpoint}/${bucket}/extras.json`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(extrasMap),
+              });
+            }
+          }
+        } catch (_) { /* extras.json optional */ }
+
+      } catch (_) {
+        // manifest patch failure is non-fatal — image is uploaded
+      }
+    }
+
+    return json({ ok: true, path: uploadPath, filename, category });
+
   } catch (e) {
-    console.error("upload-extras error:", e);
     return json({ error: String(e) }, 500);
   }
 });

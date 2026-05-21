@@ -1,6 +1,8 @@
-// Supabase Edge Function: update-shoppe
-// Receives updated items array, writes shoppe/shoppe.json to Cloudflare R2
-// Deploy: supabase functions deploy update-shoppe --project-ref fyyfiimnltaktrsczjdq --use-api
+// Supabase Edge Function: update-manifest
+// Writes manifest.json to Cloudflare R2. Supports two actions:
+//   { tracks: [...] }           — full replace (from Edit/Upload panes)
+//   { action: "patch", track }  — patch single track (from Hashtags pane)
+// Deploy: supabase functions deploy update-manifest --project-ref fyyfiimnltaktrsczjdq --use-api
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -43,10 +45,7 @@ serve(async (req) => {
 
     // 3. Parse body
     const body = await req.json();
-    const items = body.items;
-    if (!Array.isArray(items)) return json({ error: "items must be an array" }, 400);
 
-    // 4. Write to R2 at shoppe/shoppe.json
     const accountId = Deno.env.get("CLOUDFLARE_ACCOUNT_ID")!;
     const accessKey = Deno.env.get("R2_ACCESS_KEY_ID")!;
     const secretKey = Deno.env.get("R2_SECRET_ACCESS_KEY")!;
@@ -60,12 +59,32 @@ serve(async (req) => {
       region: "auto",
     });
 
-    const payload = { items, updatedAt: new Date().toISOString() };
+    let tracks: unknown[];
 
-    const putRes = await r2.fetch(`${endpoint}/${bucket}/shoppe/shoppe.json`, {
+    if (body.action === "patch" && body.track) {
+      // Fetch current manifest, apply patch for one track
+      const getRes = await r2.fetch(`${endpoint}/${bucket}/manifest.json`);
+      if (!getRes.ok) return json({ error: "Could not fetch current manifest" }, 502);
+      const current = await getRes.json() as unknown[];
+      const data = Array.isArray(current) ? current : (current as Record<string,unknown>).tracks as unknown[] || [];
+      const idx = data.findIndex((t: unknown) => (t as Record<string,unknown>).name === (body.track as Record<string,unknown>).name);
+      if (idx >= 0) {
+        data[idx] = { ...(data[idx] as object), ...(body.track as object) };
+      } else {
+        data.push(body.track);
+      }
+      tracks = data;
+    } else if (Array.isArray(body.tracks)) {
+      tracks = body.tracks;
+    } else {
+      return json({ error: "Provide either { tracks: [...] } or { action: 'patch', track: {...} }" }, 400);
+    }
+
+    // 4. Write manifest.json to R2
+    const putRes = await r2.fetch(`${endpoint}/${bucket}/manifest.json`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(tracks),
     });
 
     if (!putRes.ok) {
@@ -73,7 +92,7 @@ serve(async (req) => {
       return json({ error: "R2 write failed: " + txt }, 502);
     }
 
-    return json({ ok: true, count: items.length });
+    return json({ ok: true, count: tracks.length });
 
   } catch (e) {
     return json({ error: String(e) }, 500);

@@ -444,8 +444,8 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 <div id="site-header">
   <div id="site-name">VVIP Media.NET</div>
   <div id="site-nav">
-    <a href="/">Home</a>
-    <a href="/#about">About</a>
+    <a href="/" onclick="return false;window.location='/'">Home</a>
+    <button onclick="toggleAbout()">About</button>
     <a href="/shoppe/">Shoppe</a>
     <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
     <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
@@ -760,7 +760,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 
   <!-- STATE: admin tools -->
   <div id="admin-panel" class="m-section" style="display:none">
-    <div class="m-section-head">ADMIN TOOLS</div>
+    <div class="m-section-head">⬡ Admin Tools</div>
     <div class="m-section-body">
 
       <!-- TILED TOOL LAUNCHER -->
@@ -838,10 +838,9 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
           <!-- EDIT SONG INFO PANE -->
           <div class="admin-pane" id="pane-edit">
             <div class="m-field">
-              <label class="m-label">Track</label>
-              <select class="m-input" id="edit-track-select" onchange="selectEditTrackByName(this.value)">
-                <option value="">-- select track --</option>
-              </select>
+              <label class="m-label">Search track</label>
+              <input class="m-input" type="text" id="edit-search" placeholder="e.g. analog tv" oninput="filterEditTrack(this.value)">
+              <div id="edit-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
             </div>
             <div id="edit-form" style="display:none">
               <div class="upload-grid">
@@ -908,9 +907,8 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
             <!-- Track selector (shown for primary/override/gem) -->
             <div id="img-track-row" style="display:none;margin-bottom:14px">
               <label class="m-label">Associate with track (optional for Misc)</label>
-              <select class="m-input" id="img-track-select" onchange="document.getElementById('img-track-name').value=this.value">
-                <option value="">-- select track --</option>
-              </select>
+              <input class="m-input" type="text" id="img-track-search" placeholder="Search track…" oninput="filterImgTrack(this.value)">
+              <div id="img-track-results" style="border:1px solid var(--border);max-height:160px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
               <input type="hidden" id="img-track-name">
             </div>
 
@@ -933,10 +931,9 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
           <!-- HASHTAGS PANE -->
           <div class="admin-pane" id="pane-hashtags">
             <div class="m-field">
-              <label class="m-label">Track</label>
-              <select class="m-input" id="ht-track-select" onchange="selectHtTrackByName(this.value)">
-                <option value="">-- select track --</option>
-              </select>
+              <label class="m-label">Search track</label>
+              <input class="m-input" type="text" id="ht-search" placeholder="e.g. analog tv" oninput="filterHtTrack(this.value)">
+              <div id="ht-track-results" style="border:1px solid var(--border);max-height:180px;overflow-y:auto;display:none;margin-top:2px;background:var(--bg)"></div>
             </div>
             <div id="ht-form" style="display:none">
               <div id="ht-current-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"></div>
@@ -1170,10 +1167,10 @@ async function init(){
     return;
   }
 
-  // Show loading briefly; INITIAL_SESSION fires within ~300ms if a session exists.
-  // This prevents the flash to the login form on back-navigation.
+  // Show login form immediately — no spinner ever.
+  // If already logged in, INITIAL_SESSION fires and we swap to member view within ~500ms.
   setNavLoggedOut();
-  show('view-loading');
+  show('view-auth');
 
   const urlParams = new URLSearchParams(window.location.search);
   const hasCode = urlParams.has('code');
@@ -1183,19 +1180,18 @@ async function init(){
     if(sessionResolved) return;
     sessionResolved = true;
     if(hasCode) history.replaceState(null, '', window.location.pathname);
-    if(session){ await onSession(session); return; }
-    // No session — show auth form
-    show('view-auth');
+    if(session) await onSession(session);
+    // no session = stay on view-auth (already shown)
   };
 
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){ sessionResolved=false; currentUser=null; profile=null; setNavLoggedOut(); show('view-auth'); return; }
     // SIGNED_IN always calls onSession directly — bypasses sessionResolved guard
+    // because INITIAL_SESSION(null) may have already locked the gate before login completed
     if(event === 'SIGNED_IN' && s){ sessionResolved=true; await onSession(s); return; }
-    if(event === 'INITIAL_SESSION'){ await resolveOnce(s||null); return; }
+    if(event === 'INITIAL_SESSION' && s){ await resolveOnce(s); return; }
+    // INITIAL_SESSION with no session = not logged in, already on auth form
   });
-  // Safety fallback: if INITIAL_SESSION never fires in 3s, show auth form
-  setTimeout(()=>{ if(!sessionResolved){ sessionResolved=true; show('view-auth'); } }, 3000);
 
   // If returning from OAuth, PKCE verifier is now in localStorage so exchange works
   if(hasCode){
@@ -1272,10 +1268,10 @@ function renderMember(){
   const badge = document.getElementById('status-badge');
   if(profile.is_admin){
     badge.className = 'admin';
-    badge.textContent = 'ADMIN';
+    badge.textContent = '⬡ ADMIN';
   } else if(profile.is_premium){
     badge.className = 'premium';
-    badge.textContent = 'VVIP+';
+    badge.textContent = '✦ VVIP+';
   } else {
     badge.className = 'free';
     badge.textContent = 'FREE MEMBER';
@@ -1326,8 +1322,8 @@ function renderMemberNav(){
   [gjm,gum,gvu,gso].filter(Boolean).forEach(el=>el.style.display='none');
 
   if(profile.is_admin){
-    if(na){na.style.display='';na.textContent=profile.username?'Welcome, @'+profile.username:'Admin';}
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='Admin'+(profile.username?' · @'+profile.username:'');}
+    if(na){na.style.display='';na.textContent=profile.username?'Welcome, @'+profile.username:'⬡ Admin';}
+    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='⬡ Admin'+(profile.username?' · @'+profile.username:'');}
     if(gso)gso.style.display='flex';
   } else if(hasPremAccess){
     const welcome=profile.username?'Welcome, @'+profile.username:'✦ VVIP+';
@@ -1358,7 +1354,7 @@ async function signInMagic(){
   if(!supa) return alert('Auth not configured.');
   const email = document.getElementById('magic-email').value.trim();
   if(!email){ authMsg('Please enter your email.'); return; }
-  authMsg('Sending…');
+  authMsg('Sending… ◌');
   const { error } = await supa.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: SITE_URL + '/members.html' }
@@ -1430,19 +1426,9 @@ async function loadTracksForEditor(){
     const data = await r.json();
     allTracks = Array.isArray(data) ? data : (data.tracks || []);
     renderSongList();
-    populateAdminTrackSelects();
   } catch(e) {
     document.getElementById('song-list').textContent = 'Could not load manifest.';
   }
-}
-
-function populateAdminTrackSelects(){
-  const opts = '<option value="">-- select track --</option>' +
-    allTracks.map(t=>`<option value="${(t.name||'').replace(/"/g,'&quot;')}">${t.title||t.name}</option>`).join('');
-  ['edit-track-select','img-track-select','ht-track-select'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.innerHTML = opts;
-  });
 }
 
 function renderSongList(){
@@ -1674,9 +1660,23 @@ function selectImgCat(cat, btn){
   const trackRow=document.getElementById('img-track-row');
   if(trackRow) trackRow.style.display=(cat!=='misc')?'':'none';
 }
-function filterImgTrack(q){ /* deprecated — using select */ }
+function filterImgTrack(q){
+  const res=document.getElementById('img-track-results');
+  if(!q||q.length<2){res.style.display='none';return;}
+  const matches=allTracks.filter(t=>(t.title||t.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,12);
+  if(!matches.length){res.style.display='none';return;}
+  res.style.display='block';
+  res.innerHTML=matches.map(t=>`
+    <div onclick="selectImgTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
+      style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
+      onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
+      ${t.title||t.name}
+    </div>`).join('');
+}
 function selectImgTrack(name,title){
   document.getElementById('img-track-name').value=name;
+  document.getElementById('img-track-search').value=title;
+  document.getElementById('img-track-results').style.display='none';
 }
 async function uploadImages(){
   if(!stagedImages.length){ return; }
@@ -1741,13 +1741,24 @@ async function uploadImages(){
 }
 
 // ── ADMIN: HASHTAGS ──
+function filterHtTrack(q){
+  const res=document.getElementById('ht-track-results');
+  if(!q||q.length<2){res.style.display='none';return;}
+  const matches=allTracks.filter(t=>(t.title||t.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,12);
+  if(!matches.length){res.style.display='none';return;}
+  res.style.display='block';
+  res.innerHTML=matches.map(t=>`
+    <div onclick="selectHtTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
+      style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
+      onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
+      ${t.title||t.name}
+    </div>`).join('');
+}
 let htCurrentTrack=null;
-function filterHtTrack(q){ /* deprecated */ }
-function selectHtTrack(name,title){ selectHtTrackByName(name); }
-function selectHtTrackByName(name){
-  if(!name){ document.getElementById('ht-form').style.display='none'; return; }
+function selectHtTrack(name,title){
   htCurrentTrack=allTracks.find(t=>t.name===name);
-  if(!htCurrentTrack) return;
+  document.getElementById('ht-search').value=title;
+  document.getElementById('ht-track-results').style.display='none';
   document.getElementById('ht-form').style.display='';
   renderHtTags();
 }
@@ -1796,17 +1807,28 @@ async function saveHtTrackTags(tags){
 
 // ── ADMIN: EDIT SONG INFO ──
 let editCurrentTrack = null;
-function filterEditTrack(q){ /* deprecated — using select */ }
-function selectEditTrack(name,title){ selectEditTrackByName(name); }
-function selectEditTrackByName(name){
-  if(!name){ document.getElementById('edit-form').style.display='none'; return; }
+function filterEditTrack(q){
+  const res=document.getElementById('edit-track-results');
+  if(!q||q.length<2){res.style.display='none';return;}
+  const matches=allTracks.filter(t=>(t.title||t.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,12);
+  if(!matches.length){res.style.display='none';return;}
+  res.style.display='block';
+  res.innerHTML=matches.map(t=>`<div onclick="selectEditTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
+    style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
+    onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">${t.title||t.name}</div>`).join('');
+}
+function selectEditTrack(name,title){
   editCurrentTrack=allTracks.find(t=>t.name===name);
-  if(!editCurrentTrack) return;
-  document.getElementById('edit-form').style.display='';
-  document.getElementById('edit-title').value=editCurrentTrack.title||'';
-  document.getElementById('edit-artist').value=editCurrentTrack.artist||'';
-  document.getElementById('edit-tags').value=(editCurrentTrack.hashtags||[]).join(', ');
-  document.getElementById('edit-notes').value=editCurrentTrack.details||'';
+  document.getElementById('edit-search').value=title;
+  document.getElementById('edit-track-results').style.display='none';
+  const form=document.getElementById('edit-form');
+  form.style.display='';
+  if(editCurrentTrack){
+    document.getElementById('edit-title').value=editCurrentTrack.title||'';
+    document.getElementById('edit-artist').value=editCurrentTrack.artist||'';
+    document.getElementById('edit-tags').value=(editCurrentTrack.hashtags||[]).join(', ');
+    document.getElementById('edit-notes').value=editCurrentTrack.details||'';
+  }
 }
 async function saveEditTrack(){
   if(!editCurrentTrack) return;
@@ -1946,7 +1968,7 @@ async function loadUserList(){
   el.innerHTML = users.map(u=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--border-light);font-family:Arial,sans-serif;font-size:11px;gap:8px">
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.email}</span>
-      <span style="flex-shrink:0;color:var(--muted)">${u.is_admin?'Admin':''}${u.is_premium?' ✦ vvip+':''}</span>
+      <span style="flex-shrink:0;color:var(--muted)">${u.is_admin?'⬡ admin':''}${u.is_premium?' ✦ vvip+':''}</span>
       <button onclick="document.getElementById('admin-user-email').value='${u.email}';adminTab('users',document.querySelector('.admin-tab:nth-child(4)'))" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">select</button>
     </div>`).join('');
 }

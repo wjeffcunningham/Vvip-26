@@ -908,9 +908,9 @@ function renderAuthNav(){
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='none';
   } else if(isAdmin){
-    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'Admin';}
+    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'⬡ Admin';}
     if(gearJoin)gearJoin.style.display='none';
-    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='Admin'+(vvipUsername?' · @'+vvipUsername:'');}
+    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else if(isPremium){
