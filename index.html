@@ -1958,12 +1958,12 @@ let shoppeExpanded=null;
 const SHOPPE_FALLBACK=[
   {id:'tee-black',title:'VVIP+ T',desc:'Heavyweight cotton tee with front logo.',price:100,currency:'CAD',available:false,tags:['apparel'],images:['vvipblack.jpg']},
   {id:'tee-white',title:'VVIP Basic — White on Black',desc:"Heavyweight cotton tee with pocket logo. Basic t's for basic 'bs.",price:40,currency:'CAD',available:false,tags:['apparel'],images:['tee-white.jpg']},
-  {id:'tote',title:'The VVIP Tote {1.0 Ed.}',desc:'Art by SF Cook. High contrast = easier for babies to discern.',price:20,currency:'CAD',available:false,tags:['print'],images:['tote.jpg']},
+  {id:'tote',title:'The VVIP Tote {1.0 Ed.}',desc:'Art by SF Cook. High contrast makes them easier for babies to discern.',price:20,currency:'CAD',available:false,tags:['print'],images:['tote.jpg']},
   {id:'stickers',title:'Sticker Pack (15)',desc:'VVIP stickers. Collect them all.',price:20,currency:'CAD',available:false,tags:['print'],images:['stickers.jpg']},
-  {id:'stickerbook',title:'VVIP Sticker Book (Edition of 15)',desc:"Collector's albums. Hand-numbered editions of 15. Art by SF Cook.",price:50,currency:'CAD',available:true,tags:['print'],images:['stickerbook.jpg'],order_url:'mailto:vvipmedia@proton.me?subject=Sticker+Book'},
-  {id:'mp3-archive',title:'All MP3s Download',desc:'Complete archive — every track.',price:10,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=MP3+Archive+Download',premium:false},
-  {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive — lossless.',price:20,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=WAV+Archive+Download',premium:false},
-  {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP-branded garment. VVIP+ members only — you pay shipping.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=Garment+Repair+Request',premium:true,note:'VVIP+ only · You pay shipping only'},
+  {id:'stickerbook',title:'VVIP Sticker Book (Edition of 15)',desc:"Collector's albums. Hand-numbered editions of 15. Art by SF Cook.",price:50,currency:'CAD',available:true,tags:['print'],images:['stickerbook.jpg'],order_url:'vvipvipnetwork@gmail.com?subject=Sticker+Book'},
+  {id:'mp3-archive',title:'All MP3s Download',desc:'Complete archive every track.',price:10,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipvipnetwork@gmail.com?subject=MP3+Archive+Download',premium:false},
+  {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive lossless.',price:20,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipvipnetwork@gmail.com?subject=WAV+Archive+Download',premium:false},
+  {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair. VVIP+ members only — you pay shipping.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:vvipvipnetwork@gmail.com?subject=Garment+Repair+Request',premium:true,note:'VVIP+ only · You pay shipping only'},
 ];
 
 async function loadShoppe(){
@@ -1992,9 +1992,9 @@ async function loadShoppe(){
       }));
       // Append VVIP+ exclusive items (not in public JSON)
       shoppeItems.push(
-        {id:'mp3-archive',title:'All MP3s Download',desc:'Complete archive — every track.',price:10,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=MP3+Archive+Download',premium:false,note:null},
-        {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive — lossless.',price:20,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=WAV+Archive+Download',premium:false,note:null},
-        {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP-branded garment. You pay shipping only.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=Garment+Repair+Request',premium:true,note:'VVIP+ members only · You pay shipping only'}
+        {id:'mp3-archive',title:'All MP3s Download',desc:'Complete archive every track.',price:10,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=MP3+Archive+Download',premium:false,note:null},
+        {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive lossless.',price:20,currency:'CAD',available:true,tags:['audio'],images:[],order_url:'mailto:vvipmedia@proton.me?subject=WAV+Archive+Download',premium:false,note:null},
+        {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP-branded garment. You pay shipping only.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=Garment+Repair+Request',premium:true,note:'VVIP+ members only · You pay shipping only'}
       );
     } else { shoppeItems=SHOPPE_FALLBACK; }
   }catch{ shoppeItems=SHOPPE_FALLBACK; }
