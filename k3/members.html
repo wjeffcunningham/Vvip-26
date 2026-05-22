@@ -1032,17 +1032,15 @@ let supa = null;
 try {
   supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
     auth: {
-      flowType: 'pkce',
+      flowType: 'implicit',
       detectSessionInUrl: true,
       persistSession: true,
-      // Pin the storage key to the project ref — prevents custom domain (auth.vvipmedia.net)
-      // vs native domain (fyyfiimnltaktrsczjdq.supabase.co) key mismatch that breaks PKCE
-      storageKey: 'sb-fyyfiimnltaktrsczjdq-auth-token',
-      // Use localStorage — sessionStorage is wiped on cross-origin redirects (Safari ITP, Chrome)
+      // Store PKCE code verifier in localStorage instead of sessionStorage
+      // sessionStorage is wiped by Safari and some Chrome configs on cross-origin redirect
       storage: {
-        getItem: (key) => { try { return localStorage.getItem(key); } catch(e) { return null; } },
-        setItem: (key, value) => { try { localStorage.setItem(key, value); } catch(e) {} },
-        removeItem: (key) => { try { localStorage.removeItem(key); } catch(e) {} },
+        getItem: (key) => localStorage.getItem(key),
+        setItem: (key, value) => localStorage.setItem(key, value),
+        removeItem: (key) => localStorage.removeItem(key),
       },
     }
   });
@@ -1168,64 +1166,48 @@ async function init(){
     return;
   }
 
+  // Show "Please wait" briefly — if a valid session exists in localStorage,
+  // Supabase fires INITIAL_SESSION within ~300ms and we go straight to member view.
+  // Only falls back to auth form if no session exists.
   setNavLoggedOut();
   show('view-loading');
 
   const urlParams = new URLSearchParams(window.location.search);
   const hasCode = urlParams.has('code');
-
-  // Also detect implicit-flow tokens in the hash (legacy / fallback)
-  const hashStr = window.location.hash;
-  const hasHashToken = hashStr.includes('access_token=');
-
   let sessionResolved = false;
 
   const resolveOnce = async (session) => {
     if(sessionResolved) return;
     sessionResolved = true;
-    clearTimeout(_authFallback);
-    // Clean up URL — remove both ?code= and #hash tokens
-    if(hasCode || hasHashToken){
-      history.replaceState(null, '', window.location.pathname);
-    }
+    if(hasCode) history.replaceState(null, '', window.location.pathname);
     if(session){ await onSession(session); return; }
     show('view-auth');
   };
 
-  // Primary: onAuthStateChange handles all auth events reliably
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){
       sessionResolved = false;
       currentUser = null; profile = null;
       setNavLoggedOut(); show('view-auth'); return;
     }
-    if(event === 'SIGNED_IN' && s){ await resolveOnce(s); return; }
+    // SIGNED_IN always calls onSession directly — never blocked by sessionResolved
+    if(event === 'SIGNED_IN' && s){ sessionResolved = true; await onSession(s); return; }
+    // INITIAL_SESSION fires once on page load — with or without a session
     if(event === 'INITIAL_SESSION'){ await resolveOnce(s || null); return; }
-    if(event === 'TOKEN_REFRESHED' && s && !sessionResolved){ await resolveOnce(s); return; }
   });
 
-  // Safety fallback: if INITIAL_SESSION never fires (network stall / browser quirk)
+  // Safety: if INITIAL_SESSION never fires (network stall), show auth form after 3s
   const _authFallback = setTimeout(() => {
     if(!sessionResolved){ sessionResolved = true; show('view-auth'); }
-  }, 5000); // extended to 5s for slow connections
+  }, 3000);
 
-  // PKCE code exchange — Supabase JS v2 handles this automatically via detectSessionInUrl,
-  // but we do an explicit exchange as belt-and-suspenders for Chrome's cross-origin cases
+  // OAuth code exchange (Google/GitHub redirect)
   if(hasCode){
     try{
       const{data,error} = await supa.auth.exchangeCodeForSession(urlParams.get('code'));
-      if(error) dbg('exchange error: ' + error.message);
-      if(data?.session){ await resolveOnce(data.session); }
-    }catch(e){ dbg('exchange threw: ' + e.message); }
-  }
-
-  // Handle implicit-flow hash tokens (for any existing bookmarked URLs or email links)
-  if(!hasCode && hasHashToken && !sessionResolved){
-    try{
-      // Supabase detectSessionInUrl should handle this, but force a getSession check
-      const { data: { session } } = await supa.auth.getSession();
-      if(session){ await resolveOnce(session); }
-    }catch(e){ dbg('hash session check threw: ' + e.message); }
+      if(error) console.warn('[vvip] exchange error:', error.message);
+      if(data?.session){ clearTimeout(_authFallback); await resolveOnce(data.session); }
+    }catch(e){ console.warn('[vvip] exchange threw:', e.message); }
   }
 }
 
@@ -1372,10 +1354,7 @@ async function signInGoogle(){
   if(!supa) return alert('Auth not configured.');
   await supa.auth.signInWithOAuth({
     provider: 'google',
-    options: {
-      redirectTo: SITE_URL + '/members.html',
-      queryParams: { access_type: 'offline', prompt: 'select_account' },
-    }
+    options: { redirectTo: SITE_URL + '/members.html' }
   });
 }
 
