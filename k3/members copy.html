@@ -1184,22 +1184,11 @@ async function init(){
     if(sessionResolved) return;
     sessionResolved = true;
     clearTimeout(_authFallback);
-    if(session){
-      await onSession(session);
-      // Clean URL AFTER session is established — doing it before can confuse Safari
-      if(hasCode || hasHashToken){
-        try{ history.replaceState(null, '', window.location.pathname); }catch(e){}
-      }
-      return;
-    }
-    // No session — but if we had a code/hash, give Supabase one more tick to store the token
+    // Clean up URL — remove both ?code= and #hash tokens
     if(hasCode || hasHashToken){
-      await new Promise(r => setTimeout(r, 800));
-      try{
-        const { data: { session: s2 } } = await supa.auth.getSession();
-        if(s2){ await onSession(s2); try{ history.replaceState(null,'',window.location.pathname); }catch(e){} return; }
-      }catch(e){}
+      history.replaceState(null, '', window.location.pathname);
     }
+    if(session){ await onSession(session); return; }
     show('view-auth');
   };
 
@@ -1261,23 +1250,12 @@ async function onSession(session){
 
 async function loadProfile(){
   if(!supa||!currentUser)return;
-  // Retry up to 3x — first call after OAuth can race against token propagation
-  let data=null, error=null;
-  for(let attempt=0; attempt<3; attempt++){
-    if(attempt>0) await new Promise(r=>setTimeout(r,600*attempt));
-    const res = await supa
-      .from('profiles')
-      .select('username,is_premium,is_admin,newsletter,address')
-      .eq('id',currentUser.id)
-      .single();
-    data=res.data; error=res.error;
-    if(!error || error.code==='PGRST116') break;
-    dbg('profiles attempt '+(attempt+1)+' error: '+error.message+' ('+error.code+')');
-  }
-  if(error && error.code!=='PGRST116'){
-    dbg('profiles failed: '+error.message+' ('+error.code+') — check RLS allows authenticated reads');
-    return;
-  }
+  const{data,error}=await supa
+    .from('profiles')
+    .select('username,is_premium,is_admin')
+    .eq('id',currentUser.id)
+    .single();
+  if(error&&error.code!=='PGRST116'){ dbg('profiles error: '+error.message+' ('+error.code+')'); return; }
   if(!data){
     const{error:ie}=await supa.from('profiles').insert({id:currentUser.id});
     if(ie) dbg('insert error: '+ie.message);
