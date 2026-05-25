@@ -1,124 +1,115 @@
 {
   "_comment": "Title display rules. Each key is a lowercase song title (or fragment). Rules are checked case-insensitively. 'segments' splits the title into styled spans. 'modes' = 'dark'|'light'|'both'. Use 'css_class' for CSS-animated effects defined in index.html.",
+
+  "_guide_colours": {
+    "_info": "CSS variable quick-reference for segment styles:",
+    "main text":    "color:var(--fg)",
+    "muted/grey":   "color:var(--muted)",
+    "blue (RAF)":   "color:var(--link)",
+    "gold":         "color:var(--gold-bg)",
+    "gold bright":  "color:var(--gold-hi)",
+    "star red/gold":"color:var(--star-on)",
+    "nav dark navy":"color:var(--tag-bg)",
+    "nav light text":"color:var(--tag-fg)"
+  },
+
+  "_guide_display_flex": {
+    "_info": "DISPLAY FLEX — the two coloured words are CSS bars (think programming syntax highlighting).",
+    "Display; colour": "style: 'color:red'  →  light mode. For dark mode try 'color:#ff5555' (brighter).",
+    "Flex; colour":    "style: 'color:blue' →  light mode. For dark mode try 'color:#4488ff' (brighter).",
+    "to add more":     "Add extra segments: {text:'Flex'},{text:';',style:'color:blue'},{text:' anotherWord'}"
+  },
+
+  "_guide_nv_d_a_rays": {
+    "_info": "NV|D|A RAYS — each pipe '|' is a neon-lit tube (Dan Flavin homage). Change pipe colour by swapping all three hex values in the style string.",
+    "current":      "color:#76ff76 (text) + shadows #00ff00 / #00cc00 / #004400  = green",
+    "red pipes":    "color:#ff7676, shadows #ff0000 / #cc0000 / #440000",
+    "blue pipes":   "color:#76b4ff, shadows #0088ff / #0055cc / #001844",
+    "white pipes":  "color:#ffffff, shadows #ffffff / #cccccc / #444444"
+  },
+
   "display flex": {
     "modes": "dark",
-    "_comment": "Display; in red, Flex; in blue",
+    "_comment": "Display; in red, Flex; in blue. See _guide_display_flex above to change colours.",
     "segments": [
-      {
-        "text": "Display;",
-        "style": "color:red"
-      },
-      {
-        "text": " "
-      },
-      {
-        "text": "Flex;",
-        "style": "color:blue"
-      }
+      { "text": "Display;", "style": "color:red" },
+      { "text": " " },
+      { "text": "Flex;", "style": "color:blue" }
     ]
   },
+
   "another green world": {
     "modes": "both",
     "segments": [
-      {
-        "text": "Another",
-        "style": "font-style:italic"
-      },
-      {
-        "text": " Green World"
-      }
+      { "text": "Another", "style": "font-style:italic" },
+      { "text": " Green World" }
     ]
   },
+
   "lit(e) rail": {
     "modes": "dark",
     "_comment": "Handled inline in JS — subtle off-white gauze on the 'e'. No segments needed here.",
     "segments": []
   },
+
   "nv|d|a rays": {
     "modes": "dark",
-    "_comment": "The pipes are neon-lit vertical tubes (Dan Flavin CSS homage)",
+    "_comment": "The pipes are neon-lit vertical tubes (Dan Flavin CSS homage). See _guide_nv_d_a_rays to change pipe colour.",
     "segments": [
-      {
-        "text": "N"
-      },
-      {
-        "text": "V"
-      },
-      {
-        "text": "|",
-        "style": "color:#76ff76;text-shadow:0 0 4px #00ff00,0 0 10px #00cc00,0 0 20px #004400"
-      },
-      {
-        "text": "D"
-      },
-      {
-        "text": "|",
-        "style": "color:#76ff76;text-shadow:0 0 4px #00ff00,0 0 10px #00cc00,0 0 20px #004400"
-      },
-      {
-        "text": "A"
-      },
-      {
-        "text": " Rays"
-      }
+      { "text": "N" },
+      { "text": "V" },
+      { "text": "|", "style": "color:#76ff76;text-shadow:0 0 4px #00ff00,0 0 10px #00cc00,0 0 20px #004400" },
+      { "text": "D" },
+      { "text": "|", "style": "color:#76ff76;text-shadow:0 0 4px #00ff00,0 0 10px #00cc00,0 0 20px #004400" },
+      { "text": "A" },
+      { "text": " Rays" }
     ]
   },
+
   "she→plex": {
     "modes": "both",
     "_comment": "Arrow animates between → and ← every second.",
     "segments": [
-      {
-        "text": "She"
-      },
-      {
-        "text": "→",
-        "style": "display:inline-block",
-        "anim": "arrow-swap"
-      },
-      {
-        "text": "plex"
-      }
+      { "text": "She" },
+      { "text": "→", "style": "display:inline-block", "anim": "arrow-swap" },
+      { "text": "plex" }
     ]
   },
+
   "ɋ.bits": {
     "modes": "both",
     "_comment": "The ɋ is replaced by one of 4 Q-variants chosen randomly at load time.",
     "segments": [
-      {
-        "text": "ɋ",
-        "anim": "q-variants",
-        "variants": [
-          "ɋ",
-          "Q",
-          "Ƣ",
-          "ℚ"
-        ]
-      },
-      {
-        "text": ".bits"
-      }
+      { "text": "ɋ", "anim": "q-variants", "variants": ["ɋ","Q","Ƣ","ℚ"] },
+      { "text": ".bits" }
     ]
   },
+
   "ascii mart": {
     "modes": "both",
     "_comment": "50% chance: title replaced with random ASCII art characters.",
     "segments": [
-      {
-        "text": "ASCII Mart",
-        "anim": "ascii-mart"
-      }
+      { "text": "ASCII Mart", "anim": "ascii-mart" }
     ]
   },
+
   "ascii mart [v1]": {
     "modes": "both",
     "segments": [
-      {
-        "text": "ASCII Mart",
-        "anim": "ascii-mart"
-      },
-      {
-        "text": " [v1]"
-      }
+      { "text": "ASCII Mart", "anim": "ascii-mart" },
+      { "text": " [v1]" }
     ]
+  },
+
+  "star casino": {
+    "modes": "both",
+    "_comment": "Handled inline in JS — St⭐r Casino. Listed here for documentation only.",
+    "segments": []
+  },
+
+  "star chamber": {
+    "modes": "both",
+    "_comment": "Handled inline in JS — St⭐r Ch⭐mber. Listed here for documentation only.",
+    "segments": []
   }
 }

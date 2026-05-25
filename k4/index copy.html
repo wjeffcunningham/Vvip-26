@@ -998,11 +998,9 @@ function toggleTextFx(on){
   document.querySelectorAll('.t-title-name').forEach(el=>{
     const id=Number(el.closest('.track-row')?.dataset.id);
     const t=state.tracks.find(x=>x.id===id);if(!t)return;
-    // Collect all existing ver-btns to re-inject after title update
-    const verBtns=[...el.querySelectorAll('.ver-btn')].map(b=>b.outerHTML).join('');
     const ruled=on?applyDisplayRule(t.title):null;
-    if(ruled)el.innerHTML=ruled+verBtns;
-    else el.innerHTML=t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+verBtns;
+    if(ruled)el.innerHTML=ruled;
+    else el.innerHTML=t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+(el.querySelector('.ver-btn')?el.querySelector('.ver-btn').outerHTML:'');
   });
 }
 function showMemberGearItems(){
@@ -1184,8 +1182,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
       others.forEach(t=>{ if(!t.varNum) t.varNum=1; }); // ensure they stay hidden
     }
 
-    // Thumbs must resolve before first render so rows get real thumbnails
-    await fetchThumbs();computeThumbCascade();
+    // Thumbs are non-blocking — render tracks immediately, thumbs fill in after
+    fetchThumbs().then(()=>computeThumbCascade());
     try{const dr=await fetch('/display-rules.json?v='+ASSET_VERSION,{cache:'no-store'});state.displayRules=await dr.json()}catch{}
     state.viewMode='hashtags';updateToolbarVisibility();applyFilterSort();
     try{const er=await fetch('/extras.json?v='+ASSET_VERSION,{cache:'no-store'});state.extras=await er.json()}catch{}
@@ -1556,19 +1554,11 @@ function rowHTML(t,i){
 
   let vTag='';
   if(t.versions&&t.versions.length){
-    // allVers: all versions sorted by varNum ascending. Primary (newest) has varNum=null → treat as highest.
-    const allVers=[...t.versions,t].sort((a,b)=>{
-      const av=a.varNum===null?Infinity:(a.varNum||0);
-      const bv=b.varNum===null?Infinity:(b.varNum||0);
-      return av-bv;
-    });
+    const allVers=[...t.versions,t].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
     vTag=allVers.map((v,vi)=>{
       const label='v'+(vi+1);
-      // A version is "current" if it's the one actively loaded in the player
-      // We track this via a data attribute so loadVersion can update it without re-render
-      const isCurrent=v.id===t.id; // default: primary (newest) is current on first render
+      const isCurrent=v.id===t.id;
       return '<button class="ver-btn'+(isCurrent?' ver-btn-active':'')+'" '
-        +'data-ver-id="'+v.id+'" data-primary-id="'+t.id+'" '
         +'onclick="loadVersion(event,'+v.id+','+t.id+')" '
         +'title="'+escHtml(v.title||v.name)+'" '
         +'style="font-family:Arial,sans-serif;font-size:9px;'
@@ -1694,45 +1684,6 @@ function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle
 
 // Display Rules — returns HTML string for a title, or null if no rule applies
 // Per-load random seed for title variants (shared across same-named tracks)
-//
-// ── HOW TO ADD / EDIT DISPLAY RULES (display-rules.json) ─────────────────────
-//
-// Each key = lowercase song title fragment (substring match, case-insensitive).
-// "modes": "dark" | "light" | "both"  — which theme the rule applies in.
-// "segments": array of text chunks, each optionally styled.
-//
-// COLOUR GUIDE — use these CSS variables for theme-aware colours:
-//   var(--fg)        = main text colour
-//   var(--muted)     = grey/dim text
-//   var(--link)      = blue (RAF blue in light, #6699ff in dark)
-//   var(--gold-bg)   = gold/amber (#c8a84b light / #7a6020 dark)
-//   var(--gold-hi)   = bright gold highlight
-//   var(--star-on)   = deep red in light / gold in dark
-//   var(--tag-bg)    = dark navy section header background
-//   var(--tag-fg)    = light blue section header text
-//
-// DISPLAY FLEX — bar colours:
-//   "Display;" bar = red  →  style: "color:red"          (or "color:#cc2222")
-//   "Flex;"    bar = blue →  style: "color:blue"         (or "color:#0033cc")
-//   For dark mode only (modes:"dark"), go brighter: "#ff4444" / "#4488ff"
-//   To add more colour stops, add more segments: {text:";"}, {text:" "}, etc.
-//
-// NV|D|A RAYS — pipe colours:
-//   Each "|" gets a neon glow via text-shadow. Current = green (#76ff76).
-//   To change colour: swap #76ff76 (text color) and the shadow hex values.
-//   Example red pipes: color:#ff7676, shadows #ff0000 / #cc0000 / #440000
-//
-// STAR EMOJI TRICK (Star Casino, Star Chamber):
-//   Replace the letter "a" in "Star" with ⭐ by splitting into segments:
-//   {text:"St"}, {text:"⭐"}, {text:"r Casino"}
-//   The emoji replaces the "a" visually while keeping the title readable.
-//
-// AVAILABLE ANIMS:
-//   "anim":"arrow-swap"   — toggles → / ← every second (CSS keyframes)
-//   "anim":"q-variants"   — picks one of "variants":[] randomly at load
-//   "anim":"ascii-mart"   — 50% chance replaces text with ASCII symbols
-//
-// ─────────────────────────────────────────────────────────────────────────────
 function applyDisplayRule(title){
   if(!state.showTextFx||!state.displayRules||!title)return null;
   // Text effects suppressed in video and favourites tabs — cleaner presentation
@@ -1753,18 +1704,6 @@ function applyDisplayRule(title){
     }
   }
 
-  // ── Special case: Star Casino / Star Chamber ────────────────
-  // Replace the 'a' in 'Star' with ⭐ — works for any "Star X" title.
-  // Star Casino: St⭐r Casino  |  Star Chamber: St⭐r Ch⭐mber
-  if(tl.includes('star casino')){
-    const rest=title.slice(title.toLowerCase().indexOf('star casino')+11);
-    return 'St\u2B50r Casino'+escHtml(rest);
-  }
-  if(tl.includes('star chamber')){
-    const rest=title.slice(title.toLowerCase().indexOf('star chamber')+12);
-    return 'St\u2B50r Ch\u2B50mber'+escHtml(rest);
-  }
-
   for(const[key,rule] of Object.entries(state.displayRules)){
     if(key.startsWith('_'))continue;
     // Skip lit rail keys — handled above
@@ -1774,7 +1713,6 @@ function applyDisplayRule(title){
     if(mode==='dark'&&!isDark)continue;
     if(mode==='light'&&isDark)continue;
     if(rule.segments){
-      if(!rule.segments.length)continue; // empty segments = handled inline, skip
       return rule.segments.map(seg=>{
         const raw=seg.text||'';
         const esc=raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -1901,11 +1839,7 @@ function loadVersion(e,verId,primaryId){
   e.stopPropagation();
   const primary=state.tracks.find(t=>t.id===primaryId);
   if(!primary)return;
-  const allVers=[...primary.versions,primary].sort((a,b)=>{
-    const av=a.varNum===null?Infinity:(a.varNum||0);
-    const bv=b.varNum===null?Infinity:(b.varNum||0);
-    return av-bv;
-  });
+  const allVers=[...primary.versions,primary].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
   const target=allVers.find(v=>v.id===verId);
   if(!target)return;
   let fi=state.filtered.findIndex(t=>t.id===primaryId);
@@ -1915,9 +1849,8 @@ function loadVersion(e,verId,primaryId){
   send({cmd:'load',src:target.src,play:true,meta:{title:target.title||target.name,thumb:thumbAbs}});
   state.playing=true;state.i=fi;
   const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');
-  // Update active state on all ver-btns for this primary track using data attributes
-  document.querySelectorAll('.ver-btn[data-primary-id="'+primaryId+'"]').forEach(btn=>{
-    const isThis=Number(btn.dataset.verId)===verId;
+  document.querySelectorAll('.track-row[data-id="'+primaryId+'"] .ver-btn').forEach((btn,bi)=>{
+    const isThis=bi===(allVers.indexOf(target));
     btn.style.background=isThis?'var(--gold-bg)':'var(--tag-bg)';
     btn.style.color=isThis?'var(--gold-fg)':'var(--tag-fg)';
   });
