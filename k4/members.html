@@ -472,14 +472,6 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
       <input type="checkbox" id="m-tog-dark" class="gear-toggle" onchange="toggleDark(this.checked)">
     </div>
     <div class="gear-item">
-      <label for="m-tog-titles">Titles</label>
-      <input type="checkbox" id="m-tog-titles" class="gear-toggle" checked onchange="toggleTitles(this.checked)">
-    </div>
-    <div class="gear-item">
-      <label for="m-tog-downloads">Downloads</label>
-      <input type="checkbox" id="m-tog-downloads" class="gear-toggle" checked onchange="toggleDownloads(this.checked)">
-    </div>
-    <div class="gear-item">
       <label for="tog-anim">Text animations</label>
       <input type="checkbox" id="tog-anim" class="gear-toggle" checked onchange="document.documentElement.classList.toggle('no-anim',!this.checked);localStorage.setItem('vvip25:anim',this.checked?'1':'0')">
     </div>
@@ -1080,14 +1072,6 @@ function toggleDark(on){
   localStorage.setItem('vvip25:dark',on?'1':'');
   const el=document.getElementById('m-tog-dark');if(el)el.checked=on;
 }
-function toggleTitles(on){
-  document.body.classList.toggle('hide-titles',!on);
-  localStorage.setItem('vvip25:hideTitles',on?'':'1');
-}
-function toggleDownloads(on){
-  localStorage.setItem('vvip25:downloads',on?'1':'0');
-  document.querySelectorAll('.t-dl-link').forEach(el=>el.style.display=on?'':'none');
-}
 (()=>{
   const dark=localStorage.getItem('vvip25:dark')==='1';
   if(dark)document.documentElement.setAttribute('data-theme','dark');
@@ -1232,16 +1216,9 @@ async function init(){
   });
 
   // Safety fallback: if INITIAL_SESSION never fires (network stall / browser quirk)
-  // 3s is enough — if Supabase hasn't responded in 3s it's not coming
   const _authFallback = setTimeout(() => {
     if(!sessionResolved){ sessionResolved = true; show('view-auth'); }
-  }, 3000);
-
-  // Hard DOM-ready guard — if init() itself stalls before setting up the listener
-  // (e.g. Supabase CDN slow), this catches it
-  if(document.readyState==='complete'){
-    setTimeout(()=>{ if(!sessionResolved){ sessionResolved=true; show('view-auth'); } }, 3500);
-  }
+  }, 5000); // extended to 5s for slow connections
 
   // PKCE code exchange — Supabase JS v2 handles this automatically via detectSessionInUrl,
   // but we do an explicit exchange as belt-and-suspenders for Chrome's cross-origin cases
