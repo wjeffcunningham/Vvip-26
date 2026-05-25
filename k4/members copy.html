@@ -472,6 +472,14 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
       <input type="checkbox" id="m-tog-dark" class="gear-toggle" onchange="toggleDark(this.checked)">
     </div>
     <div class="gear-item">
+      <label for="m-tog-titles">Titles</label>
+      <input type="checkbox" id="m-tog-titles" class="gear-toggle" checked onchange="toggleTitles(this.checked)">
+    </div>
+    <div class="gear-item">
+      <label for="m-tog-downloads">Downloads</label>
+      <input type="checkbox" id="m-tog-downloads" class="gear-toggle" checked onchange="toggleDownloads(this.checked)">
+    </div>
+    <div class="gear-item">
       <label for="tog-anim">Text animations</label>
       <input type="checkbox" id="tog-anim" class="gear-toggle" checked onchange="document.documentElement.classList.toggle('no-anim',!this.checked);localStorage.setItem('vvip25:anim',this.checked?'1':'0')">
     </div>
@@ -1072,6 +1080,14 @@ function toggleDark(on){
   localStorage.setItem('vvip25:dark',on?'1':'');
   const el=document.getElementById('m-tog-dark');if(el)el.checked=on;
 }
+function toggleTitles(on){
+  document.body.classList.toggle('hide-titles',!on);
+  localStorage.setItem('vvip25:hideTitles',on?'':'1');
+}
+function toggleDownloads(on){
+  localStorage.setItem('vvip25:downloads',on?'1':'0');
+  document.querySelectorAll('.t-dl-link').forEach(el=>el.style.display=on?'':'none');
+}
 (()=>{
   const dark=localStorage.getItem('vvip25:dark')==='1';
   if(dark)document.documentElement.setAttribute('data-theme','dark');
@@ -1173,41 +1189,78 @@ async function init(){
 
   const urlParams = new URLSearchParams(window.location.search);
   const hasCode = urlParams.has('code');
-  const hasHashToken = window.location.hash.includes('access_token=');
 
-  // Register sign-out and post-login listeners (only — no INITIAL_SESSION reliance)
+  // Also detect implicit-flow tokens in the hash (legacy / fallback)
+  const hashStr = window.location.hash;
+  const hasHashToken = hashStr.includes('access_token=');
+
+  let sessionResolved = false;
+
+  const resolveOnce = async (session) => {
+    if(sessionResolved) return;
+    sessionResolved = true;
+    clearTimeout(_authFallback);
+    if(session){
+      await onSession(session);
+      // Clean URL AFTER session is established — doing it before can confuse Safari
+      if(hasCode || hasHashToken){
+        try{ history.replaceState(null, '', window.location.pathname); }catch(e){}
+      }
+      return;
+    }
+    // No session — but if we had a code/hash, give Supabase one more tick to store the token
+    if(hasCode || hasHashToken){
+      await new Promise(r => setTimeout(r, 800));
+      try{
+        const { data: { session: s2 } } = await supa.auth.getSession();
+        if(s2){ await onSession(s2); try{ history.replaceState(null,'',window.location.pathname); }catch(e){} return; }
+      }catch(e){}
+    }
+    show('view-auth');
+  };
+
+  // Primary: onAuthStateChange handles all auth events reliably
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){
+      sessionResolved = false;
       currentUser = null; profile = null;
-      setNavLoggedOut(); show('view-auth');
+      setNavLoggedOut(); show('view-auth'); return;
     }
-    if(event === 'SIGNED_IN' && s && !currentUser){
-      await onSession(s);
-      try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
-    }
+    if(event === 'SIGNED_IN' && s){ await resolveOnce(s); return; }
+    if(event === 'INITIAL_SESSION'){ await resolveOnce(s || null); return; }
+    if(event === 'TOKEN_REFRESHED' && s && !sessionResolved){ await resolveOnce(s); return; }
   });
 
-  // PKCE code exchange (OAuth redirect)
+  // Safety fallback: if INITIAL_SESSION never fires (network stall / browser quirk)
+  // 3s is enough — if Supabase hasn't responded in 3s it's not coming
+  const _authFallback = setTimeout(() => {
+    if(!sessionResolved){ sessionResolved = true; show('view-auth'); }
+  }, 3000);
+
+  // Hard DOM-ready guard — if init() itself stalls before setting up the listener
+  // (e.g. Supabase CDN slow), this catches it
+  if(document.readyState==='complete'){
+    setTimeout(()=>{ if(!sessionResolved){ sessionResolved=true; show('view-auth'); } }, 3500);
+  }
+
+  // PKCE code exchange — Supabase JS v2 handles this automatically via detectSessionInUrl,
+  // but we do an explicit exchange as belt-and-suspenders for Chrome's cross-origin cases
   if(hasCode){
     try{
       const{data,error} = await supa.auth.exchangeCodeForSession(urlParams.get('code'));
       if(error) dbg('exchange error: ' + error.message);
-      if(data?.session){
-        await onSession(data.session);
-        try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
-        return;
-      }
+      if(data?.session){ await resolveOnce(data.session); }
     }catch(e){ dbg('exchange threw: ' + e.message); }
   }
 
-  // Direct session check — fast, synchronous-ish, no event waiting
-  try{
-    const { data: { session } } = await supa.auth.getSession();
-    if(session){ await onSession(session); return; }
-  }catch(e){ dbg('getSession threw: ' + e.message); }
-
-  // No session — go straight to auth form
-  show('view-auth');
+  // Handle implicit-flow hash tokens (for any existing bookmarked URLs or email links)
+  if(!hasCode && hasHashToken && !sessionResolved){
+    try{
+      // Supabase detectSessionInUrl should handle this, but force a getSession check
+      const { data: { session } } = await supa.auth.getSession();
+      if(session){ await resolveOnce(session); }
+    }catch(e){ dbg('hash session check threw: ' + e.message); }
+  }
 }
 
 async function updatePassword(){
