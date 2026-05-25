@@ -54,6 +54,14 @@
     ]
   },
 
+      "let's pretend (it's not unlikely)": {
+    "modes": "both",
+    "segments": [
+      { "text": "Let's Pretend" },
+         { "text": "(It's Not Unlikely)", "style": "font-style:italic" },
+    ]
+  },
+
   "lit(e) rail": {
     "modes": "dark",
     "_comment": "Handled inline in JS — subtle off-white gauze on the 'e'. No segments needed here.",
