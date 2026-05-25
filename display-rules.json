@@ -46,6 +46,14 @@
     ]
   },
 
+    "trauma: life in the e.r.": {
+    "modes": "both",
+    "segments": [
+      { "text": "Trauma", "style": "font-style:italic" },
+      { "text": ": Life in the E.R." }
+    ]
+  },
+
   "lit(e) rail": {
     "modes": "dark",
     "_comment": "Handled inline in JS — subtle off-white gauze on the 'e'. No segments needed here.",
