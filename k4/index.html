@@ -1142,13 +1142,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
   $('#btn-next').addEventListener('click',()=>{if(!state.filtered.length)return;select((state.i+1)%state.filtered.length);play()});
   $('#vid-overlay-btn').addEventListener('click',e=>{e.stopPropagation();openVideo(false)});
 
-  $('#list').innerHTML='<div style="padding:16px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted)">Loading...</div>';
-
-  const ctrl=new AbortController();
-  const fetchTimeout=setTimeout(()=>ctrl.abort(),8000);
   try{
-    const res=await fetch('https://vvipmedia.net/manifest.json',{cache:'no-store',signal:ctrl.signal});
-    clearTimeout(fetchTimeout);
+    const res=await fetch('https://vvipmedia.net/manifest.json',{cache:'no-store'});
     if(!res.ok)throw Error(res.status);
     const data=JSON.parse(await res.text());
     const raw=Array.isArray(data)?data:(data.tracks||[]);
@@ -1182,15 +1177,12 @@ document.addEventListener('DOMContentLoaded',async()=>{
       others.forEach(t=>{ if(!t.varNum) t.varNum=1; }); // ensure they stay hidden
     }
 
-    // Thumbs are non-blocking — render tracks immediately, thumbs fill in after
-    fetchThumbs().then(()=>computeThumbCascade());
+    await fetchThumbs();computeThumbCascade();
     try{const dr=await fetch('/display-rules.json?v='+ASSET_VERSION,{cache:'no-store'});state.displayRules=await dr.json()}catch{}
     state.viewMode='hashtags';updateToolbarVisibility();applyFilterSort();
     try{const er=await fetch('/extras.json?v='+ASSET_VERSION,{cache:'no-store'});state.extras=await er.json()}catch{}
   }catch(err){
-    clearTimeout(fetchTimeout);
-    const msg=err.name==='AbortError'?'Request timed out. Please refresh.':'Could not load tracks. Please refresh.';
-    $('#list').innerHTML='<div style="padding:16px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted)">'+msg+'</div>';
+    $('#list').innerHTML='<div style="padding:16px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted)">Could not load tracks. Please refresh.</div>';
     console.error(err);
   }
 });
@@ -1842,8 +1834,8 @@ function loadVersion(e,verId,primaryId){
   const allVers=[...primary.versions,primary].sort((a,b)=>(a.varNum||99)-(b.varNum||99));
   const target=allVers.find(v=>v.id===verId);
   if(!target)return;
-  let fi=state.filtered.findIndex(t=>t.id===primaryId);
-  if(fi<0){state.filtered=[primary];fi=0;}
+  const fi=state.filtered.findIndex(t=>t.id===primaryId);
+  if(fi<0)return;
   const thumbRel=getThumb(target);
   const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
   send({cmd:'load',src:target.src,play:true,meta:{title:target.title||target.name,thumb:thumbAbs}});
