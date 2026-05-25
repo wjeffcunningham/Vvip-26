@@ -38,8 +38,6 @@
     "month": 5,
     "day": 17
   },
-
-
    {
     "name": "26.05.17-2.106.mp3",
     "title": "Hustle Culture",
@@ -90,8 +88,7 @@
     "date": "2026-05-06",
     "year": 2026,
     "month": 5,
-    "day": 6,
-    "unavailable": true
+    "day": 6
   },
   {
     "name": "26.04.29.82.mp3",
@@ -2611,7 +2608,7 @@
     "bpm": 112,
     "bpm_min": null,
     "bpm_max": null,
-    "details": "#aquatic; #crystal; #optimistic; #BJM",
+    "details": "#aquatic; #crystal; #optimistic; #BJM; #lotusplaza",
     "length": 0,
     "date": "2024-07-24",
     "year": 2024,
@@ -2629,8 +2626,7 @@
     "date": "2024-07-22",
     "year": 2024,
     "month": 7,
-    "day": 22,
-    "unavailable": true
+    "day": 22
   },
   {
     "name": "24.07.22-3.97.mp3",
