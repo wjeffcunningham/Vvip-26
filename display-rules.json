@@ -54,11 +54,11 @@
     ]
   },
 
-      "let's pretend (it's not unlikely)": {
+      "let's pretend it's not unlikely": {
     "modes": "both",
     "segments": [
       { "text": "Let's Pretend" },
-         { "text": "(It's Not Unlikely)", "style": "font-style:italic" },
+         { "text": "It's Not Unlikely", "style": "font-style:italic" },
     ]
   },
 
