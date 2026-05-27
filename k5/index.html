@@ -617,7 +617,7 @@ body.hide-titles .t-title-file{display:inline !important}
     <a id="nav-username-btn" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
     <span id="nav-admin-btn" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;margin-left:4px;cursor:pointer" onclick="window.location='/members.html'">Admin</span>
   </div>
-  <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;</button>
+  <button id="gear-btn" title="Settings" onclick="toggleGear()">[prefs]</button>
   <div id="gear-menu">
     <!-- Auth section -->
     <div id="gear-auth-section">
@@ -1155,10 +1155,6 @@ document.addEventListener('DOMContentLoaded',async()=>{
   $('#btn-prev').addEventListener('click',()=>{if(!state.filtered.length)return;select((state.i-1+state.filtered.length)%state.filtered.length);play()});
   $('#btn-next').addEventListener('click',()=>{if(!state.filtered.length)return;select((state.i+1)%state.filtered.length);play()});
   $('#vid-overlay-btn').addEventListener('click',e=>{e.stopPropagation();openVideo(false)});
-  $('#sort-sel').addEventListener('change',()=>{
-    state.sortMode=$('#sort-sel').value;
-    applyFilterSort();
-  });
 
   $('#list').innerHTML='<div style="padding:16px;font-family:Arial,sans-serif;font-size:13px;color:var(--muted)">Loading...</div>';
 
@@ -1334,11 +1330,7 @@ function applyFilterSort(){
   if(state.viewMode==='favorites'){
     out=out.filter(t=>state.favorites.has(t.name));
     if(!out.length){state.filtered=[];renderList();return;}
-    // Only use saved manual order when sort is default (date_desc); explicit sorts override it
-    if(state.sortMode==='date_desc'&&state.favOrder.length){
-      out.sort((a,b)=>state.favOrder.indexOf(a.name)-state.favOrder.indexOf(b.name));
-      state.filtered=out;renderList();return;
-    }
+    if(state.favOrder.length){out.sort((a,b)=>state.favOrder.indexOf(a.name)-state.favOrder.indexOf(b.name));state.filtered=out;renderList();return}
     sortTracks(out,state.sortMode);state.filtered=out;renderList();return;
   }
   sortTracks(out,state.sortMode);state.filtered=out;renderList();
@@ -1597,7 +1589,7 @@ function rowHTML(t,i){
         +label+'</button>';
     }).join('');
   }
-  const adminToggle=isAdmin?'<button class="admin-toggle-btn" onclick="event.stopPropagation();toggleAdminRow('+t.id+')" title="Admin tools">[ ]</button>':'';
+  const adminToggle=isAdmin?'<button class="admin-toggle-btn" onclick="event.stopPropagation();toggleAdminRow('+t.id+')" title="Admin tools">..../button>':'';
   const ruled=applyDisplayRule(t.title);
   const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
   let thumbSrc=getThumb(t);
@@ -1950,9 +1942,9 @@ function updateNow(){
     const cls='nbtn'+(c.disabled?' disabled':'');
     const ti=c.title?` title="${c.title}"`:'';
     if(c.type==='a'){
-      return `<a class="${cls}" href="${c.href}"${c.download?' download':''}${ti}>${c.icon?`<span class="nbtn-icon">${c.icon}</span>`:''}${c.label}</a>`;
+      return `<a class="${cls}" href="${c.href}"${c.download?' download':''}${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</a>`;
     }
-    return `<button class="${cls}" onclick="${c.onclick}"${ti}>${c.icon?`<span class="nbtn-icon">${c.icon}</span>`:''}${c.label}</button>`;
+    return `<button class="${cls}" onclick="${c.onclick}"${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</button>`;
   }).join('');
 }
 function openPlayerGems(){
