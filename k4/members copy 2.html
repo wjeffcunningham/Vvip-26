@@ -253,7 +253,7 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 .upgrade-sub{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:.03em}
 .upgrade-perks{list-style:none;padding:0;margin:0 0 18px;font-family:Arial,sans-serif;font-size:12px}
 .upgrade-perks li{padding:3px 0;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:8px}
-.upgrade-perks li::before{content:'*';color:var(--gold-bg);font-size:10px;flex-shrink:0}
+.upgrade-perks li::before{content:'✦';color:var(--gold-bg);font-size:10px;flex-shrink:0}
 .upgrade-perks li:last-child{border-bottom:none}
 
 /* Benefits grid (premium unlocked) */
@@ -462,7 +462,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
       <a href="/members.html" id="gear-username-link" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);text-decoration:none"></a>
     </div>
     <div class="gear-item" id="gear-vvip-upsell" style="display:none">
-      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">Upgrade to VVIP+</a>
+      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">✦ Upgrade to VVIP+</a>
     </div>
     <div class="gear-item" id="gear-signout" style="display:none">
       <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:12px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted)">Sign out</button>
@@ -663,11 +663,11 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
           <tbody>
             <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">Stream all MP3s</td><td style="text-align:center">✓</td><td style="text-align:center;color:var(--gold-bg)">✓</td></tr>
             <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">MP3 downloads</td><td style="text-align:center">✓</td><td style="text-align:center;color:var(--gold-bg)">✓</td></tr>
-            <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">WAV downloads</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
+            <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">WAV downloads</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">✦</td></tr>
             <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">Lo-fi YouTube video</td><td style="text-align:center">✓</td><td style="text-align:center;color:var(--gold-bg)">✓</td></tr>
-            <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">HQ video streams</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
-            <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">Gems (bonus media)</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
-            <tr><td style="padding:6px 8px">Merch &amp; partner perks</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
+            <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">HQ video streams</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">✦</td></tr>
+            <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">Gems (bonus media)</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">✦</td></tr>
+            <tr><td style="padding:6px 8px">Merch &amp; partner perks</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">✦</td></tr>
           </tbody>
         </table>
         <p style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin:8px 0 0">One-time · No subscription · Lifetime</p>
@@ -707,22 +707,22 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
       <div class="m-section-body">
         <div class="benefit-grid">
           <div class="benefit-tile">
-            <div class="benefit-tile-icon">[dl]</div>
+            <div class="benefit-tile-icon">⬇</div>
             <div class="benefit-tile-label">WAV Downloads</div>
             <div class="benefit-tile-desc">Every track in lossless WAV available in the player.</div>
           </div>
           <div class="benefit-tile">
-            <div class="benefit-tile-icon">[play]</div>
+            <div class="benefit-tile-icon">▶</div>
             <div class="benefit-tile-label">HQ Video</div>
             <div class="benefit-tile-desc">Full-resolution video streams unlocked. <a id="vvip-archives-link" href="#" target="_blank">VVIP Archives →</a></div>
           </div>
           <div class="benefit-tile">
-            <div class="benefit-tile-icon">[shop]</div>
+            <div class="benefit-tile-icon">🛍</div>
             <div class="benefit-tile-label">Merch &amp; Swag</div>
             <div class="benefit-tile-desc">Become a VVIP partner. <a href="https://shoppe.vvipmedia.net" target="_blank">Visit the store →</a></div>
           </div>
           <div class="benefit-tile">
-            <div class="benefit-tile-icon">[+]</div>
+            <div class="benefit-tile-icon">✦</div>
             <div class="benefit-tile-label">More to Come</div>
             <div class="benefit-tile-desc">Be a VVIP.</div>
           </div>
@@ -730,7 +730,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 
         <!-- VVIP+ store items — premium/admin only -->
         <div id="vvip-member-store" style="margin-top:18px;border-top:1px solid var(--border-light);padding-top:14px">
-          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Member Store [VVIP+]</div>
+          <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Member Store <span style="background:var(--gold-bg);color:var(--gold-fg);font-size:9px;padding:1px 6px;letter-spacing:.04em;margin-left:6px">VVIP+</span></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <div style="border:1px solid var(--border);padding:12px 14px;background:var(--bg);font-family:Arial,sans-serif;font-size:12px;flex:1;min-width:180px">
               <div style="font-weight:bold;margin-bottom:3px">All MP3s Download</div>
@@ -745,7 +745,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
               <a href="mailto:vvipmedia@proton.me?subject=WAV+Archive+Download" class="m-btn" style="font-size:11px;padding:5px 12px">Inquire →</a>
             </div>
             <div style="border:2px solid var(--gold-bg);padding:12px 14px;background:var(--bg);font-family:Arial,sans-serif;font-size:12px;flex:1;min-width:180px">
-              <div style="font-weight:bold;margin-bottom:3px">Garment Repair Service</div>
+              <div style="font-weight:bold;margin-bottom:3px">Garment Repair Service ✦</div>
               <div style="color:var(--muted);font-size:11px;margin-bottom:8px">Free repair of any VVIP-branded garment. You pay shipping only.</div>
               <div style="font-size:15px;font-family:'Times New Roman',Times,serif;margin-bottom:8px;color:var(--gold-bg)">Free <span style="font-size:11px;color:var(--muted)">+ shipping</span></div>
               <a href="mailto:vvipmedia@proton.me?subject=Garment+Repair+Request" class="m-btn" style="font-size:11px;padding:5px 12px;background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi)">Request Repair →</a>
@@ -759,21 +759,21 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 
   <!-- STATE: admin tools -->
   <div id="admin-panel" class="m-section" style="display:none">
-    <div class="m-section-head">Admin Tools</div>
+    <div class="m-section-head">⬡ Admin Tools</div>
     <div class="m-section-body">
 
       <!-- TILED TOOL LAUNCHER -->
       <div id="admin-tiles" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px">
         <button class="admin-tile" onclick="openAdminTool('upload')">
-          <span class="admin-tile-icon">^</span>
+          <span class="admin-tile-icon">⬆</span>
           <span class="admin-tile-label">Upload Track</span>
         </button>
         <button class="admin-tile" onclick="openAdminTool('edit')">
-          <span class="admin-tile-icon">~</span>
+          <span class="admin-tile-icon">✏</span>
           <span class="admin-tile-label">Edit Song Info</span>
         </button>
         <button class="admin-tile" onclick="openAdminTool('images')">
-          <span class="admin-tile-icon">[img]</span>
+          <span class="admin-tile-icon">🖼</span>
           <span class="admin-tile-label">Image Uploader</span>
         </button>
         <button class="admin-tile" onclick="openAdminTool('hashtags')">
@@ -781,11 +781,11 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
           <span class="admin-tile-label">Hashtags</span>
         </button>
         <button class="admin-tile" onclick="openAdminTool('shoppe')">
-          <span class="admin-tile-icon">$</span>
+          <span class="admin-tile-icon">🛍</span>
           <span class="admin-tile-label">Shoppe Items</span>
         </button>
         <button class="admin-tile" onclick="openAdminTool('users')">
-          <span class="admin-tile-icon">@</span>
+          <span class="admin-tile-icon">👤</span>
           <span class="admin-tile-label">Users</span>
         </button>
       </div>
@@ -794,7 +794,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
       <div id="admin-app-viewer" style="display:none;border:1px solid var(--border);background:var(--card);margin-bottom:8px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#0c0a22,#1a1860)">
           <span id="admin-viewer-title" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#99aaee;letter-spacing:0.05em"></span>
-          <button onclick="closeAdminTool()" style="background:none;border:none;color:#99aaee;font-size:16px;cursor:pointer;padding:0 4px;line-height:1">X</button>
+          <button onclick="closeAdminTool()" style="background:none;border:none;color:#99aaee;font-size:16px;cursor:pointer;padding:0 4px;line-height:1">✕</button>
         </div>
         <div id="admin-viewer-body" style="padding:16px">
 
@@ -814,10 +814,8 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
                 <input class="m-input" type="text" id="up-artist" placeholder="Artist name">
               </div>
               <div class="m-field">
-                <label class="m-label">Hashtags</label>
-                <select class="m-select" id="up-tags-select" multiple size="4" style="height:auto">
-                </select>
-                <div style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin-top:3px">Hold Ctrl/Cmd to select multiple. New tags: use Edit Song Info after upload.</div>
+                <label class="m-label">Hashtags (comma-sep)</label>
+                <input class="m-input" type="text" id="up-tags" placeholder="#electronic, #ambient">
               </div>
               <div class="m-field upload-full">
                 <label class="m-label">Notes</label>
@@ -854,10 +852,8 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
                   <input class="m-input" type="text" id="edit-artist">
                 </div>
                 <div class="m-field upload-full">
-                  <label class="m-label">Hashtags</label>
-                  <select class="m-select" id="edit-tags-select" multiple size="4" style="height:auto">
-                  </select>
-                  <div style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin-top:3px">Hold Ctrl/Cmd to select multiple. To add a new tag, use the Hashtags tool.</div>
+                  <label class="m-label">Hashtags (comma-sep)</label>
+                  <input class="m-input" type="text" id="edit-tags">
                 </div>
                 <div class="m-field upload-full">
                   <label class="m-label">Notes</label>
@@ -884,7 +880,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
               ondragleave="this.style.borderColor='var(--border)'"
               ondrop="handleImgDrop(event)"
               onclick="document.getElementById('img-file-input').click()">
-              <div style="font-size:28px;margin-bottom:6px">[img]</div>
+              <div style="font-size:28px;margin-bottom:6px">📷</div>
               <div style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Tap or drag images here</div>
               <div style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin-top:3px">JPG · PNG · WEBP · HEIC</div>
             </div>
@@ -941,19 +937,10 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
             <div id="ht-form" style="display:none">
               <div id="ht-current-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0"></div>
               <div class="m-field">
-                <label class="m-label">Add existing tag</label>
+                <label class="m-label">Add tag</label>
                 <div style="display:flex;gap:6px">
-                  <select class="m-select" id="ht-tag-select" style="flex:1">
-                    <option value="">-- select tag --</option>
-                  </select>
-                  <button class="m-btn gold" onclick="addHashtagFromSelect()" style="white-space:nowrap">Add</button>
-                </div>
-              </div>
-              <div class="m-field" style="margin-top:6px">
-                <label class="m-label">Or create new tag</label>
-                <div style="display:flex;gap:6px">
-                  <input class="m-input" type="text" id="ht-new-tag" placeholder="new tag name (no #)" style="flex:1" autocomplete="off">
-                  <button class="m-btn" onclick="addHashtagNew()" style="white-space:nowrap">Create</button>
+                  <input class="m-input" type="text" id="ht-new-tag" placeholder="#newtag" style="flex:1">
+                  <button class="m-btn gold" onclick="addHashtag()" style="white-space:nowrap">Add</button>
                 </div>
               </div>
               <div id="ht-status" class="m-msg"></div>
@@ -1299,10 +1286,10 @@ function renderMember(){
   const badge = document.getElementById('status-badge');
   if(profile.is_admin){
     badge.className = 'admin';
-    badge.textContent = 'ADMIN';
+    badge.textContent = '⬡ ADMIN';
   } else if(profile.is_premium){
     badge.className = 'premium';
-    badge.textContent = 'VVIP+';
+    badge.textContent = '✦ VVIP+';
   } else {
     badge.className = 'free';
     badge.textContent = 'FREE MEMBER';
@@ -1353,13 +1340,13 @@ function renderMemberNav(){
   [gjm,gum,gvu,gso].filter(Boolean).forEach(el=>el.style.display='none');
 
   if(profile.is_admin){
-    if(na){na.style.display='';na.textContent=profile.username?'Welcome, @'+profile.username:'Admin';}
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='Admin'+(profile.username?' · @'+profile.username:'');}
+    if(na){na.style.display='';na.textContent=profile.username?'Welcome, @'+profile.username:'⬡ Admin';}
+    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='⬡ Admin'+(profile.username?' · @'+profile.username:'');}
     if(gso)gso.style.display='flex';
   } else if(hasPremAccess){
-    const welcome=profile.username?'Welcome, @'+profile.username:'VVIP+';
+    const welcome=profile.username?'Welcome, @'+profile.username:'✦ VVIP+';
     if(nu){nu.style.display='';nu.textContent=welcome;}
-    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='VVIP+ '+(profile.username?('@'+profile.username):'Member');}
+    if(gum){gum.style.display='flex';const lbl=document.getElementById('gear-username-link');if(lbl)lbl.textContent='✦ '+(profile.username?('@'+profile.username):'VVIP+ Member');}
     if(gso)gso.style.display='flex';
   } else {
     if(profile.username){
@@ -1532,9 +1519,6 @@ async function uploadTrack(){
   if(!file.name.toLowerCase().endsWith('.mp3')){ setUpStatus('MP3 files only.', 'err'); return; }
 
   const title = document.getElementById('up-title').value.trim();
-  const selectedTags = document.getElementById('up-tags-select') 
-    ? [...document.getElementById('up-tags-select').selectedOptions].map(o=>'#'+o.value) 
-    : [];
   const bpm = parseInt(document.getElementById('up-bpm').value) || undefined;
   const bpmMin = parseInt(document.getElementById('up-bpm-min').value) || undefined;
   const bpmMax = parseInt(document.getElementById('up-bpm-max').value) || undefined;
@@ -1632,16 +1616,6 @@ function openAdminTool(name){
   viewer.scrollIntoView({behavior:'smooth',block:'nearest'});
   // Auto-load for certain panes
   if(name==='shoppe') loadShoppeAdmin();
-  if(name==='upload'||name==='edit'){
-    // Populate tag dropdowns from manifest
-    const allTagSet=new Set();
-    allTracks.forEach(t=>(t.hashtags||[]).forEach(h=>allTagSet.add(h.replace(/^#/,''))));
-    const upSel=document.getElementById('up-tags-select');
-    if(upSel&&name==='upload'){
-      upSel.innerHTML='';
-      [...allTagSet].sort().forEach(tag=>{const o=document.createElement('option');o.value=tag;o.textContent='#'+tag;upSel.appendChild(o);});
-    }
-  }
 }
 function closeAdminTool(){
   document.getElementById('admin-app-viewer').style.display='none';
@@ -1686,7 +1660,7 @@ function renderStagedImages(){
   grid.innerHTML = stagedImages.map((img,i)=>`
     <div class="img-staged-tile">
       <img src="${img.objectUrl}" alt="">
-      <button class="img-remove" onclick="removeStagedImage(${i})">X</button>
+      <button class="img-remove" onclick="removeStagedImage(${i})">✕</button>
     </div>`).join('');
 }
 function removeStagedImage(i){
@@ -1807,19 +1781,6 @@ function selectHtTrack(name,title){
   document.getElementById('ht-search').value=title;
   document.getElementById('ht-track-results').style.display='none';
   document.getElementById('ht-form').style.display='';
-  // Populate tag dropdown from all unique tags in manifest
-  const allTagSet=new Set();
-  allTracks.forEach(t=>(t.hashtags||[]).forEach(h=>allTagSet.add(h.replace(/^#/,''))));
-  const currentTags=new Set((htCurrentTrack.hashtags||[]).map(h=>h.replace(/^#/,'')));
-  const sel=document.getElementById('ht-tag-select');
-  if(sel){
-    sel.innerHTML='<option value="">-- select tag --</option>';
-    [...allTagSet].sort().forEach(tag=>{
-      const o=document.createElement('option');o.value=tag;o.textContent='#'+tag;
-      if(currentTags.has(tag))o.disabled=true;
-      sel.appendChild(o);
-    });
-  }
   renderHtTags();
 }
 function renderHtTags(){
@@ -1827,42 +1788,20 @@ function renderHtTags(){
   if(!htCurrentTrack){container.innerHTML='';return;}
   const tags=(htCurrentTrack.hashtags||[]);
   container.innerHTML=tags.length
-    ? tags.map(tag=>`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--card);border:1px solid var(--border);font-family:Arial,sans-serif;font-size:11px">${tag} <button onclick="removeHashtag('${tag.replace(/'/g,"\'")}'" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:0">X</button></span>`).join('')
+    ? tags.map(tag=>`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--card);border:1px solid var(--border);font-family:Arial,sans-serif;font-size:11px">${tag} <button onclick="removeHashtag('${tag.replace(/'/g,"\'")}'" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:0">✕</button></span>`).join('')
     : '<span style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted)">No tags yet.</span>';
 }
 async function addHashtag(){
-  // legacy compat — calls addHashtagFromSelect
-  return addHashtagFromSelect();
-}
-async function addHashtagFromSelect(){
-  if(!htCurrentTrack) return;
-  const sel=document.getElementById('ht-tag-select');
-  const val=sel?sel.value.trim():'';
-  if(!val) return;
-  const tag=val.startsWith('#')?val:'#'+val;
-  const tags=[...(htCurrentTrack.hashtags||[])];
-  if(tags.includes(tag)) return;
-  tags.push(tag);
-  await saveHtTrackTags(tags);
-  if(sel) sel.value='';
-}
-async function addHashtagNew(){
   if(!htCurrentTrack) return;
   const input=document.getElementById('ht-new-tag');
-  let raw=input.value.trim();
-  if(!raw) return;
-  // Strip # if typed, normalise to lowercase, no spaces
-  raw=raw.replace(/^#+/,'').replace(/\s+/g,'_').toLowerCase();
-  if(!raw) return;
-  const tag='#'+raw;
+  let tag=input.value.trim();
+  if(!tag) return;
+  if(!tag.startsWith('#')) tag='#'+tag;
   const tags=[...(htCurrentTrack.hashtags||[])];
   if(tags.includes(tag)) return;
   tags.push(tag);
   await saveHtTrackTags(tags);
   input.value='';
-  // Add to dropdown for subsequent use
-  const sel=document.getElementById('ht-tag-select');
-  if(sel){const o=document.createElement('option');o.value=raw;o.textContent='#'+raw;o.disabled=true;sel.appendChild(o);}
 }
 async function removeHashtag(tag){
   if(!htCurrentTrack) return;
@@ -1908,20 +1847,8 @@ function selectEditTrack(name,title){
   if(editCurrentTrack){
     document.getElementById('edit-title').value=editCurrentTrack.title||'';
     document.getElementById('edit-artist').value=editCurrentTrack.artist||'';
+    document.getElementById('edit-tags').value=(editCurrentTrack.hashtags||[]).join(', ');
     document.getElementById('edit-notes').value=editCurrentTrack.details||'';
-    // Populate the multi-select with all tags; pre-select the track's current tags
-    const allTagSet=new Set();
-    allTracks.forEach(t=>(t.hashtags||[]).forEach(h=>allTagSet.add(h.replace(/^#/,''))));
-    const currentTags=new Set((editCurrentTrack.hashtags||[]).map(h=>h.replace(/^#/,'')));
-    const sel=document.getElementById('edit-tags-select');
-    if(sel){
-      sel.innerHTML='';
-      [...allTagSet].sort().forEach(tag=>{
-        const o=document.createElement('option');o.value=tag;o.textContent='#'+tag;
-        o.selected=currentTags.has(tag);
-        sel.appendChild(o);
-      });
-    }
   }
 }
 async function saveEditTrack(){
@@ -1932,7 +1859,7 @@ async function saveEditTrack(){
   const updated={...allTracks[idx],
     title:document.getElementById('edit-title').value.trim()||undefined,
     artist:document.getElementById('edit-artist').value.trim()||undefined,
-    hashtags:[...document.getElementById('edit-tags-select').selectedOptions].map(o=>'#'+o.value),
+    hashtags:document.getElementById('edit-tags').value.split(',').map(s=>s.trim()).filter(Boolean),
     details:document.getElementById('edit-notes').value.trim()||undefined
   };
   Object.keys(updated).forEach(k=>updated[k]===undefined&&delete updated[k]);
@@ -1972,7 +1899,7 @@ async function loadShoppeAdmin(){
         <span style="color:var(--muted)">${item.price||''}</span>
         <span style="font-size:10px;padding:1px 6px;background:${item.enabled?'var(--card)':'#c4444433'};border:1px solid var(--border)">${item.enabled?'on':'off'}</span>
         <button onclick="toggleShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">${item.enabled?'Disable':'Enable'}</button>
-        <button onclick="deleteShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid #c44;padding:1px 6px;cursor:pointer;color:#c44">X</button>
+        <button onclick="deleteShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid #c44;padding:1px 6px;cursor:pointer;color:#c44">✕</button>
       </div>`).join('');
   }catch(e){el.textContent='Failed to load: '+e.message;}
 }
@@ -2062,7 +1989,7 @@ async function loadUserList(){
   el.innerHTML = users.map(u=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--border-light);font-family:Arial,sans-serif;font-size:11px;gap:8px">
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.email}</span>
-      <span style="flex-shrink:0;color:var(--muted)">${u.is_admin?'[admin]':''}${u.is_premium?' [vvip+]':''}</span>
+      <span style="flex-shrink:0;color:var(--muted)">${u.is_admin?'⬡ admin':''}${u.is_premium?' ✦ vvip+':''}</span>
       <button onclick="document.getElementById('admin-user-email').value='${u.email}';adminTab('users',document.querySelector('.admin-tab:nth-child(4)'))" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">select</button>
     </div>`).join('');
 }
@@ -2083,39 +2010,7 @@ function setAnimPref(on){
 })();
 
 // ── GO ──
-init().then(()=>{
-  // Deep-link from index admin row: #hashtags:trackname or #images:cat:trackname
-  const h=window.location.hash;
-  if(h&&h.startsWith('#hashtags:')){
-    const tn=decodeURIComponent(h.slice(10));
-    setTimeout(()=>{
-      openAdminTool('hashtags');
-      document.getElementById('ht-search').value=tn;
-      filterHtTrack(tn);
-      // auto-select first result after short delay
-      setTimeout(()=>{
-        const r=document.getElementById('ht-track-results');
-        if(r&&r.firstElementChild)r.firstElementChild.click();
-      },400);
-    },600);
-  } else if(h&&h.startsWith('#images:')){
-    const parts=h.slice(1).split(':');
-    const cat=parts[1]||'primary';
-    const tn=decodeURIComponent(parts[2]||'');
-    setTimeout(()=>{
-      openAdminTool('images');
-      selectImgCat(cat,document.querySelector(`.img-cat-btn[data-cat="${cat}"]`));
-      if(tn){
-        const s=document.getElementById('img-track-search');
-        if(s){s.value=tn;filterImgTrack(tn);}
-        setTimeout(()=>{
-          const r=document.getElementById('img-track-results');
-          if(r&&r.firstElementChild)r.firstElementChild.click();
-        },400);
-      }
-    },600);
-  }
-});
+init();
 
 // ── MINI PLAYER — continuous with main player tab via BroadcastChannel + localStorage ──
 (function(){

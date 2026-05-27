@@ -571,7 +571,7 @@ body.hide-titles .t-title-file{display:inline !important}
 .t-tile.star{background:none;font-size:16px;color:var(--muted);border-right:none}
 .t-tile.star.on{color:var(--star-on)}
 .track-row.unavailable{opacity:.45;cursor:default}
-.track-row.unavailable .t-title-name::after{content:' X';font-size:9px;color:var(--muted);vertical-align:middle;margin-left:4px}
+.track-row.unavailable .t-title-name::after{content:' ✕';font-size:9px;color:var(--muted);vertical-align:middle;margin-left:4px}
 /* Admin inline controls row */
 .admin-row{display:none;width:100%;box-sizing:border-box;background:var(--tag-bg);border-top:1px solid var(--border)}
 .admin-row.open{display:block}
@@ -617,7 +617,7 @@ body.hide-titles .t-title-file{display:inline !important}
     <a id="nav-username-btn" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
     <span id="nav-admin-btn" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;margin-left:4px;cursor:pointer" onclick="window.location='/members.html'">Admin</span>
   </div>
-  <button id="gear-btn" title="Settings" onclick="toggleGear()">[prefs]</button>
+  <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
   <div id="gear-menu">
     <!-- Auth section -->
     <div id="gear-auth-section">
@@ -628,7 +628,7 @@ body.hide-titles .t-title-file{display:inline !important}
         <a href="/members.html" id="gear-username-link" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);text-decoration:none"></a>
       </div>
       <div class="gear-item" id="gear-vvip-upsell" style="display:none">
-        <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">Upgrade to VVIP+</a>
+        <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">✦ Upgrade to VVIP+</a>
       </div>
       <div class="gear-item" id="gear-signout" style="display:none">
         <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:11px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted);text-align:left">Sign out</button>
@@ -721,13 +721,13 @@ body.hide-titles .t-title-file{display:inline !important}
   <select id="sort-sel">
     <option value="date_desc">Newest first</option>
     <option value="date_asc">Oldest first</option>
-    <option value="bpm_desc">BPM (desc)</option>
-    <option value="bpm_asc">BPM (asc)</option>
+    <option value="bpm_desc">BPM &#8595;</option>
+    <option value="bpm_asc">BPM &#8593;</option>
     <option value="shuffle">Shuffle</option>
     <option value="fav">Favourites first</option>
   </select>
-  <button id="fav-shuffle-btn" onclick="shuffleFavs()" style="display:none;font-family:Arial,sans-serif;font-size:11px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 10px;cursor:pointer;color:var(--fg)">Shuffle</button>
-  <button id="fav-dl-btn" onclick="downloadFavourites()" style="display:none;font-family:Arial,sans-serif;font-size:11px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 10px;cursor:pointer;color:var(--fg)" title="Download all favourites as MP3s + M3U playlist">Download all</button>
+  <button id="fav-shuffle-btn" onclick="shuffleFavs()" style="display:none;font-family:Arial,sans-serif;font-size:11px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 10px;cursor:pointer;color:var(--fg)">⇌ Shuffle</button>
+  <button id="fav-dl-btn" onclick="downloadFavourites()" style="display:none;font-family:Arial,sans-serif;font-size:11px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 10px;cursor:pointer;color:var(--fg)" title="Download all favourites as MP3s + M3U playlist">⬇ Download all</button>
   <span id="track-count"></span>
 </div>
 
@@ -742,8 +742,8 @@ body.hide-titles .t-title-file{display:inline !important}
     <span>Sort:</span>
     <select class="shoppe-sort" id="shoppe-sort" onchange="renderShoppe()">
       <option value="default">Default</option>
-      <option value="price_asc">Price (asc)</option>
-      <option value="price_desc">Price (desc)</option>
+      <option value="price_asc">Price ↑</option>
+      <option value="price_desc">Price ↓</option>
       <option value="avail">Available first</option>
       <option value="new">Recently added</option>
     </select>
@@ -920,16 +920,16 @@ function renderAuthNav(){
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='none';
   } else if(isAdmin){
-    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'Admin';}
+    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'⬡ Admin';}
     if(gearJoin)gearJoin.style.display='none';
-    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='Admin'+(vvipUsername?' - @'+vvipUsername:'');}
+    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else if(isPremium){
-    const welcome=vvipUsername?'Welcome, @'+vvipUsername:'VVIP+';
+    const welcome=vvipUsername?'Welcome, @'+vvipUsername:'✦ VVIP+';
     if(userEl){userEl.style.display='';userEl.textContent=welcome;}
     if(gearJoin)gearJoin.style.display='none';
-    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='VVIP+ '+(vvipUsername?('@'+vvipUsername):'Member');}
+    if(gearUser){gearUser.style.display='';const lnk=document.getElementById('gear-username-link');if(lnk)lnk.textContent='✦ '+(vvipUsername?('@'+vvipUsername):'VVIP+ Member');}
     if(gearUpsell)gearUpsell.style.display='none';
     if(gearSO)gearSO.style.display='';
   } else {
@@ -1062,7 +1062,7 @@ async function downloadFavourites(){
   const origLabel=btn.textContent;
   let done=0;
   for(const t of favs){
-    btn.textContent=`Downloading ${++done}/${favs.length}...`;
+    btn.textContent=`⬇ ${++done}/${favs.length}`;
     try{
       const resp=await fetch(t.src);
       if(!resp.ok) throw new Error('fetch failed');
@@ -1551,14 +1551,14 @@ function rowHTML(t,i){
   } else {
     // Normal view: MP3 download, then Video or HQ or Gems
     const dlDisplay=state.showDownloads?'':'none';
-    tiles.push(`<a class="t-tile t-dl-link" href="${t.src}" download style="display:${dlDisplay}" title="Download MP3">MP3</a>`);
+    tiles.push(`<a class="t-tile t-dl-link" href="${t.src}" download style="display:${dlDisplay}" title="Download MP3"><span class="t-tile-icon">⬇</span>MP3</a>`);
     // Slot 2: Video > HQ > Gems > empty (priority order)
     if(loV){
       tiles.push(`<button class="t-tile" onclick="event.stopPropagation();selectAndPlay(${t.id},false)" title="Video"><span class="t-tile-icon">▶</span>Video</button>`);
     } else if(hqV){
       tiles.push(`<button class="t-tile gold" onclick="event.stopPropagation();selectAndPlay(${t.id},true)" title="HQ Video"><span class="t-tile-icon">▶</span>HQ</button>`);
     } else if(hasExtras&&state.showGems){
-      tiles.push(`<button class="t-tile" onclick="event.stopPropagation();openGemsForTrack(${t.id})" title="Gems">Gems</button>`);
+      tiles.push(`<button class="t-tile" onclick="event.stopPropagation();openGemsForTrack(${t.id})" title="Gems"><span class="t-tile-icon">💎</span>Gems</button>`);
     } else {
       tiles.push(`<span class="t-tile empty"></span>`);
     }
@@ -1589,7 +1589,7 @@ function rowHTML(t,i){
         +label+'</button>';
     }).join('');
   }
-  const adminToggle=isAdmin?'<button class="admin-toggle-btn" onclick="event.stopPropagation();toggleAdminRow('+t.id+')" title="Admin tools">..../button>':'';
+  const adminToggle=isAdmin?'<button class="admin-toggle-btn" onclick="event.stopPropagation();toggleAdminRow('+t.id+')" title="Admin tools">⬡</button>':'';
   const ruled=applyDisplayRule(t.title);
   const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
   let thumbSrc=getThumb(t);
@@ -1599,11 +1599,11 @@ function rowHTML(t,i){
       thumbSrc='https://img.youtube.com/vi/'+loV2.slice(3)+'/mqdefault.jpg';
   }
   const adminRow=isAdmin?`<div class="admin-row" id="admin-row-${t.id}"><div class="admin-row-inner">
-    <button class="admin-action-btn gold" onclick="adminPriorityThumb(${t.id})">Priority Thumb</button>
-    <button class="admin-action-btn" onclick="adminOverrideThumb(${t.id})">Override Thumb</button>
-    <button class="admin-action-btn" onclick="adminAddGem(${t.id})">Add Gem</button>
-    <button class="admin-action-btn" onclick="adminAddHash(${t.id})">Add Hashtag</button>
-    <button class="admin-action-btn red" onclick="adminToggleAvail(${t.id})">${t.unavailable?'Restore':'Hide Track'}</button>
+    <button class="admin-action-btn gold" onclick="adminPriorityThumb(${t.id})">📌 Priority Thumb</button>
+    <button class="admin-action-btn" onclick="adminOverrideThumb(${t.id})">🖼 Override Thumb</button>
+    <button class="admin-action-btn" onclick="adminAddGem(${t.id})">💎 Add Gem</button>
+    <button class="admin-action-btn" onclick="adminAddHash(${t.id})">＃ Add Hashtag</button>
+    <button class="admin-action-btn red" onclick="adminToggleAvail(${t.id})">${t.unavailable?'✓ Restore':'✕ Hide Track'}</button>
   </div></div>`:'';
   return '<div class="track-row'+(t.unavailable?' unavailable':'')+(isAlbumLink(t)?' is-album-link':'')+'" data-id="'+t.id+'">'
     +'<span class="t-num">'+String(i+1).padStart(3,'0')+'</span>'
@@ -1646,26 +1646,53 @@ function adminTrack(id){return state.tracks.find(t=>t.id===id);}
 
 async function adminPriorityThumb(id){
   const t=adminTrack(id);if(!t)return;
-  // Open members page image uploader for this track
-  window.open('/members.html#images:primary:'+encodeURIComponent(t.name),'_blank');
+  const url=prompt('Priority thumb URL\n(cascades forward to subsequent tracks by date)\nCurrent: '+(state.resolvedThumb.get(id)||'none'));
+  if(!url||!url.trim())return;
+  // Update cascade in memory: all tracks from this date onward without their own thumb get this
+  const sorted=[...state.tracks].sort((a,b)=>(a.date-b.date)||a.name.localeCompare(b.name));
+  let reached=false;
+  for(const tr of sorted){
+    if(tr.id===id)reached=true;
+    if(reached&&!tr.thumb)state.resolvedThumb.set(tr.id,url.trim());
+  }
+  document.querySelectorAll('.t-thumb').forEach(img=>{
+    const rid=Number(img.closest('.track-row')?.dataset.id);
+    if(!isNaN(rid)){const tr=adminTrack(rid);if(tr)img.src=getThumb(tr);}
+  });
+  try{await adminApiCall({action:'priority_thumb',trackName:t.name,thumbUrl:url.trim()});alert('\u2713 Priority thumb set for "'+t.title+'".');}catch(e){}
 }
 
 async function adminOverrideThumb(id){
   const t=adminTrack(id);if(!t)return;
-  // Open members page image uploader for this track
-  window.open('/members.html#images:override:'+encodeURIComponent(t.name),'_blank');
+  const url=prompt('Override thumb URL (this track only)\nCurrent: '+(t.thumb||'none'));
+  if(!url||!url.trim())return;
+  t.thumb=url.trim();
+  state.resolvedThumb.set(id,url.trim());
+  const img=document.querySelector('.track-row[data-id="'+id+'"] .t-thumb');
+  if(img)img.src=url.trim();
+  try{await adminApiCall({action:'override_thumb',trackName:t.name,thumbUrl:url.trim()});alert('\u2713 Override thumb set for "'+t.title+'".');}catch(e){}
 }
 
 async function adminAddGem(id){
   const t=adminTrack(id);if(!t)return;
-  // Open members page image uploader (gem mode) for this track
-  window.open('/members.html#images:gem:'+encodeURIComponent(t.name),'_blank');
+  const url=prompt('Photo URL to add as a Gem for "'+t.title+'":\n(Any image URL — shows in Gems overlay)');
+  if(!url||!url.trim())return;
+  if(!state.extras)state.extras={};
+  if(!state.extras[t.baseLower])state.extras[t.baseLower]=[];
+  state.extras[t.baseLower].push({type:'image',url:url.trim()});
+  applyFilterSort();
+  try{await adminApiCall({action:'add_gem',trackName:t.name,gemUrl:url.trim()});alert('\u2713 Gem added to "'+t.title+'".');}catch(e){}
 }
 
 async function adminAddHash(id){
   const t=adminTrack(id);if(!t)return;
-  // Open members page hashtag tool for this track (no type-in prompt)
-  window.open('/members.html#hashtags:'+encodeURIComponent(t.name),'_blank');
+  const raw=prompt('Hashtag to add to "'+t.title+'" (with or without #):\nCurrent tags: '+(t.details||'(none)'));
+  if(!raw||!raw.trim())return;
+  const tag=raw.trim().startsWith('#')?raw.trim():'#'+raw.trim();
+  t.details=(t.details?t.details+' ':'')+tag;
+  t.tags=extractTags(t.details);
+  applyFilterSort();
+  try{await adminApiCall({action:'add_hashtag',trackName:t.name,tag});alert('\u2713 Added '+tag+' to "'+t.title+'".');}catch(e){}
 }
 
 async function adminToggleAvail(id){
@@ -1922,12 +1949,12 @@ function updateNow(){
   const wavSrc=BASE_WAV+encodeURIComponent(t.name.replace(/\.mp3$/i,'.wav'));
   const cells=[];
   // 1: MP3 — always
-  cells.push({type:'a',icon:'',label:'MP3',href:t.src,download:true});
+  cells.push({type:'a',icon:'⬇',label:'MP3',href:t.src,download:true});
   // 2: WAV — greyed if not premium
-  cells.push({type:'a',icon:'',label:'WAV',href:wavSrc,download:true,disabled:!isPremium,title:isPremium?'WAV download':'VVIP+ only'});
+  cells.push({type:'a',icon:'⬇',label:'WAV',href:wavSrc,download:true,disabled:!isPremium,title:isPremium?'WAV download':'VVIP+ only'});
   // 3: Gems — only if track has extras and gems are enabled
   const hasGems=state.showGems&&state.extras&&state.extras[t.baseLower];
-  if(hasGems) cells.push({type:'btn',icon:'',label:'Gems',onclick:`openGemsForTrack(${t.id})`});
+  if(hasGems) cells.push({type:'btn',icon:'💎',label:'Gems',onclick:`openGemsForTrack(${t.id})`});
   // 4: Lo-fi video
   if(loV) cells.push({type:'btn',icon:'▶',label:'Video',onclick:'openVideo(false)'});
   // 5: HQ video
@@ -1965,7 +1992,7 @@ function openPlayerGems(){
     const isVid=/\.(mp4|mov|webm)$/i.test(f);
     const url=BASE_EXTRAS+encodeURIComponent(f);
     overlay.innerHTML=`
-      <div style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;letter-spacing:.06em">GEMS - ${t.title} — ${idx+1}/${allMedia.length}</div>
+      <div style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;letter-spacing:.06em">💎 GEMS — ${t.title} — ${idx+1}/${allMedia.length}</div>
       ${isVid
         ?`<video src="${url}" controls autoplay style="max-width:min(90vw,600px);max-height:60vh;background:#000"></video>`
         :`<img src="${url}" style="max-width:min(90vw,600px);max-height:65vh;object-fit:contain;border:1px solid #333">`}
@@ -1974,7 +2001,7 @@ function openPlayerGems(){
         <a href="${url}" target="_blank" style="font-family:Arial,sans-serif;font-size:11px;color:#aaa;text-decoration:underline">open</a>
         ${allMedia.length>1?`<button onclick="gemNav(1)" style="font-family:Arial,sans-serif;font-size:13px;background:none;border:1px solid #555;color:#fff;padding:4px 14px;cursor:pointer">►</button>`:''}
       </div>
-      <button onclick="document.getElementById('gems-overlay').remove()" style="font-family:Arial,sans-serif;font-size:11px;background:none;border:1px solid #555;color:#aaa;padding:3px 14px;cursor:pointer;margin-top:4px">Close</button>`;
+      <button onclick="document.getElementById('gems-overlay').remove()" style="font-family:Arial,sans-serif;font-size:11px;background:none;border:1px solid #555;color:#aaa;padding:3px 14px;cursor:pointer;margin-top:4px">✕ Close</button>`;
   }
   window.gemNav=function(dir){idx=(idx+dir+allMedia.length)%allMedia.length;render();}
   overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
@@ -2217,7 +2244,7 @@ function renderShoppe(){
       <div class="shoppe-item-row">
         ${imgSrc
           ?`<img class="shoppe-item-thumb" src="${imgSrc}" alt="${it.title}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-          :''}<div class="shoppe-item-thumb-ph" style="${imgSrc?'display:none':''}">${imgSrc?'':'[?]'}</div>
+          :''}<div class="shoppe-item-thumb-ph" style="${imgSrc?'display:none':''}">${imgSrc?'':'🛍'}</div>
         <div class="shoppe-item-mid">
           <div class="shoppe-item-title">${it.title}${it.premium?'<span class="shoppe-vvip-only">VVIP+</span>':''}</div>
           <div class="shoppe-item-desc">${it.desc||''}</div>
