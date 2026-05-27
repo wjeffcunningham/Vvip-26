@@ -1048,7 +1048,10 @@ try {
       flowType: 'pkce',
       detectSessionInUrl: true,
       persistSession: true,
+      // Pin the storage key to the project ref — prevents custom domain (auth.vvipmedia.net)
+      // vs native domain (fyyfiimnltaktrsczjdq.supabase.co) key mismatch that breaks PKCE
       storageKey: 'sb-fyyfiimnltaktrsczjdq-auth-token',
+      // Use localStorage — sessionStorage is wiped on cross-origin redirects (Safari ITP, Chrome)
       storage: {
         getItem: (key) => { try { return localStorage.getItem(key); } catch(e) { return null; } },
         setItem: (key, value) => { try { localStorage.setItem(key, value); } catch(e) {} },
@@ -1158,7 +1161,7 @@ async function sendPasswordReset(){
 async function init(){
   if(!supa){ setNavLoggedOut(); show('view-auth'); return; }
 
-  // Password reset flow
+  // Password reset redirect
   const params = new URLSearchParams(window.location.search);
   if(params.get('reset')==='1'){
     show('view-auth');
@@ -1181,31 +1184,63 @@ async function init(){
   setNavLoggedOut();
   show('view-loading');
 
-  // Single source of truth: onAuthStateChange.
-  // detectSessionInUrl:true means the SDK automatically exchanges ?code= for a session
-  // and fires SIGNED_IN. We must NOT also call exchangeCodeForSession manually —
-  // PKCE codes are single-use and the race kills both attempts.
+  const urlParams = new URLSearchParams(window.location.search);
+  const hasCode = urlParams.has('code');
+
+  // onAuthStateChange handles SIGNED_IN fired by the SDK after code exchange
+  // or on page load when a session already exists
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){
       currentUser = null; profile = null;
       setNavLoggedOut(); show('view-auth');
-      return;
     }
-    if(event === 'SIGNED_IN' && s){
-      if(currentUser) return; // already handled
+    if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && s && !currentUser){
       await onSession(s);
       try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
-      return;
     }
-    if(event === 'INITIAL_SESSION'){
-      if(s){
-        if(currentUser) return;
-        await onSession(s);
-      } else {
-        show('view-auth');
-      }
+    if(event === 'INITIAL_SESSION' && !s){
+      // No session on load — show auth form
+      show('view-auth');
     }
   });
+
+  // PKCE code exchange — let the SDK handle it via detectSessionInUrl:true
+  // but also call explicitly as a fallback for browsers that need it
+  if(hasCode){
+    try{
+      const{data,error} = await supa.auth.exchangeCodeForSession(urlParams.get('code'));
+      if(error) dbg('exchange error: ' + error.message);
+      if(data?.session && !currentUser){
+        await onSession(data.session);
+        try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
+        return;
+      }
+      if(!data?.session){
+        // Exchange failed — clean up and show auth so user isn't stuck
+        dbg('exchange returned no session');
+        try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
+        show('view-auth');
+        return;
+      }
+    }catch(e){
+      dbg('exchange threw: ' + e.message);
+      try{ history.replaceState(null,'',window.location.pathname); }catch(e2){}
+      show('view-auth');
+      return;
+    }
+  }
+
+  // No code — check for existing session directly
+  if(!hasCode){
+    try{
+      const { data: { session } } = await supa.auth.getSession();
+      if(session && !currentUser){ await onSession(session); return; }
+      if(!session) show('view-auth');
+    }catch(e){
+      dbg('getSession threw: ' + e.message);
+      show('view-auth');
+    }
+  }
 }
 
 async function updatePassword(){
@@ -2072,17 +2107,13 @@ function setAnimPref(on){
 })();
 
 // ── GO ──
-// Safety net: INITIAL_SESSION should always fire, but if it doesn't within 10s show auth
+// Safety net: if auth hangs for any reason, don't leave user on "Please wait"
 setTimeout(()=>{
-  if(!currentUser){
-    const loading=document.getElementById('view-loading');
-    if(loading&&(loading.style.display===''||loading.style.display==='block')){
-      show('view-auth');
-    }
-  }
-},10000);
-init();
-(()=>{
+  const loading=document.getElementById('view-loading');
+  if(loading&&loading.style.display!=='none'&&loading.style.display!==''){return;}
+  if(loading&&loading.style.display===''){ dbg('auth timeout — falling back to sign-in'); show('view-auth'); }
+},8000);
+init().then(()=>{
   // Deep-link from index admin row: #hashtags:trackname or #images:cat:trackname
   const h=window.location.hash;
   if(h&&h.startsWith('#hashtags:')){
@@ -2114,7 +2145,7 @@ init();
       }
     },600);
   }
-})();
+});
 
 // ── MINI PLAYER — continuous with main player tab via BroadcastChannel + localStorage ──
 (function(){
