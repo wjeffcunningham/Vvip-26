@@ -1186,61 +1186,41 @@ async function init(){
 
   const urlParams = new URLSearchParams(window.location.search);
   const hasCode = urlParams.has('code');
+  const hasHashToken = window.location.hash.includes('access_token=');
 
-  // onAuthStateChange handles SIGNED_IN fired by the SDK after code exchange
-  // or on page load when a session already exists
+  // Register sign-out and post-login listeners (only — no INITIAL_SESSION reliance)
   supa.auth.onAuthStateChange(async(event, s) => {
     if(event === 'SIGNED_OUT'){
       currentUser = null; profile = null;
       setNavLoggedOut(); show('view-auth');
     }
-    if((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && s && !currentUser){
+    if(event === 'SIGNED_IN' && s && !currentUser){
       await onSession(s);
       try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
     }
-    if(event === 'INITIAL_SESSION' && !s){
-      // No session on load — show auth form
-      show('view-auth');
-    }
   });
 
-  // PKCE code exchange — let the SDK handle it via detectSessionInUrl:true
-  // but also call explicitly as a fallback for browsers that need it
+  // PKCE code exchange (OAuth redirect)
   if(hasCode){
     try{
       const{data,error} = await supa.auth.exchangeCodeForSession(urlParams.get('code'));
       if(error) dbg('exchange error: ' + error.message);
-      if(data?.session && !currentUser){
+      if(data?.session){
         await onSession(data.session);
         try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
         return;
       }
-      if(!data?.session){
-        // Exchange failed — clean up and show auth so user isn't stuck
-        dbg('exchange returned no session');
-        try{ history.replaceState(null,'',window.location.pathname); }catch(e){}
-        show('view-auth');
-        return;
-      }
-    }catch(e){
-      dbg('exchange threw: ' + e.message);
-      try{ history.replaceState(null,'',window.location.pathname); }catch(e2){}
-      show('view-auth');
-      return;
-    }
+    }catch(e){ dbg('exchange threw: ' + e.message); }
   }
 
-  // No code — check for existing session directly
-  if(!hasCode){
-    try{
-      const { data: { session } } = await supa.auth.getSession();
-      if(session && !currentUser){ await onSession(session); return; }
-      if(!session) show('view-auth');
-    }catch(e){
-      dbg('getSession threw: ' + e.message);
-      show('view-auth');
-    }
-  }
+  // Direct session check — fast, synchronous-ish, no event waiting
+  try{
+    const { data: { session } } = await supa.auth.getSession();
+    if(session){ await onSession(session); return; }
+  }catch(e){ dbg('getSession threw: ' + e.message); }
+
+  // No session — go straight to auth form
+  show('view-auth');
 }
 
 async function updatePassword(){
@@ -2107,12 +2087,6 @@ function setAnimPref(on){
 })();
 
 // ── GO ──
-// Safety net: if auth hangs for any reason, don't leave user on "Please wait"
-setTimeout(()=>{
-  const loading=document.getElementById('view-loading');
-  if(loading&&loading.style.display!=='none'&&loading.style.display!==''){return;}
-  if(loading&&loading.style.display===''){ dbg('auth timeout — falling back to sign-in'); show('view-auth'); }
-},8000);
 init().then(()=>{
   // Deep-link from index admin row: #hashtags:trackname or #images:cat:trackname
   const h=window.location.hash;
