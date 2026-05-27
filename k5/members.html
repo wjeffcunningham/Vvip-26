@@ -1363,7 +1363,7 @@ function renderMemberNav(){
     if(gso)gso.style.display='flex';
   } else {
     if(profile.username){
-      if(nu){nu.style.display='';nu.textContent='@'+profile.username;}
+      if(nu){nu.style.display='';nu.textContent='Welcome, @'+profile.username;}
     } else {
       if(nv)nv.style.display='';
     }
@@ -1535,12 +1535,12 @@ async function uploadTrack(){
   const selectedTags = document.getElementById('up-tags-select') 
     ? [...document.getElementById('up-tags-select').selectedOptions].map(o=>'#'+o.value) 
     : [];
-  const bpm = document.getElementById('up-bpm') ? parseInt(document.getElementById('up-bpm').value)||undefined : undefined;
-  const bpmMin = document.getElementById('up-bpm-min') ? parseInt(document.getElementById('up-bpm-min').value)||undefined : undefined;
-  const bpmMax = document.getElementById('up-bpm-max') ? parseInt(document.getElementById('up-bpm-max').value)||undefined : undefined;
-  const date = document.getElementById('up-date') ? (document.getElementById('up-date').value||undefined) : undefined;
-  const details = document.getElementById('up-notes') ? (document.getElementById('up-notes').value.trim()||undefined) : (document.getElementById('up-details')?document.getElementById('up-details').value.trim()||undefined:undefined);
-  const lengthStr = document.getElementById('up-length') ? document.getElementById('up-length').value.trim() : '';
+  const bpm = parseInt(document.getElementById('up-bpm').value) || undefined;
+  const bpmMin = parseInt(document.getElementById('up-bpm-min').value) || undefined;
+  const bpmMax = parseInt(document.getElementById('up-bpm-max').value) || undefined;
+  const date = document.getElementById('up-date').value || undefined;
+  const details = document.getElementById('up-details').value.trim() || undefined;
+  const lengthStr = document.getElementById('up-length').value.trim();
   const length = lengthStr ? parseLenSec(lengthStr) : undefined;
 
   setUpStatus('Uploading MP3…', 'working');
@@ -1570,12 +1570,8 @@ async function uploadTrack(){
     setUpStatus('✓ Uploaded and manifest updated!', 'ok');
     // Reset form
     document.getElementById('up-file').value = '';
-    ['up-title']
-      .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-    const upSel=document.getElementById('up-tags-select');
-    if(upSel) [...upSel.options].forEach(o=>o.selected=false);
-    const upNotes=document.getElementById('up-notes');
-    if(upNotes) upNotes.value='';
+    ['up-title','up-bpm','up-bpm-min','up-bpm-max','up-date','up-details','up-length']
+      .forEach(id => document.getElementById(id).value = '');
   } else {
     setUpStatus('MP3 uploaded but manifest update failed. Check console.', 'err');
   }
@@ -1612,7 +1608,7 @@ function show(id){
   const t=document.getElementById(id);if(t)t.style.display='';
 }
 function setUpStatus(msg,cls){
-  const el=document.getElementById('up-status');
+  const el=document.getElementById('upload-status');
   el.textContent=msg;el.className=cls;el.style.display='block';
 }
 function showEditMsg(t,cls){
@@ -2067,7 +2063,7 @@ async function loadUserList(){
     <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-bottom:1px solid var(--border-light);font-family:Arial,sans-serif;font-size:11px;gap:8px">
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.email}</span>
       <span style="flex-shrink:0;color:var(--muted)">${u.is_admin?'[admin]':''}${u.is_premium?' [vvip+]':''}</span>
-      <button onclick="document.getElementById('admin-user-email').value='${u.email}';openAdminTool('users')" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">select</button>
+      <button onclick="document.getElementById('admin-user-email').value='${u.email}';adminTab('users',document.querySelector('.admin-tab:nth-child(4)'))" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">select</button>
     </div>`).join('');
 }
 

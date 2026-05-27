@@ -616,7 +616,7 @@ body.hide-titles .t-title-file{display:inline !important}
     <a id="nav-join-free" href="/members.html">Join Free</a>
     <a id="nav-vvip-btn" href="/members.html" style="display:none">VVIP+</a>
     <a id="nav-username-btn" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
-    <a id="nav-admin-btn" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;margin-left:4px">Admin</a>
+    <span id="nav-admin-btn" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;margin-left:4px;cursor:pointer" onclick="window.location='/members.html'">Admin</span>
   </div>
   <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
   <div id="gear-menu">
@@ -935,7 +935,7 @@ function renderAuthNav(){
     if(gearSO)gearSO.style.display='';
   } else {
     if(vvipUsername){
-      if(userEl){userEl.style.display='';userEl.textContent='@'+vvipUsername;}
+      if(userEl){userEl.style.display='';userEl.textContent='Welcome, @'+vvipUsername;}
     } else {
       if(vvipEl)vvipEl.style.display='';
     }
@@ -1593,7 +1593,7 @@ function rowHTML(t,i){
         +label+'</button>';
     }).join('');
   }
-  const adminToggle=isAdmin?'<button class="admin-toggle-btn" onclick="event.stopPropagation();toggleAdminRow('+t.id+')" title="Admin tools">...</button>':'';
+  const adminToggle=isAdmin?'<button class="admin-toggle-btn" onclick="event.stopPropagation();toggleAdminRow('+t.id+')" title="Admin tools">⬡</button>':'';
   const ruled=applyDisplayRule(t.title);
   const titleDisplay=ruled?ruled:(t.title.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
   let thumbSrc=getThumb(t);
