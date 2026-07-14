@@ -1,11 +1,11 @@
 [
     {
     "name": "26.06.28.112.mp3",
-    "title": "26.06.28.112.mp3//Parc-X",
+    "title": "26.06.28.112.mp3",
     "bpm": 112,
     "bpm_min": null,
     "bpm_max": null,
-    "details": "#muggy; #BestOfVVIP",
+    "details": "#BestOfVVIP; #vocalsamples",
     "length": 0,
     "date": "2026-06-28",
     "year": 2026,
@@ -18,7 +18,7 @@
     "bpm": 118,
     "bpm_min": null,
     "bpm_max": null,
-    "details": "",
+    "details": "#vocalsamples",
     "length": 0,
     "date": "2026-06-28",
     "year": 2026,
@@ -27,7 +27,7 @@
   },
   {
     "name": "26.06.24.97.mp3",
-    "title": "26.06.24.97.mp3//A Few Simple Questions",
+    "title": "A Few Simple Questions",
     "bpm": 97,
     "bpm_min": null,
     "bpm_max": null,
@@ -40,7 +40,7 @@
   },
   {
     "name": "26.06.03.116.mp3",
-    "title": "Summer Swing",
+    "title": "26.06.03.116.mp3//Summer Swing",
     "bpm": 116,
     "bpm_min": null,
     "bpm_max": null,
@@ -482,7 +482,7 @@
   },
   {
     "name": "25.08.19.142.mp3",
-    "title": "Broken Falsetto//Bourne Choppy//North Arcade",
+    "title": "Broken Falsetto//North Arcade",
     "bpm": 142,
     "bpm_min": null,
     "bpm_max": null,
@@ -911,7 +911,7 @@
   },
   {
     "name": "25.05.30.129.mp3",
-    "title": "Chevvy Weather",
+    "title": "Chevy Weather",
     "bpm": 129,
     "bpm_min": null,
     "bpm_max": null,
