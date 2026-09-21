@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VVIP Media.NET</title>
+<title>VVIP media.NET</title>
 <link rel="icon" href="/favicon.ico?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
@@ -139,7 +139,7 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
   background:var(--card);
 }
 .m-section-head{
-  background:var(--sec-ga);
+  background:linear-gradient(90deg,var(--sec-ga),var(--sec-gb));
   color:var(--tag-fg);
   font-family:Arial,Helvetica,sans-serif;
   font-size:11px;font-weight:bold;letter-spacing:.07em;text-transform:uppercase;
@@ -256,15 +256,19 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 .upgrade-perks li::before{content:'*';color:var(--gold-bg);font-size:10px;flex-shrink:0}
 .upgrade-perks li:last-child{border-bottom:none}
 
-/* Benefits list (premium unlocked) */
-.benefit-list{margin-top:4px;font-family:Arial,sans-serif;font-size:12px}
-.benefit-row{padding:8px 0;border-bottom:1px solid var(--border-light)}
-.benefit-row:last-child{border-bottom:none}
-.benefit-row-label{font-weight:bold;color:var(--fg);margin-bottom:2px}
-.benefit-row-desc{color:var(--muted);font-size:11px}
+/* Benefits grid (premium unlocked) */
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+@media(max-width:480px){.benefit-grid{grid-template-columns:1fr}}
+.benefit-tile{
+  border:1px solid var(--border);padding:12px;background:var(--bg);
+  font-family:Arial,sans-serif;font-size:12px;
+}
+.benefit-tile-icon{font-size:20px;margin-bottom:4px}
+.benefit-tile-label{font-weight:bold;margin-bottom:2px;color:var(--fg)}
+.benefit-tile-desc{color:var(--muted);font-size:11px}
 
 /* Admin tools */
-#admin-panel .m-section-head{background:#0c0a22;color:#99aaee}
+#admin-panel .m-section-head{background:linear-gradient(90deg,#0c0a22,#1a1860);color:#99aaee}
 .admin-pane{display:none}
 .admin-pane.active{display:block}
 /* Admin tiles */
@@ -619,6 +623,13 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light)">
           <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Preferences</div>
           <div style="display:flex;align-items:center;justify-content:space-between;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg);margin-bottom:6px">
+            <label for="mem-tog-anim" style="cursor:pointer">Text animations</label>
+            <label class="sq-toggle-wrap">
+              <input type="checkbox" id="mem-tog-anim" checked onchange="setAnimPref(this.checked)">
+              <span class="sq-toggle-track"></span>
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--fg);margin-bottom:6px">
             <label for="mem-tog-newsletter" style="cursor:pointer">Sign me up for newsletters</label>
             <label class="sq-toggle-wrap">
               <input type="checkbox" id="mem-tog-newsletter">
@@ -636,14 +647,14 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
       </div>
     </div>
 
-    <!-- VVIP+ ruleset — shown only to Free members (their upgrade pitch); VVIP+/Admin see benefits-section instead, not both -->
+    <!-- VVIP+ ruleset — always visible once logged in -->
     <div class="m-section" id="vvip-ruleset-section">
       <div class="m-section-head">VVIP+ — What It Is</div>
       <div class="m-section-body">
         <p style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin:0 0 10px">One-time lifetime upgrade. Here's what it unlocks:</p>
         <table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;font-size:12px">
           <thead>
-            <tr style="background:var(--sec-ga);color:var(--tag-fg)">
+            <tr style="background:linear-gradient(90deg,var(--sec-ga),var(--sec-gb));color:var(--tag-fg)">
               <th style="padding:5px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em">Feature</th>
               <th style="padding:5px 8px;text-align:center;font-size:10px;text-transform:uppercase;width:60px">Free</th>
               <th style="padding:5px 8px;text-align:center;font-size:10px;text-transform:uppercase;width:60px;color:var(--gold-hi)">VVIP+</th>
@@ -694,18 +705,26 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
     <div class="m-section" id="benefits-section" style="display:none">
       <div class="m-section-head">Your VVIP+ Benefits</div>
       <div class="m-section-body">
-        <div class="benefit-list">
-          <div class="benefit-row">
-            <div class="benefit-row-label">WAV Downloads</div>
-            <div class="benefit-row-desc">Every track in lossless WAV, available in the player.</div>
+        <div class="benefit-grid">
+          <div class="benefit-tile">
+            <div class="benefit-tile-icon">[dl]</div>
+            <div class="benefit-tile-label">WAV Downloads</div>
+            <div class="benefit-tile-desc">Every track in lossless WAV available in the player.</div>
           </div>
-          <div class="benefit-row">
-            <div class="benefit-row-label">HQ Video</div>
-            <div class="benefit-row-desc">Full-resolution video streams. <a id="vvip-archives-link" href="#" target="_blank">VVIP Archives →</a></div>
+          <div class="benefit-tile">
+            <div class="benefit-tile-icon">[play]</div>
+            <div class="benefit-tile-label">HQ Video</div>
+            <div class="benefit-tile-desc">Full-resolution video streams unlocked. <a id="vvip-archives-link" href="#" target="_blank">VVIP Archives →</a></div>
           </div>
-          <div class="benefit-row">
-            <div class="benefit-row-label">Shoppe</div>
-            <div class="benefit-row-desc">Discounted and members-only items. <a href="https://shoppe.vvipmedia.net" target="_blank">Visit the store →</a></div>
+          <div class="benefit-tile">
+            <div class="benefit-tile-icon">[shop]</div>
+            <div class="benefit-tile-label">Merch &amp; Swag</div>
+            <div class="benefit-tile-desc">Become a VVIP partner. <a href="https://shoppe.vvipmedia.net" target="_blank">Visit the store →</a></div>
+          </div>
+          <div class="benefit-tile">
+            <div class="benefit-tile-icon">[+]</div>
+            <div class="benefit-tile-label">More to Come</div>
+            <div class="benefit-tile-desc">Be a VVIP.</div>
           </div>
         </div>
 
@@ -773,7 +792,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 
       <!-- IN-PAGE APP VIEWER — opens when a tile is clicked -->
       <div id="admin-app-viewer" style="display:none;border:1px solid var(--border);background:var(--card);margin-bottom:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:#0c0a22">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#0c0a22,#1a1860)">
           <span id="admin-viewer-title" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#99aaee;letter-spacing:0.05em"></span>
           <button onclick="closeAdminTool()" style="background:none;border:none;color:#99aaee;font-size:16px;cursor:pointer;padding:0 4px;line-height:1">X</button>
         </div>
@@ -948,33 +967,16 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
               <button class="m-btn gold" onclick="toggleAddShoppeForm()" style="font-size:11px">+ Add Item</button>
             </div>
             <div id="shoppe-add-form" style="display:none;border:1px solid var(--border);padding:12px;margin-bottom:14px;background:var(--card)">
-              <div id="shoppe-form-title" style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em">New Item</div>
               <div class="upload-grid">
-                <div class="m-field upload-full"><label class="m-label">Title</label><input class="m-input" id="si-title" type="text" placeholder="VVIP+ T"></div>
-                <div class="m-field"><label class="m-label">Image filename</label><input class="m-input" id="si-image" type="text" placeholder="./vvipblack.jpg"></div>
-                <div class="m-field"><label class="m-label">Available?</label>
-                  <select class="m-select" id="si-available"><option value="true">Yes</option><option value="false">No</option></select></div>
+                <div class="m-field"><label class="m-label">Name</label><input class="m-input" id="si-name" type="text"></div>
+                <div class="m-field"><label class="m-label">Price</label><input class="m-input" id="si-price" type="text" placeholder="$25"></div>
                 <div class="m-field upload-full"><label class="m-label">Description</label><textarea class="m-input" id="si-desc" rows="2"></textarea></div>
-                <div class="m-field"><label class="m-label">Price</label><input class="m-input" id="si-price" type="number" step="0.01" placeholder="25"></div>
-                <div class="m-field"><label class="m-label">Currency</label>
-                  <select class="m-select" id="si-currency"><option value="CAD">CAD</option><option value="USD">USD</option></select></div>
-                <div class="m-field"><label class="m-label">Bandcamp URL</label><input class="m-input" id="si-bandcamp" type="url" placeholder="optional"></div>
-                <div class="m-field"><label class="m-label">FB Marketplace URL</label><input class="m-input" id="si-fb" type="url" placeholder="optional"></div>
-                <div class="m-field upload-full">
-                  <label class="m-label">Tags</label>
-                  <select class="m-select" id="si-tags-select" multiple size="4" style="height:auto"></select>
-                  <div style="display:flex;gap:6px;margin-top:6px">
-                    <input class="m-input" type="text" id="si-new-tag" placeholder="new tag (no #)" style="flex:1" autocomplete="off">
-                    <button class="m-btn" onclick="addNewShoppeTagOption()" style="white-space:nowrap">Add tag</button>
-                  </div>
-                  <div style="font-family:Arial,sans-serif;font-size:10px;color:var(--muted);margin-top:3px">Hold Ctrl/Cmd to select multiple.</div>
-                </div>
+                <div class="m-field upload-full"><label class="m-label">Stripe Link</label><input class="m-input" id="si-link" type="url"></div>
+                <div class="m-field"><label class="m-label">Category</label><input class="m-input" id="si-cat" type="text" placeholder="apparel"></div>
+                <div class="m-field"><label class="m-label">VVIP+ only?</label>
+                  <select class="m-input" id="si-vvip"><option value="false">No</option><option value="true">Yes</option></select></div>
               </div>
-              <div class="m-btn-row">
-                <button class="m-btn gold" onclick="saveNewShoppeItem()">Save Item</button>
-                <button class="m-btn" onclick="cancelShoppeEdit()">Cancel</button>
-              </div>
-              <div id="shoppe-form-msg" class="m-msg"></div>
+              <div class="m-btn-row"><button class="m-btn gold" onclick="saveNewShoppeItem()">Save Item</button></div>
             </div>
             <div id="shoppe-admin-list" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Loading…</div>
           </div>
@@ -1267,6 +1269,8 @@ function renderMember(){
   // Email + username
   document.getElementById('inp-email').value = currentUser.email || '';
   document.getElementById('inp-username').value = profile.username || '';
+  const animEl=document.getElementById('mem-tog-anim');
+  if(animEl) animEl.checked=(localStorage.getItem('vvip25:anim')!=='0');
   // Newsletter + remember me
   const nlEl=document.getElementById('mem-tog-newsletter');
   if(nlEl) nlEl.checked=!!profile.newsletter;
@@ -1291,7 +1295,6 @@ function renderMember(){
 
   // Upgrade vs benefits
   const hasPremAccess=profile.is_premium||profile.is_admin;
-  document.getElementById('vvip-ruleset-section').style.display=hasPremAccess?'none':'';
   document.getElementById('upgrade-section').style.display=hasPremAccess?'none':'';
   document.getElementById('benefits-section').style.display=hasPremAccess?'':'none';
 
@@ -1441,9 +1444,70 @@ async function loadTracksForEditor(){
     const r = await fetch(MANIFEST_URL, { cache: 'no-store' });
     const data = await r.json();
     allTracks = Array.isArray(data) ? data : (data.tracks || []);
+    renderSongList();
   } catch(e) {
-    console.error('loadTracksForEditor failed', e);
+    document.getElementById('song-list').textContent = 'Could not load manifest.';
   }
+}
+
+function renderSongList(){
+  const el = document.getElementById('song-list');
+  if(!allTracks.length){ el.textContent = 'No tracks.'; return; }
+  el.innerHTML = allTracks.map((t, i) =>
+    `<div class="song-edit-row" onclick="openEditRow(${i})">
+      <span class="song-edit-num">${String(i+1).padStart(3,'0')}</span>
+      <span>${t.title || t.name}</span>
+    </div>`
+  ).join('');
+}
+
+function openEditRow(i){
+  const t = allTracks[i];
+  document.querySelectorAll('.song-edit-row').forEach((r,j)=>r.classList.toggle('selected',j===i));
+  document.getElementById('edit-orig-name').value = t.name;
+  document.getElementById('edit-title').value = t.title || '';
+  document.getElementById('edit-bpm').value = t.bpm || '';
+  document.getElementById('edit-bpm-min').value = t.bpm_min || '';
+  document.getElementById('edit-bpm-max').value = t.bpm_max || '';
+  document.getElementById('edit-date').value = t.date ? t.date.slice(0,10) : '';
+  document.getElementById('edit-length').value = t.length ? fmtLen(t.length) : '';
+  document.getElementById('edit-details').value = t.details || '';
+  document.getElementById('edit-hashtags').value = t.hashtags || '';
+  const f = document.getElementById('song-edit-form');
+  f.classList.add('open');
+  f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function cancelEdit(){
+  document.getElementById('song-edit-form').classList.remove('open');
+  document.querySelectorAll('.song-edit-row').forEach(r=>r.classList.remove('selected'));
+}
+
+async function saveEdit(){
+  const origName = document.getElementById('edit-orig-name').value;
+  const idx = allTracks.findIndex(t => t.name === origName);
+  if(idx < 0){ showEditMsg('Track not found.', 'err'); return; }
+
+  const lengthStr = document.getElementById('edit-length').value.trim();
+  const updated = {
+    ...allTracks[idx],
+    title: document.getElementById('edit-title').value.trim() || undefined,
+    bpm: parseInt(document.getElementById('edit-bpm').value) || undefined,
+    bpm_min: parseInt(document.getElementById('edit-bpm-min').value) || undefined,
+    bpm_max: parseInt(document.getElementById('edit-bpm-max').value) || undefined,
+    date: document.getElementById('edit-date').value || undefined,
+    length: lengthStr ? parseLenSec(lengthStr) : undefined,
+    details: document.getElementById('edit-details').value.trim() || undefined,
+    hashtags: document.getElementById('edit-hashtags').value.trim() || undefined,
+  };
+  // Clean undefined
+  Object.keys(updated).forEach(k => updated[k] === undefined && delete updated[k]);
+  allTracks[idx] = updated;
+
+  showEditMsg('Saving…', 'info');
+  const ok = await pushManifest();
+  if(ok){ showEditMsg('✓ Saved.', 'ok'); renderSongList(); }
+  else showEditMsg('Error saving manifest. Check console.', 'err');
 }
 
 // ── ADMIN: UPLOAD ──
@@ -1535,6 +1599,11 @@ function show(id){
 function setUpStatus(msg,cls){
   const el=document.getElementById('up-status');
   el.textContent=msg;el.className=cls;el.style.display='block';
+}
+function showEditMsg(t,cls){
+  const el=document.getElementById('edit-msg');
+  el.textContent=t;el.className='m-msg show '+(cls||'info');
+  if(cls==='ok')setTimeout(()=>el.classList.remove('show'),3000);
 }
 // ── ADMIN: TOOL VIEWER ──
 const TOOL_LABELS = {
@@ -1634,7 +1703,7 @@ function filterImgTrack(q){
   if(!matches.length){res.style.display='none';return;}
   res.style.display='block';
   res.innerHTML=matches.map(t=>`
-    <div onclick="selectImgTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}')"
+    <div onclick="selectImgTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
       style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
       onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
       ${t.title||t.name}
@@ -1715,7 +1784,7 @@ function filterHtTrack(q){
   if(!matches.length){res.style.display='none';return;}
   res.style.display='block';
   res.innerHTML=matches.map(t=>`
-    <div onclick="selectHtTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}')"
+    <div onclick="selectHtTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
       style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
       onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">
       ${t.title||t.name}
@@ -1747,7 +1816,7 @@ function renderHtTags(){
   if(!htCurrentTrack){container.innerHTML='';return;}
   const tags=(htCurrentTrack.hashtags||[]);
   container.innerHTML=tags.length
-    ? tags.map(tag=>`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--card);border:1px solid var(--border);font-family:Arial,sans-serif;font-size:11px">${tag} <button onclick="removeHashtag('${tag.replace(/'/g,"\'")}')" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:0">X</button></span>`).join('')
+    ? tags.map(tag=>`<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--card);border:1px solid var(--border);font-family:Arial,sans-serif;font-size:11px">${tag} <button onclick="removeHashtag('${tag.replace(/'/g,"\'")}'" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:0">X</button></span>`).join('')
     : '<span style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted)">No tags yet.</span>';
 }
 async function addHashtag(){
@@ -1815,7 +1884,7 @@ function filterEditTrack(q){
   const matches=allTracks.filter(t=>(t.title||t.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,12);
   if(!matches.length){res.style.display='none';return;}
   res.style.display='block';
-  res.innerHTML=matches.map(t=>`<div onclick="selectEditTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}')"
+  res.innerHTML=matches.map(t=>`<div onclick="selectEditTrack('${t.name.replace(/'/g,"\'")}','${(t.title||t.name).replace(/'/g,"\'")}'")
     style="padding:6px 10px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;border-bottom:1px solid var(--border-light)"
     onmouseover="this.style.background='var(--hover)'" onmouseout="this.style.background=''">${t.title||t.name}</div>`).join('');
 }
@@ -1878,133 +1947,58 @@ async function deleteTrack(){
 // ── ADMIN: SHOPPE ──
 const EDGE_SHOPPE='https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-shoppe';
 let shoppeAdminItems=[];
-let shoppeEditIndex=null; // null = adding new item; number = editing shoppeAdminItems[index]
-
 async function loadShoppeAdmin(){
   const el=document.getElementById('shoppe-admin-list');
   if(!el) return;
   el.textContent='Loading…';
   try{
-    const r=await fetch('/shoppe/shoppe.json?v='+Date.now());
+    const r=await fetch('https://cdn.vvipmedia.net/shoppe/shoppe.json?v='+Date.now());
     const data=await r.json();
-    shoppeAdminItems=Array.isArray(data)?data:(data.items||[]);
+    shoppeAdminItems=data.items||[];
     el.innerHTML=shoppeAdminItems.map((item,i)=>`
       <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-family:Arial,sans-serif;font-size:12px">
-        <span style="flex:1;font-weight:bold;cursor:pointer" onclick="editShoppeItem(${i})">${item.title||''}</span>
-        <span style="color:var(--muted)">${item.price!=null?item.price+' '+(item.currency||''):''}</span>
-        <span style="font-size:10px;padding:1px 6px;background:${item.available?'var(--card)':'#c4444433'};border:1px solid var(--border)">${item.available?'on':'off'}</span>
-        <button onclick="toggleShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">${item.available?'Disable':'Enable'}</button>
-        <button onclick="editShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">Edit</button>
+        <span style="flex:1;font-weight:bold">${item.name}</span>
+        <span style="color:var(--muted)">${item.price||''}</span>
+        <span style="font-size:10px;padding:1px 6px;background:${item.enabled?'var(--card)':'#c4444433'};border:1px solid var(--border)">${item.enabled?'on':'off'}</span>
+        <button onclick="toggleShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:1px 6px;cursor:pointer;color:var(--fg)">${item.enabled?'Disable':'Enable'}</button>
         <button onclick="deleteShoppeItem(${i})" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid #c44;padding:1px 6px;cursor:pointer;color:#c44">X</button>
       </div>`).join('');
   }catch(e){el.textContent='Failed to load: '+e.message;}
 }
-
-function populateShoppeTagSelect(selectedTags){
-  const sel=document.getElementById('si-tags-select');
-  if(!sel) return;
-  const allTagSet=new Set();
-  shoppeAdminItems.forEach(it=>(it.tags||[]).forEach(t=>allTagSet.add(t.replace(/^#/,''))));
-  const selected=new Set((selectedTags||[]).map(t=>t.replace(/^#/,'')));
-  sel.innerHTML='';
-  [...allTagSet].sort().forEach(tag=>{
-    const o=document.createElement('option');
-    o.value=tag; o.textContent='#'+tag;
-    if(selected.has(tag)) o.selected=true;
-    sel.appendChild(o);
-  });
-}
-function addNewShoppeTagOption(){
-  const input=document.getElementById('si-new-tag');
-  let raw=input.value.trim().replace(/^#+/,'').replace(/\s+/g,'_').toLowerCase();
-  if(!raw) return;
-  const sel=document.getElementById('si-tags-select');
-  const existing=[...sel.options].find(o=>o.value===raw);
-  if(existing){ existing.selected=true; }
-  else { const o=document.createElement('option'); o.value=raw; o.textContent='#'+raw; o.selected=true; sel.appendChild(o); }
-  input.value='';
-}
-
-function editShoppeItem(i){
-  const item=shoppeAdminItems[i];
-  if(!item) return;
-  shoppeEditIndex=i;
-  document.getElementById('shoppe-form-title').textContent='Edit Item';
-  document.getElementById('si-title').value=item.title||'';
-  document.getElementById('si-image').value=item.image||'';
-  document.getElementById('si-available').value=item.available?'true':'false';
-  document.getElementById('si-desc').value=item.description||'';
-  document.getElementById('si-price').value=item.price!=null?item.price:'';
-  document.getElementById('si-currency').value=item.currency||'CAD';
-  document.getElementById('si-bandcamp').value=item.bandcamp_url||'';
-  document.getElementById('si-fb').value=item.fb_marketplace||'';
-  populateShoppeTagSelect(item.tags);
-  document.getElementById('shoppe-add-form').style.display='';
-  document.getElementById('shoppe-add-form').scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function cancelShoppeEdit(){
-  shoppeEditIndex=null;
-  document.getElementById('shoppe-add-form').style.display='none';
-  const m=document.getElementById('shoppe-form-msg'); if(m) m.textContent='';
-}
-
 async function toggleShoppeItem(i){
-  shoppeAdminItems[i].available=!shoppeAdminItems[i].available;
+  shoppeAdminItems[i].enabled=!shoppeAdminItems[i].enabled;
   await saveShoppeAdmin();
 }
 async function deleteShoppeItem(i){
-  if(!confirm('Delete "'+(shoppeAdminItems[i].title||'this item')+'"?')) return;
   shoppeAdminItems.splice(i,1);
   await saveShoppeAdmin();
 }
 async function saveNewShoppeItem(){
-  const msgEl=document.getElementById('shoppe-form-msg');
-  const title=document.getElementById('si-title').value.trim();
-  if(!title){ msgEl.textContent='Title is required.'; msgEl.className='m-msg show err'; return; }
-  const tagsSel=document.getElementById('si-tags-select');
-  const tags=[...tagsSel.selectedOptions].map(o=>'#'+o.value);
-  const priceVal=document.getElementById('si-price').value.trim();
   const item={
-    title,
-    image:document.getElementById('si-image').value.trim(),
+    id:'item-'+Date.now(),
+    name:document.getElementById('si-name').value.trim(),
+    price:document.getElementById('si-price').value.trim(),
     description:document.getElementById('si-desc').value.trim(),
-    price:priceVal?Number(priceVal):null,
-    currency:document.getElementById('si-currency').value,
-    bandcamp_url:document.getElementById('si-bandcamp').value.trim()||null,
-    fb_marketplace:document.getElementById('si-fb').value.trim()||null,
-    available:document.getElementById('si-available').value==='true',
-    tags
+    stripeLink:document.getElementById('si-link').value.trim(),
+    category:document.getElementById('si-cat').value.trim(),
+    vvipOnly:document.getElementById('si-vvip').value==='true',
+    enabled:true
   };
-  if(shoppeEditIndex!=null){ shoppeAdminItems[shoppeEditIndex]=item; }
-  else { shoppeAdminItems.push(item); }
-  msgEl.textContent='Saving…'; msgEl.className='m-msg show info';
-  const ok=await saveShoppeAdmin();
-  if(ok){ msgEl.textContent='✓ Saved.'; msgEl.className='m-msg show ok'; cancelShoppeEdit(); }
-  else { msgEl.textContent='Error saving. Check console.'; msgEl.className='m-msg show err'; }
+  if(!item.name){return;}
+  shoppeAdminItems.push(item);
+  await saveShoppeAdmin();
+  document.getElementById('shoppe-add-form').style.display='none';
 }
 async function saveShoppeAdmin(){
-  try{
-    const{data:{session}}=await supa.auth.getSession();
-    const r=await fetch(EDGE_SHOPPE,{method:'POST',
-      headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
-      body:JSON.stringify({items:shoppeAdminItems})});
-    if(r.ok){ loadShoppeAdmin(); return true; }
-    console.error('saveShoppeAdmin failed', await r.text());
-    return false;
-  }catch(e){ console.error('saveShoppeAdmin error', e); return false; }
+  const{data:{session}}=await supa.auth.getSession();
+  const r=await fetch(EDGE_SHOPPE,{method:'POST',
+    headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
+    body:JSON.stringify({items:shoppeAdminItems})});
+  if(r.ok) loadShoppeAdmin();
 }
 function toggleAddShoppeForm(){
   const f=document.getElementById('shoppe-add-form');
-  const willShow=f.style.display==='none';
-  if(willShow){
-    shoppeEditIndex=null;
-    document.getElementById('shoppe-form-title').textContent='New Item';
-    ['si-title','si-image','si-desc','si-price','si-bandcamp','si-fb'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-    document.getElementById('si-currency').value='CAD';
-    document.getElementById('si-available').value='true';
-    populateShoppeTagSelect([]);
-  }
-  f.style.display=willShow?'':'none';
+  f.style.display=f.style.display==='none'?'':'none';
 }
 
 // ── ADMIN: THUMBNAILS (legacy compat) ──
@@ -2065,11 +2059,15 @@ async function loadUserList(){
 // ── STRIPE LINK ──
 document.getElementById('stripe-btn').href = STRIPE_LINK;
 
-// ── ANIM PREF (gear menu toggle only — no duplicate in Account) ──
+// ── ANIM PREF ──
+function setAnimPref(on){
+  document.documentElement.classList.toggle('no-anim',!on);
+  localStorage.setItem('vvip25:anim',on?'1':'0');
+}
 (()=>{
   if(localStorage.getItem('vvip25:anim')==='0'){
     document.documentElement.classList.add('no-anim');
-    const el=document.getElementById('tog-anim');if(el)el.checked=false;
+    const el=document.getElementById('mem-tog-anim');if(el)el.checked=false;
   }
 })();
 
