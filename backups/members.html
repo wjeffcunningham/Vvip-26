@@ -1033,13 +1033,13 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 
 <script>
 // ── CONFIG — same as index.html ──
-const SUPA_URL = 'https://fyyfiimnltaktrsczjdq.supabase.co';
+const SUPA_URL = 'https://auth.vvipmedia.net';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
 const STRIPE_LINK = 'https://buy.stripe.com/9B67sMgpveHocnJ58FcbC00';
 const MANIFEST_URL = 'https://vvipmedia.net/manifest.json';
 const SITE_URL = 'https://vvipmedia.net'; // canonical — used for OAuth redirects
 // Supabase Edge Function URL for manifest updates (deploy separately)
-const EDGE_MANIFEST = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-manifest';
+const EDGE_MANIFEST = 'https://auth.vvipmedia.net/functions/v1/update-manifest';
 
 let supa = null;
 try {
@@ -1639,10 +1639,10 @@ function closeAdminTool(){
 
 // ── ADMIN: THUMBNAILS ──
 const THUMB_BASE = 'assets/thumbs/';
-const EDGE_THUMB = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/upload-thumb';
+const EDGE_THUMB = 'https://auth.vvipmedia.net/functions/v1/upload-thumb';
 
 // ── ADMIN: IMAGE UPLOADER ──
-const EDGE_EXTRAS = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/upload-extras';
+const EDGE_EXTRAS = 'https://auth.vvipmedia.net/functions/v1/upload-extras';
 let stagedImages = []; // [{file, objectUrl}]
 let selectedImgCat = 'primary';
 
@@ -1945,7 +1945,7 @@ async function deleteTrack(){
 }
 
 // ── ADMIN: SHOPPE ──
-const EDGE_SHOPPE='https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-shoppe';
+const EDGE_SHOPPE='https://auth.vvipmedia.net/functions/v1/update-shoppe';
 let shoppeAdminItems=[];
 async function loadShoppeAdmin(){
   const el=document.getElementById('shoppe-admin-list');
@@ -2016,7 +2016,7 @@ async function setUserRole(field, value){
   // Since anon key can't list users, we use a workaround: update by matching email in profiles
   // First find the user id from auth.users via a Supabase function call
   const { data: { session } } = await supa.auth.getSession();
-  const res = await fetch('https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/admin-set-role', {
+  const res = await fetch('https://auth.vvipmedia.net/functions/v1/admin-set-role', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -2040,7 +2040,7 @@ async function loadUserList(){
   el.style.display = 'block';
   el.innerHTML = '<div style="padding:10px;font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Loading…</div>';
   const { data: { session } } = await supa.auth.getSession();
-  const res = await fetch('https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/admin-set-role', {
+  const res = await fetch('https://auth.vvipmedia.net/functions/v1/admin-set-role', {
     method: 'POST',
     headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+session.access_token },
     body: JSON.stringify({ action: 'list' }),
