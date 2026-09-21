@@ -1,0 +1,12 @@
+[
+  {
+    "id": "item-1789979774762",
+    "name": "VVIP WORK T",
+    "price": "$40",
+    "description": "Classic VVIP Workmanship",
+    "stripeLink": "",
+    "category": "",
+    "vvipOnly": true,
+    "enabled": true
+  }
+]

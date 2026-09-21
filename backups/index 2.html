@@ -142,9 +142,13 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
 @media(max-width:600px){#site-nav a,#site-nav button{margin-right:6px;font-size:10px}}
 
 /* View tabs — identical to main site */
+.view-tabs{display:flex;margin-top:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.view-tab{font-family:Arial,Helvetica,sans-serif;font-size:12px;padding:3px 12px;background:var(--tab-inactive);border:1px solid var(--border);border-bottom:none;cursor:pointer;color:var(--fg);margin-right:2px;position:relative;top:1px}
+.view-tab.active{background:var(--bg);border-bottom-color:var(--bg);font-weight:bold}
+.view-tab:hover:not(.active){background:var(--hover)}
 
 /* ── CATEGORY TABS ── */
-.shoppe-cats{display:flex;flex-wrap:wrap;margin-top:12px;border-bottom:1px solid var(--border)}
+.shoppe-cats{display:flex;flex-wrap:wrap;margin-top:0;border-bottom:1px solid var(--border)}
 .shoppe-cat{
   font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:normal;
   background:var(--tab-inactive);color:var(--fg);
@@ -344,6 +348,11 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
   </div>
 </div>
 
+<!-- SHOPPE TAB BAR — matches main site view-tabs style -->
+<div class="view-tabs" style="margin-top:12px">
+  <span class="view-tab active" style="cursor:default">Shoppe</span>
+</div>
+
 <!-- CATEGORY TABS -->
 <div class="shoppe-cats" id="shoppe-cats" style="visibility:hidden"></div>
 
@@ -380,7 +389,7 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
 </div><!-- /page -->
 
 <script>
-const SUPA_URL='https://fyyfiimnltaktrsczjdq.supabase.co';
+const SUPA_URL='https://auth.vvipmedia.net';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
 const SITE_URL='https://vvipmedia.net';
 const BASE_IMG='https://vvipmedia.net/shoppe/';
