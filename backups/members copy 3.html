@@ -175,6 +175,8 @@ a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov
 }
 .m-input:focus{border-color:var(--link)}
 .m-input[readonly]{opacity:.6;cursor:default}
+.m-input.auto-address{opacity:.6;transition:opacity .15s}
+.m-input.auto-address.active,.m-input.auto-address:focus{opacity:1}
 
 /* Buttons */
 .m-btn{
@@ -610,32 +612,8 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
         </div>
 
         <div class="m-field" style="margin-top:10px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
-            <label class="m-label" style="margin-bottom:0">Shipping Address (optional)</label>
-            <button class="m-btn" type="button" id="addr-edit-btn" onclick="toggleAddressEdit()" style="padding:2px 10px;font-size:10px">Edit</button>
-          </div>
-          <div class="upload-grid">
-            <div class="m-field upload-full">
-              <label class="m-label" style="font-size:9px">Street</label>
-              <input class="m-input" type="text" id="addr-street" readonly placeholder="123 Main St">
-            </div>
-            <div class="m-field">
-              <label class="m-label" style="font-size:9px">City</label>
-              <input class="m-input" type="text" id="addr-city" readonly>
-            </div>
-            <div class="m-field">
-              <label class="m-label" style="font-size:9px">Province / State</label>
-              <input class="m-input" type="text" id="addr-province" readonly>
-            </div>
-            <div class="m-field">
-              <label class="m-label" style="font-size:9px">Postal / ZIP Code</label>
-              <input class="m-input" type="text" id="addr-postal" readonly>
-            </div>
-            <div class="m-field">
-              <label class="m-label" style="font-size:9px">Country</label>
-              <input class="m-input" type="text" id="addr-country" readonly>
-            </div>
-          </div>
+          <label class="m-label">Shipping Address (optional)</label>
+          <textarea class="m-input auto-address" id="inp-address" rows="1" placeholder="Street, City, Province, Postal Code, Country" style="resize:none;overflow:hidden;font-family:'Times New Roman',Times,serif;font-size:14px" oninput="autoGrowAddress(this)" onfocus="this.classList.add('active')"></textarea>
         </div>
 
         <div class="m-btn-row">
@@ -713,11 +691,8 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
 
     <!-- Benefits (shown only to premium members) -->
     <div class="m-section" id="benefits-section" style="display:none">
-      <div class="m-section-head" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between" onclick="toggleBenefitsPanel()">
-        <span>Your VVIP+ Benefits</span>
-        <span id="benefits-toggle-icon">[+]</span>
-      </div>
-      <div class="m-section-body" id="benefits-body" style="padding:10px 14px;display:none">
+      <div class="m-section-head">Your VVIP+ Benefits</div>
+      <div class="m-section-body" style="padding:10px 14px">
         <div class="benefit-list">
           <div class="benefit-row">
             <div class="benefit-row-label">WAV Downloads</div>
@@ -1280,8 +1255,8 @@ function renderMember(){
   if(nlEl) nlEl.checked=profile.newsletter!==false;
   // "Remember me" was always on (persistSession:true is hardcoded) — no toggle needed
   // Address
-  populateAddressFields(profile.address);
-  lockAddressFields();
+  const addrEl=document.getElementById('inp-address');
+  if(addrEl){ addrEl.value=profile.address||''; autoGrowAddress(addrEl); if(profile.address) addrEl.classList.add('active'); }
 
   // Status badge
   const badge = document.getElementById('status-badge');
@@ -1399,7 +1374,7 @@ async function saveProfile(){
   if(username && !/^[a-zA-Z0-9_.-]{2,32}$/.test(username)){
     showProfileMsg('Username: 2–32 chars, letters/numbers/_ . -', 'err'); return;
   }
-  const address = readAddressFields();
+  const address = document.getElementById('inp-address')?.value.trim()||'';
   const newsletter = document.getElementById('mem-tog-newsletter')?.checked||false;
   showProfileMsg('Saving…', 'info');
   const updates={};
@@ -1408,7 +1383,7 @@ async function saveProfile(){
   updates.newsletter=newsletter;
   const { error } = await supa.from('profiles').update(updates).eq('id', currentUser.id);
   if(error) showProfileMsg('Error: ' + error.message, 'err');
-  else { if(username) profile.username=username; profile.address=address; profile.newsletter=newsletter; showProfileMsg('✓ Saved.', 'ok'); renderMemberNav(); lockAddressFields(); }
+  else { if(username) profile.username=username; profile.address=address; profile.newsletter=newsletter; showProfileMsg('✓ Saved.', 'ok'); renderMemberNav(); }
 }
 async function saveUsername(){ return saveProfile(); } // compat alias
 
@@ -1531,51 +1506,7 @@ async function pushManifest(){
 }
 
 // ── HELPERS ──
-// ── SHIPPING ADDRESS (structured, locks/unlocks like email) ──
-const ADDR_FIELDS=['street','city','province','postal','country'];
-let addressEditing=false;
-function populateAddressFields(raw){
-  let addr={street:'',city:'',province:'',postal:'',country:''};
-  if(raw){
-    try{
-      const parsed=JSON.parse(raw);
-      if(parsed&&typeof parsed==='object') addr={...addr,...parsed};
-      else addr.street=String(raw);
-    }catch(e){ addr.street=raw; } // legacy single-line address — preserved in Street until re-saved
-  }
-  ADDR_FIELDS.forEach(f=>{ const el=document.getElementById('addr-'+f); if(el) el.value=addr[f]||''; });
-}
-function readAddressFields(){
-  const addr={};
-  ADDR_FIELDS.forEach(f=>{ const el=document.getElementById('addr-'+f); addr[f]=el?el.value.trim():''; });
-  return Object.values(addr).some(v=>v) ? JSON.stringify(addr) : '';
-}
-function lockAddressFields(){
-  addressEditing=false;
-  ADDR_FIELDS.forEach(f=>{ const el=document.getElementById('addr-'+f); if(el) el.setAttribute('readonly','readonly'); });
-  const btn=document.getElementById('addr-edit-btn'); if(btn) btn.textContent='Edit';
-}
-function toggleAddressEdit(){
-  if(addressEditing){
-    // Cancel — discard unsaved edits, revert to last-saved values
-    populateAddressFields(profile.address);
-    lockAddressFields();
-    return;
-  }
-  addressEditing=true;
-  ADDR_FIELDS.forEach(f=>{ const el=document.getElementById('addr-'+f); if(el) el.removeAttribute('readonly'); });
-  const btn=document.getElementById('addr-edit-btn'); if(btn) btn.textContent='Cancel';
-}
-
-// ── VVIP+ BENEFITS (collapsed by default) ──
-function toggleBenefitsPanel(){
-  const body=document.getElementById('benefits-body');
-  const icon=document.getElementById('benefits-toggle-icon');
-  if(!body) return;
-  const opening=body.style.display==='none';
-  body.style.display=opening?'':'none';
-  if(icon) icon.textContent=opening?'[-]':'[+]';
-}
+function autoGrowAddress(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
 function fmtLen(sec){ sec=Number(sec||0); return Math.floor(sec/60)+':'+String(Math.floor(sec%60)).padStart(2,'0') }
 function parseLenSec(str){ const p=str.split(':'); return p.length===2?parseInt(p[0])*60+parseInt(p[1]):parseInt(str)||0 }
 function show(id){
