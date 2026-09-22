@@ -1562,7 +1562,7 @@ function rowHTML(t,i){
     } else if(hqV){
       tiles.push(`<button class="t-tile gold" onclick="event.stopPropagation();selectAndPlay(${t.id},true)" title="HQ Video"><span class="t-tile-icon">▶</span>HQ</button>`);
     } else if(hasExtras&&state.showGems){
-      tiles.push(`<button class="t-tile" onclick="event.stopPropagation();openGemsForTrack(${t.id})" title="Gems"><span class="t-tile-icon">💎</span>Gems</button>`);
+      tiles.push(`<button class="t-tile gem-btn" onclick="event.stopPropagation();openGemsForTrack(${t.id})" title="Gems"><span class="t-tile-icon">💎</span>Gems</button>`);
     } else {
       tiles.push(`<span class="t-tile empty"></span>`);
     }
@@ -1970,7 +1970,7 @@ function updateNow(){
   grid.innerHTML=cells.map(c=>{
     if(!c) return '<span class="nbtn empty"></span>';
     const dis=c.disabled?' disabled':'';
-    const cls='nbtn'+(c.disabled?' disabled':'');
+    const cls='nbtn'+(c.disabled?' disabled':'')+(c.icon==='💎'?' gem-btn':'');
     const ti=c.title?` title="${c.title}"`:'';
     if(c.type==='a'){
       return `<a class="${cls}" href="${c.href}"${c.download?' download':''}${ti}><span class="nbtn-icon">${c.icon}</span>${c.label}</a>`;
