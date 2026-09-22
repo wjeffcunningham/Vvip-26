@@ -970,6 +970,7 @@ const state={
   extras:{},showDownloads:true,filterVideo:false,hiddenIds:new Set(),
   displayRules:null,
   showGems:true,showTextFx:true,showHqVideo:true,
+  currentVersion:null, // set by loadVersion() when a non-primary version is loaded; cleared by select()
 };
 
 const pf=$('#vvip-player-frame');
@@ -982,7 +983,7 @@ function toggleTitles(on){
   document.body.classList.toggle('hide-titles',!on);
   localStorage.setItem('vvip25:hideTitles',on?'':'1');
   // Update now-playing bar label
-  const t=state.filtered[state.i];
+  const t=state.currentVersion||state.filtered[state.i];
   if(t) $('#now-title-show').textContent=on?t.title:t.name;
 }
 (()=>{
@@ -1001,7 +1002,7 @@ function toggleTitles(on){
 function toggleGems(on){
   state.showGems=on;
   localStorage.setItem('vvip25:gems',on?'1':'0');
-  document.querySelectorAll('.gem-btn').forEach(el=>el.style.display=on?'':'none');
+  document.querySelectorAll('.gem-btn').forEach(el=>el.style.visibility=on?'':'hidden');
 }
 function toggleTextFx(on){
   state.showTextFx=on;
@@ -1133,7 +1134,7 @@ try{
   _vvipBC.onmessage=e=>{
     if(e.data.type==='ping'){
       // Respond with current state
-      const ct=state.filtered[state.i];
+      const ct=state.currentVersion||state.filtered[state.i];
       if(ct){
         const np={title:ct.title||ct.name,src:ct.src,thumb:getThumb(ct),playing:state.playing,time:0,duration:state.duration};
         _vvipBC.postMessage({type:'heartbeat',np});
@@ -1242,7 +1243,7 @@ function getThumb(t){
 let _openingVideo=false;
 
 function openVideo(hq){
-  const t=state.filtered[state.i];if(!t)return;
+  const t=state.currentVersion||state.filtered[state.i];if(!t)return;
   const url=hq?getHqVid(t):getLoVid(t);
   if(!url){
     // Try other type as fallback
@@ -1775,6 +1776,7 @@ function openGemsForTrack(id){
 
 function select(i,noResume){
   state.i=i;const t=state.filtered[i];if(!t)return;
+  state.currentVersion=null; // selecting a track (normal nav) always starts at its primary version
   const thumbRel=getThumb(t);
   const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
   send({cmd:'load',src:t.src,play:false,meta:{title:t.title||t.name,thumb:thumbAbs}});
@@ -1805,7 +1807,7 @@ function selectAndPlay(id, hq){
   select(idx, true);
   setTimeout(()=>openVideo(hq),80);
 }
-function play(){if(state.i<0)return;send({cmd:'load',src:state.filtered[state.i].src,play:true});state.playing=true;const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');}
+function play(){if(state.i<0)return;const t=state.currentVersion||state.filtered[state.i];send({cmd:'load',src:t.src,play:true});state.playing=true;const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');}
 function pause(){send({cmd:'pause'});state.playing=false;const bt=$('#btn-toggle');bt.innerHTML='&#9654;';bt.classList.remove('is-playing');}
 
 // Display Rules — returns HTML string for a title, or null if no rule applies
@@ -1937,7 +1939,8 @@ function applyDisplayRule(title){
 }
 
 function updateNow(){
-  const t=state.filtered[state.i];if(!t)return;
+  const primary=state.filtered[state.i];if(!primary)return;
+  const t=state.currentVersion||primary;
   const rawTitle=document.body.classList.contains('hide-titles')?t.name:t.title;
   const el=$('#now-title-show');
   const ruled=applyDisplayRule(rawTitle);
@@ -1979,7 +1982,7 @@ function updateNow(){
   }).join('');
 }
 function openPlayerGems(){
-  const t=state.filtered[state.i];if(!t)return;
+  const t=state.currentVersion||state.filtered[state.i];if(!t)return;
   const files=state.extras[t.baseLower];if(!files||!files.length)return;
   // Build a lightbox-style overlay in the thumbnail area
   const existing=$('#gems-overlay');if(existing)existing.remove();
@@ -2029,7 +2032,7 @@ function loadVersion(e,verId,primaryId){
   const thumbRel=getThumb(target);
   const thumbAbs=thumbRel.startsWith('http')?thumbRel:(location.origin+'/'+thumbRel.replace(/^\//,''));
   send({cmd:'load',src:target.src,play:true,meta:{title:target.title||target.name,thumb:thumbAbs}});
-  state.playing=true;state.i=fi;
+  state.playing=true;state.i=fi;state.currentVersion=(target.id===primary.id)?null:target;
   const bt=$('#btn-toggle');bt.innerHTML='&#9646;&#9646;';bt.classList.add('is-playing');
   // Update active state on all ver-btns for this primary track using data attributes
   document.querySelectorAll('.ver-btn[data-primary-id="'+primaryId+'"]').forEach(btn=>{
@@ -2063,7 +2066,7 @@ window.addEventListener('message',e=>{
       sc.value=Math.min(100,Math.max(0,(t/state.duration)*100));
     try{
       localStorage.setItem('vvip25_time',t);
-      const ct=state.filtered[state.i];
+      const ct=state.currentVersion||state.filtered[state.i];
       if(ct){
         const np={title:ct.title||ct.name,src:ct.src,thumb:getThumb(ct),playing:state.playing,time:t,duration:state.duration};
         localStorage.setItem('vvip25_np',JSON.stringify(np));
