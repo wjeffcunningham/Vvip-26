@@ -1741,7 +1741,7 @@ async function uploadImages(){
 
   let {data:{session}} = await supa.auth.getSession();
 
-  let done=0, errors=[], uploadedGemFiles=[];
+  let done=0, errors=[];
   for(const img of stagedImages){
     const ext=(img.file.name.split('.').pop()||'jpg').toLowerCase().replace('jpeg','jpg');
     const base=(trackName||'misc').replace(/\.[^.]+$/,'').toLowerCase().replace(/\s+/g,'-');
@@ -1767,26 +1767,11 @@ async function uploadImages(){
     try{
       const r=await fetch(edgeUrl,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token},body:fd});
       if(!r.ok) errors.push(img.file.name+': '+(await r.text()));
-      else if(cat==='gem') uploadedGemFiles.push(path.split('/').pop());
     }catch(e){ errors.push(img.file.name+': '+e.message); }
     done++;
     const pct=Math.round(done/stagedImages.length*100);
     bar.style.width=pct+'%';
     label.textContent=done+' / '+stagedImages.length;
-  }
-
-  // Auto-assign any successfully-uploaded gems to their track in extras.json
-  if(uploadedGemFiles.length && trackName){
-    const key=trackName.replace(/\.[^.]+$/,'').toLowerCase();
-    try{
-      const exRes=await fetch('/extras.json?v='+Date.now());
-      const extras=exRes.ok?await exRes.json():{};
-      if(!extras[key]) extras[key]=[];
-      uploadedGemFiles.forEach(fn=>{ if(!extras[key].includes(fn)) extras[key].push(fn); });
-      await fetch(EDGE_UPDATE_EXTRAS,{method:'POST',
-        headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
-        body:JSON.stringify({extras})});
-    }catch(e){ errors.push('Gem assignment failed to save: '+e.message); }
   }
 
   if(!errors.length){
