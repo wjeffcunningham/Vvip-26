@@ -995,19 +995,17 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
           <div class="admin-pane" id="pane-gems">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
               <div style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">
-                Files in R2 extras folder — assign each to a track, or leave unassigned.
+                Files in R2 extras folder. Reserve = not yet on any track.
               </div>
-              <div style="display:flex;gap:8px;align-items:center">
-                <select class="m-select" id="gems-filter" onchange="renderGemsGallery()" style="font-size:11px">
-                  <option value="unassigned">Unassigned only</option>
-                  <option value="all">All files</option>
-                  <option value="assigned">Assigned only</option>
-                </select>
-                <button class="m-btn gold" onclick="saveGemsAdmin()" style="font-size:11px">Save Changes</button>
-              </div>
+              <button class="m-btn gold" onclick="saveGemsAdmin()" style="font-size:11px">Save Changes</button>
             </div>
             <div id="gems-status" class="m-msg"></div>
-            <div id="gems-gallery" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Loading…</div>
+
+            <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px">Reserve (Unassigned) <span id="gems-reserve-count"></span></div>
+            <div id="gems-reserve-list" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)">Loading…</div>
+
+            <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;padding-top:10px;border-top:1px solid var(--border-light)">Assigned, by track</div>
+            <div id="gems-by-track" style="font-family:Arial,sans-serif;font-size:12px;color:var(--muted)"></div>
           </div>
 
           <!-- USERS PANE -->
@@ -1069,6 +1067,7 @@ const MANIFEST_URL = 'https://vvipmedia.net/manifest.json';
 const SITE_URL = 'https://vvipmedia.net'; // canonical — used for OAuth redirects
 // Supabase Edge Function URL for manifest updates (deploy separately)
 const EDGE_MANIFEST = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-manifest';
+const EDGE_UPLOAD_TRACK = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/upload-track';
 
 let supa = null;
 try {
@@ -1496,12 +1495,12 @@ async function uploadTrack(){
 
   setUpStatus('Uploading MP3…', 'working');
 
-  // 1. Upload to Supabase Storage (bucket: 'tracks' — configure in Supabase dashboard)
-  const { error: upErr } = await supa.storage
-    .from('tracks')
-    .upload(file.name, file, { cacheControl: '3600', upsert: false });
-
-  if(upErr){ setUpStatus('Upload error: ' + upErr.message, 'err'); return; }
+  // 1. Upload to R2 at ACCESS/<filename> — where the player actually reads from
+  const{data:{session}}=await supa.auth.getSession();
+  const fd=new FormData();
+  fd.append('file', file, file.name);
+  const upRes=await fetch(EDGE_UPLOAD_TRACK,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token},body:fd});
+  if(!upRes.ok){ setUpStatus('Upload error: ' + await upRes.text(), 'err'); return; }
 
   setUpStatus('Updating manifest…', 'working');
 
@@ -1741,7 +1740,7 @@ async function uploadImages(){
 
   let {data:{session}} = await supa.auth.getSession();
 
-  let done=0, errors=[], uploadedGemFiles=[];
+  let done=0, errors=[], uploadedGemFiles=[], uploadedOverride=null;
   for(const img of stagedImages){
     const ext=(img.file.name.split('.').pop()||'jpg').toLowerCase().replace('jpeg','jpg');
     const base=(trackName||'misc').replace(/\.[^.]+$/,'').toLowerCase().replace(/\s+/g,'-');
@@ -1753,9 +1752,12 @@ async function uploadImages(){
     } else if(cat==='misc'){
       path=`MEDIA/misc/${ts}-${img.file.name.replace(/\s+/g,'-')}`;
       edgeUrl=EDGE_EXTRAS;
+    } else if(cat==='override'){
+      path=`MEDIA/pool/${base}-override-${ts}.${ext}`;
+      edgeUrl=EDGE_THUMB;
     } else {
-      // primary or override both use upload-thumb; category distinguishes in formData
-      path=`assets/thumbs/${base}thumb.${ext}`;
+      // primary — cascading default thumb; upload-thumb also updates thumbs.json
+      path=`MEDIA/thumbs/${base}thumb.${ext}`;
       edgeUrl=EDGE_THUMB;
     }
     const fd=new FormData();
@@ -1768,6 +1770,7 @@ async function uploadImages(){
       const r=await fetch(edgeUrl,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token},body:fd});
       if(!r.ok) errors.push(img.file.name+': '+(await r.text()));
       else if(cat==='gem') uploadedGemFiles.push(path.split('/').pop());
+      else if(cat==='override') uploadedOverride=path.split('/').pop();
     }catch(e){ errors.push(img.file.name+': '+e.message); }
     done++;
     const pct=Math.round(done/stagedImages.length*100);
@@ -1787,6 +1790,15 @@ async function uploadImages(){
         headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
         body:JSON.stringify({extras})});
     }catch(e){ errors.push('Gem assignment failed to save: '+e.message); }
+  }
+
+  // Record the override thumb on its track via update-manifest's patch action
+  if(uploadedOverride && trackName){
+    try{
+      await fetch(EDGE_MANIFEST,{method:'POST',
+        headers:{'Authorization':'Bearer '+session.access_token,'Content-Type':'application/json'},
+        body:JSON.stringify({action:'patch',track:{name:trackName,thumb:uploadedOverride}})});
+    }catch(e){ errors.push('Override thumb link failed to save: '+e.message); }
   }
 
   if(!errors.length){
@@ -2088,11 +2100,14 @@ function findGemTrack(filename){
 }
 
 async function loadGemsAdmin(){
-  const el=document.getElementById('gems-gallery');
+  const reserveEl=document.getElementById('gems-reserve-list');
+  const byTrackEl=document.getElementById('gems-by-track');
   const statusEl=document.getElementById('gems-status');
-  el.textContent='Loading…';
+  reserveEl.textContent='Loading…';
+  byTrackEl.textContent='';
   statusEl.textContent='';
   gemsDirty=false;
+  _gemTrackOptionsHtml=null; // rebuild in case tracks changed since last open
   try{
     const[extrasRes,listRes]=await Promise.all([
       fetch('/extras.json?v='+Date.now()),
@@ -2107,51 +2122,74 @@ async function loadGemsAdmin(){
     gemsAllFiles = listData.files||[];
     renderGemsGallery();
   }catch(e){
-    el.textContent='Failed to load: '+e.message;
+    reserveEl.textContent='Failed to load: '+e.message;
   }
 }
 
+let _gemTrackOptionsHtml=null;
+function gemTrackOptionsHtml(){
+  if(_gemTrackOptionsHtml) return _gemTrackOptionsHtml;
+  const sorted=[...allTracks].sort((a,b)=>(a.title||a.name).localeCompare(b.title||b.name));
+  _gemTrackOptionsHtml='<option value="">-- assign to track --</option>'+
+    sorted.map(t=>`<option value="${trackKeyOf(t).replace(/"/g,'&quot;')}">${(t.title||t.name).replace(/</g,'&lt;')}</option>`).join('');
+  return _gemTrackOptionsHtml;
+}
+function gemThumbHtml(filename){
+  const isImg=/\.(jpe?g|png|gif|webp)$/i.test(filename);
+  return isImg
+    ? `<img src="https://media.vvipmedia.net/MEDIA/extras/${encodeURIComponent(filename)}" style="width:40px;height:40px;object-fit:cover;border:1px solid var(--border);flex-shrink:0">`
+    : `<div style="width:40px;height:40px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted);flex-shrink:0">[vid]</div>`;
+}
+let gemsGroupOpen={}; // trackKey -> bool, which track groups are expanded
+
 function renderGemsGallery(){
-  const el=document.getElementById('gems-gallery');
-  const filter=document.getElementById('gems-filter').value;
-  if(!el) return;
-  const trackOptionsHtml='<option value="">-- assign to track --</option>'+
-    allTracks.map(t=>`<option value="${trackKeyOf(t).replace(/"/g,'&quot;')}">${(t.title||t.name).replace(/</g,'&lt;')}</option>`).join('');
+  const reserveEl=document.getElementById('gems-reserve-list');
+  const byTrackEl=document.getElementById('gems-by-track');
+  const countEl=document.getElementById('gems-reserve-count');
+  if(!reserveEl||!byTrackEl) return;
 
-  const rows=gemsAllFiles.map(f=>{
-    const assignedTo=findGemTrack(f.key);
-    return {file:f, assignedTo};
-  }).filter(r=>{
-    if(filter==='unassigned') return !r.assignedTo;
-    if(filter==='assigned') return !!r.assignedTo;
-    return true;
-  });
+  // ── Reserve (unassigned) ──
+  const reserve=gemsAllFiles.filter(f=>!findGemTrack(f.key));
+  if(countEl) countEl.textContent='('+reserve.length+')';
+  reserveEl.innerHTML = reserve.length ? reserve.map(f=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-light)">
+      ${gemThumbHtml(f.key)}
+      <div style="flex:1;min-width:0;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${f.key}</div>
+      <select class="m-select" id="gem-assign-${cssSafe(f.key)}" style="font-size:11px;width:170px">${gemTrackOptionsHtml()}</select>
+      <button onclick="gemAssign('${f.key.replace(/'/g,"\'")}')" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 8px;cursor:pointer;color:var(--fg)">Assign</button>
+    </div>`).join('') : '<div style="padding:6px 0">Nothing in reserve.</div>';
 
-  if(!rows.length){ el.innerHTML='<div style="padding:10px 0">No files match this filter.</div>'; return; }
+  // ── Assigned, grouped by track ──
+  const keys=Object.keys(gemsExtras).filter(k=>gemsExtras[k].length);
+  keys.sort((a,b)=>trackLabelFor(a).localeCompare(trackLabelFor(b)));
+  if(!keys.length){ byTrackEl.innerHTML='<div style="padding:6px 0">No tracks have gems assigned yet.</div>'; return; }
 
-  el.innerHTML=rows.map(r=>{
-    const f=r.file;
-    const isImg=/\.(jpe?g|png|gif|webp)$/i.test(f.key);
-    const thumb=isImg
-      ? `<img src="https://media.vvipmedia.net/MEDIA/extras/${encodeURIComponent(f.key)}" style="width:44px;height:44px;object-fit:cover;border:1px solid var(--border)">`
-      : `<div style="width:44px;height:44px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--muted)">[vid]</div>`;
+  byTrackEl.innerHTML=keys.map(key=>{
+    const files=gemsExtras[key];
+    const open=!!gemsGroupOpen[key];
+    const rows=files.map((fn,i)=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border-light)">
+        ${gemThumbHtml(fn)}
+        <div style="flex:1;min-width:0;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${fn}</div>
+        <button onclick="gemMove('${fn.replace(/'/g,"\'")}',-1)" ${i===0?'disabled':''} style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 6px;cursor:pointer;color:var(--fg)">↑</button>
+        <button onclick="gemMove('${fn.replace(/'/g,"\'")}',1)" ${i===files.length-1?'disabled':''} style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 6px;cursor:pointer;color:var(--fg)">↓</button>
+        <select class="m-select" id="gem-moveto-${cssSafe(fn)}" style="font-size:11px;width:150px">${gemTrackOptionsHtml()}</select>
+        <button onclick="gemMoveTo('${fn.replace(/'/g,"\'")}')" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 8px;cursor:pointer;color:var(--fg)">Move</button>
+        <button onclick="gemUnassign('${fn.replace(/'/g,"\'")}')" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid #c44;padding:2px 8px;cursor:pointer;color:#c44">Unassign</button>
+      </div>`).join('');
     return `
-    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border-light)">
-      ${thumb}
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.key}</div>
-        <div style="color:var(--muted);font-size:10px">${r.assignedTo?('→ '+trackLabelFor(r.assignedTo)):'Unassigned'}</div>
+    <div style="border:1px solid var(--border);margin-bottom:6px">
+      <div onclick="toggleGemGroup('${key.replace(/'/g,"\'")}')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--card);font-weight:bold;font-size:11px">
+        <span>${trackLabelFor(key)} (${files.length})</span>
+        <span>${open?'[-]':'[+]'}</span>
       </div>
-      ${r.assignedTo?`
-        <button onclick="gemMove('${f.key.replace(/'/g,"\'")}',-1)" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 6px;cursor:pointer;color:var(--fg)">↑</button>
-        <button onclick="gemMove('${f.key.replace(/'/g,"\'")}',1)" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 6px;cursor:pointer;color:var(--fg)">↓</button>
-        <button onclick="gemUnassign('${f.key.replace(/'/g,"\'")}')" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid #c44;padding:2px 8px;cursor:pointer;color:#c44">Unassign</button>
-      `:`
-        <select class="m-select" id="gem-assign-${cssSafe(f.key)}" style="font-size:11px;width:180px">${trackOptionsHtml}</select>
-        <button onclick="gemAssign('${f.key.replace(/'/g,"\'")}')" style="font-family:Arial,sans-serif;font-size:10px;background:var(--btn-bg);border:1px solid var(--border);padding:2px 8px;cursor:pointer;color:var(--fg)">Assign</button>
-      `}
+      ${open?`<div style="padding:4px 10px">${rows}</div>`:''}
     </div>`;
   }).join('');
+}
+function toggleGemGroup(key){
+  gemsGroupOpen[key]=!gemsGroupOpen[key];
+  renderGemsGallery();
 }
 function cssSafe(s){ return s.replace(/[^a-zA-Z0-9]/g,'_'); }
 
@@ -2161,6 +2199,7 @@ function gemAssign(filename){
   if(!key) return;
   if(!gemsExtras[key]) gemsExtras[key]=[];
   if(!gemsExtras[key].includes(filename)) gemsExtras[key].push(filename);
+  gemsGroupOpen[key]=true; // reveal where it landed
   gemsDirty=true;
   renderGemsGallery();
 }
@@ -2169,6 +2208,22 @@ function gemUnassign(filename){
   if(!key) return;
   gemsExtras[key]=gemsExtras[key].filter(f=>f!==filename);
   if(!gemsExtras[key].length) delete gemsExtras[key];
+  gemsDirty=true;
+  renderGemsGallery();
+}
+function gemMoveTo(filename){
+  const sel=document.getElementById('gem-moveto-'+cssSafe(filename));
+  const newKey=sel?sel.value:'';
+  if(!newKey) return;
+  const oldKey=findGemTrack(filename);
+  if(oldKey===newKey) return;
+  if(oldKey){
+    gemsExtras[oldKey]=gemsExtras[oldKey].filter(f=>f!==filename);
+    if(!gemsExtras[oldKey].length) delete gemsExtras[oldKey];
+  }
+  if(!gemsExtras[newKey]) gemsExtras[newKey]=[];
+  gemsExtras[newKey].push(filename);
+  gemsGroupOpen[newKey]=true;
   gemsDirty=true;
   renderGemsGallery();
 }
