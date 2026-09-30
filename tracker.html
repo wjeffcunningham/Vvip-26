@@ -78,6 +78,9 @@
     white-space: nowrap;
   }
   .tag.invert { background: var(--invert-bg); color: var(--invert-fg); }
+  .tag.link { text-decoration: none; cursor: pointer; }
+  .tag.link:hover { background: var(--invert-bg); color: var(--invert-fg); }
+  .links { padding: 0 14px 12px; border-top: 1px solid var(--border); padding-top: 10px; }
 
   .readout {
     border: 1px solid var(--border);
@@ -259,6 +262,11 @@
     <p class="tagline">2 LPs &middot; sticker book &amp; packs &middot; promo stickers &middot; 2 tee designs &middot; tote</p>
   </div>
   <div class="roster" id="roster"></div>
+  <div class="roster links">
+    <a class="tag link" href="/stickers/" target="_blank" rel="noopener">STICKERS &rarr;</a>
+    <a class="tag link" href="https://drive.google.com/drive/folders/1D_vO5bWUxnQHPyUknMw0soFU6DOiWrMQ?usp=share_link" target="_blank" rel="noopener">CASSETTE FOLDER &rarr;</a>
+    <a class="tag link" href="https://docs.google.com/document/d/1uFef0nGK2MN1ni4bcVv6nAwuYeUN32PE1r2neQ6PvVo/edit?tab=t.0" target="_blank" rel="noopener">TRACKLIST DOC &rarr;</a>
+  </div>
 </div>
 
 <div class="readout" id="readout"><span class="counts">Loading&hellip;</span></div>
@@ -286,13 +294,14 @@
   var API = "https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-tasks";
   var POLL_MS = 20000;
 
-  var CATS = ["LP Production", "Promo Stickers", "Stickerbook & Packs", "Totes", "T-Shirts"];
+  var CATS = ["LP Production", "Promo Stickers", "Stickerbook & Packs", "Totes", "T-Shirts", "Cassette"];
   var CAT_SHORT = {
     "LP Production": "LP",
     "Promo Stickers": "PROMO",
     "Stickerbook & Packs": "STICKERS",
     "Totes": "TOTES",
-    "T-Shirts": "TEES"
+    "T-Shirts": "TEES",
+    "Cassette": "TAPE"
   };
   var OWNERS = ["Jeff", "Adam", "Morgan", "Sasha", "Everyone", "TBD"];
   var STATUS_LABEL = { todo: "TODO", in_progress: "IN PROG", done: "DONE" };
