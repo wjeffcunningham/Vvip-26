@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Stickers - VVIP Media</title>
+<style>
+  * { box-sizing: border-box; border-radius: 0; }
+  body { margin: 0; padding: 16px; background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; font-size: 14px; }
+  h1 { font-family: "Times New Roman", Times, serif; font-weight: normal; font-size: 34px; margin: 0 0 6px; }
+  .lede { margin: 0 0 14px; max-width: 62em; line-height: 1.4; }
+  button, select, input, textarea { font: inherit; color: #000; background: #fff; border: 1px solid #000; padding: 4px 8px; }
+  button { cursor: pointer; }
+  button:hover:not(:disabled) { background: #000; color: #fff; }
+  button:disabled { color: #888; border-color: #888; cursor: default; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 0; margin-bottom: 14px;
+         border-top: 1px solid #000; border-bottom: 1px solid #000; background: #fff; position: sticky; top: 0; z-index: 5; }
+  .bar label { display: flex; gap: 6px; align-items: center; }
+  #status { margin-left: auto; text-align: right; }
+  #status.err { font-weight: bold; }
+  #grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .card { position: relative; border: 1px solid #000; background: #fff; display: flex; flex-direction: column; }
+  .card.changed { border-left: 6px solid #000; }
+  .card.dragging { opacity: 0.35; }
+  .card.drop-before::before, .card.drop-after::after { content: ""; position: absolute; top: -1px; bottom: -1px; width: 5px; background: #000; }
+  .card.drop-before::before { left: -9px; }
+  .card.drop-after::after { right: -9px; }
+  .pic { padding: 8px; min-height: 180px; display: flex; align-items: center; justify-content: center;
+         border-bottom: 1px solid #000; cursor: grab; }
+  .pic img { display: block; max-width: 100%; max-height: 250px; height: auto; width: auto; }
+  .meta { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .top { display: flex; align-items: center; gap: 4px; }
+  .top .num { flex: 1; font-size: 12px; }
+  .top button { padding: 0 8px; min-width: 28px; }
+  .meta label { font-size: 12px; }
+  .meta input, .meta textarea { width: 100%; }
+  .meta textarea { resize: vertical; min-height: 2.8em; }
+  .date { font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Stickers</h1>
+<p class="lede">Drag a sticker by its picture to change the order, or use the &lt; and &gt; buttons. Click a category or caption to edit it.
+Nothing is saved until you press Save. Anyone with this link can edit, and a save replaces the shared version for everyone.</p>
+
+<div class="bar">
+  <label>Show <select id="filter" aria-label="Filter by category"></select></label>
+  <button id="save" type="button" disabled>Save</button>
+  <button id="discard" type="button">Discard changes</button>
+  <span id="status" role="status" aria-live="polite">Loading...</span>
+</div>
+
+<div id="grid"></div>
+<datalist id="cats"></datalist>
+<noscript><p>This page needs JavaScript.</p></noscript>
+
+<script>
+(function () {
+  'use strict';
+  var API = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-stickers';
+  var SEED = 'stickers.json';
+  var KEY_NAME = 'stickers_edit_key';
+
+  var seed = null;          // stickers.json
+  var byId = {};            // id -> seed item
+  var saved = { rev: 0, order: [], items: {} };   // last state from the server
+  var baseOrder = [];       // order as loaded / last saved
+  var order = [];           // working order
+  var edits = {};           // id -> { caption?, category? } (only fields that differ from saved)
+  var filter = '';
+  var busy = false;
+  var canSave = true;
+  var dragId = null;
+
+  var $grid = document.getElementById('grid');
+  var $filter = document.getElementById('filter');
+  var $save = document.getElementById('save');
+  var $discard = document.getElementById('discard');
+  var $status = document.getElementById('status');
+  var $cats = document.getElementById('cats');
+
+  function el(tag, props, kids) {
+    var n = document.createElement(tag);
+    Object.keys(props || {}).forEach(function (k) {
+      if (k === 'text') n.textContent = props[k]; else n[k] = props[k];
+    });
+    (kids || []).forEach(function (c) { if (c) n.appendChild(c); });
+    return n;
+  }
+  function setStatus(msg, isErr) { $status.textContent = msg; $status.className = isErr ? 'err' : ''; }
+
+  // ---- values: an edit wins over the saved value, which wins over the file default
+  function savedField(id, f) {
+    var s = saved.items && saved.items[id];
+    if (s && typeof s[f] === 'string') return s[f];
+    return byId[id][f] || '';
+  }
+  function value(id, f) {
+    var e = edits[id];
+    if (e && typeof e[f] === 'string') return e[f];
+    return savedField(id, f);
+  }
+  function setEdit(id, f, v) {
+    v = v.replace(/\s+/g, ' ').trim();
+    var e = edits[id] || (edits[id] = {});
+    if (v === savedField(id, f)) delete e[f]; else e[f] = v;
+    if (!Object.keys(e).length) delete edits[id];
+  }
+  function computeOrder() {
+    var seen = {}, out = [];
+    (saved.order || []).forEach(function (id) { if (byId[id] && !seen[id]) { seen[id] = 1; out.push(id); } });
+    seed.items.forEach(function (it) { if (!seen[it.id]) { seen[it.id] = 1; out.push(it.id); } });
+    return out;
+  }
+  function orderChanged() {
+    if (order.length !== baseOrder.length) return true;
+    for (var i = 0; i < order.length; i++) if (order[i] !== baseOrder[i]) return true;
+    return false;
+  }
+  function changeCount() { return Object.keys(edits).length + (orderChanged() ? 1 : 0); }
+
+  // ---- chrome: filter list, datalist, status line, buttons
+  function categories() {
+    var counts = {};
+    order.forEach(function (id) { var c = value(id, 'category') || 'uncategorized'; counts[c] = (counts[c] || 0) + 1; });
+    return counts;
+  }
+  function renderChrome() {
+    var counts = categories(), names = Object.keys(counts).sort();
+    var keep = filter;
+    $filter.textContent = '';
+    $filter.appendChild(el('option', { value: '', text: 'All (' + order.length + ')' }));
+    names.forEach(function (c) { $filter.appendChild(el('option', { value: c, text: c + ' (' + counts[c] + ')' })); });
+    if (keep && !counts[keep]) keep = '';
+    filter = keep;
+    $filter.value = filter;
+    $cats.textContent = '';
+    names.forEach(function (c) { $cats.appendChild(el('option', { value: c })); });
+    var n = changeCount();
+    $save.disabled = busy || !n || !canSave;
+    $discard.disabled = busy;
+    if (!busy && n) setStatus('Unsaved changes: ' + n, false);
+  }
+
+  // ---- reordering
+  function visibleIds() {
+    return order.filter(function (id) { return !filter || (value(id, 'category') || 'uncategorized') === filter; });
+  }
+  function move(id, targetId, after) {
+    if (id === targetId) return;
+    var from = order.indexOf(id);
+    if (from < 0 || order.indexOf(targetId) < 0) return;
+    order.splice(from, 1);
+    var to = order.indexOf(targetId);
+    order.splice(after ? to + 1 : to, 0, id);
+    render();
+  }
+  function nudge(id, dir) {
+    var vis = visibleIds(), i = vis.indexOf(id), j = i + dir;
+    if (i < 0 || j < 0 || j >= vis.length) return;
+    move(id, vis[j], dir > 0);
+  }
+  function clearMarks() {
+    dragId = null;
+    Array.prototype.forEach.call($grid.children, function (c) { c.classList.remove('dragging', 'drop-before', 'drop-after'); });
+  }
+
+  // ---- cards
+  function card(id) {
+    var it = byId[id];
+    var img = el('img', { src: seed.images_base + it.file, alt: value(id, 'caption') || value(id, 'category'), loading: 'lazy', draggable: false });
+    if (it.w && it.h) { img.width = it.w; img.height = it.h; }
+    var pic = el('div', { className: 'pic', title: 'Drag to move' }, [img]);
+    pic.draggable = true;
+
+    var c = el('div', { className: 'card' });
+    c.setAttribute('data-id', id);
+    if (edits[id]) c.classList.add('changed');
+
+    var prev = el('button', { type: 'button', text: '<' }); prev.setAttribute('aria-label', 'Move earlier');
+    var next = el('button', { type: 'button', text: '>' }); next.setAttribute('aria-label', 'Move later');
+    prev.addEventListener('click', function () { nudge(id, -1); });
+    next.addEventListener('click', function () { nudge(id, 1); });
+    var num = el('span', { className: 'num', text: 'No. ' + (order.indexOf(id) + 1) });
+
+    var catIn = el('input', { type: 'text', value: value(id, 'category'), maxLength: 40, id: 'cat-' + id });
+    catIn.setAttribute('list', 'cats');
+    var capIn = el('textarea', { value: value(id, 'caption'), maxLength: 280, rows: 2, placeholder: 'Add a caption', id: 'cap-' + id });
+    function touched() { c.classList.toggle('changed', !!edits[id]); renderChrome(); }
+    catIn.addEventListener('change', function () { setEdit(id, 'category', catIn.value); catIn.value = value(id, 'category'); touched(); });
+    capIn.addEventListener('input', function () { setEdit(id, 'caption', capIn.value); touched(); });
+
+    var meta = el('div', { className: 'meta' }, [
+      el('div', { className: 'top' }, [num, prev, next]),
+      el('label', { text: 'Category', htmlFor: 'cat-' + id }), catIn,
+      el('label', { text: 'Caption', htmlFor: 'cap-' + id }), capIn,
+      it.date_label ? el('div', { className: 'date', text: it.date_label }) : null
+    ]);
+    c.appendChild(pic); c.appendChild(meta);
+
+    pic.addEventListener('dragstart', function (ev) {
+      dragId = id; c.classList.add('dragging');
+      if (ev.dataTransfer) { ev.dataTransfer.effectAllowed = 'move'; try { ev.dataTransfer.setData('text/plain', id); } catch (e) {} }
+    });
+    pic.addEventListener('dragend', clearMarks);
+    function isAfter(ev) { var r = c.getBoundingClientRect(); return (ev.clientX - r.left) > r.width / 2; }
+    c.addEventListener('dragover', function (ev) {
+      if (!dragId || dragId === id) return;
+      ev.preventDefault();
+      var after = isAfter(ev);
+      c.classList.toggle('drop-after', after); c.classList.toggle('drop-before', !after);
+    });
+    c.addEventListener('dragleave', function () { c.classList.remove('drop-before', 'drop-after'); });
+    c.addEventListener('drop', function (ev) {
+      if (!dragId) return;
+      ev.preventDefault();
+      var from = dragId, after = isAfter(ev);
+      clearMarks();
+      move(from, id, after);
+    });
+    return c;
+  }
+  function render() {
+    $grid.textContent = '';
+    visibleIds().forEach(function (id) { $grid.appendChild(card(id)); });
+    renderChrome();
+  }
+
+  // ---- talking to the server
+  function headers() {
+    var h = { 'content-type': 'application/json' };
+    try { var k = localStorage.getItem(KEY_NAME); if (k) h['x-edit-key'] = k; } catch (e) {}
+    return h;
+  }
+  function adopt(state) {
+    saved = { rev: state.rev || 0, order: state.order || [], items: state.items || {} };
+    baseOrder = computeOrder();
+    order = baseOrder.slice();
+    edits = {};
+  }
+  function load() {
+    busy = true; setStatus('Loading...', false);
+    return Promise.all([
+      fetch(SEED, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('stickers.json ' + r.status); return r.json(); }),
+      fetch(API).then(function (r) { if (!r.ok) throw new Error('state ' + r.status); return r.json(); })
+        .catch(function () { return null; })
+    ]).then(function (res) {
+      seed = res[0]; byId = {};
+      seed.items.forEach(function (it) { byId[it.id] = it; });
+      canSave = !!res[1];
+      adopt(res[1] || { rev: 0, order: [], items: {} });
+      busy = false; render();
+      setStatus(canSave ? seed.items.length + ' stickers' : 'Could not reach the save service. You can look, but not save.', !canSave);
+    }).catch(function (e) {
+      busy = false; setStatus('Could not load the stickers (' + e.message + ').', true);
+    });
+  }
+  function post(body, retried) {
+    return fetch(API, { method: 'POST', headers: headers(), body: JSON.stringify(body) }).then(function (r) {
+      if (r.status === 401 && !retried) {
+        var k = window.prompt('Edit code:');
+        if (!k) throw new Error('an edit code is needed');
+        try { localStorage.setItem(KEY_NAME, k); } catch (e) {}
+        return post(body, true);
+      }
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) throw new Error(j.error || ('error ' + r.status));
+        return j;
+      });
+    });
+  }
+  function save() {
+    var body = {};
+    if (orderChanged()) body.order = order.slice();
+    if (Object.keys(edits).length) body.edits = JSON.parse(JSON.stringify(edits));
+    if (!body.order && !body.edits) return;
+    busy = true; renderChrome(); setStatus('Saving...', false);
+    post(body).then(function (j) {
+      adopt(j); busy = false; render();
+      setStatus('Saved (version ' + saved.rev + ')', false);
+    }).catch(function (e) {
+      busy = false; renderChrome(); setStatus('Not saved: ' + e.message, true);
+    });
+  }
+
+  $save.addEventListener('click', save);
+  $discard.addEventListener('click', function () {
+    if (changeCount() && !window.confirm('Throw away your unsaved changes and reload the shared version?')) return;
+    load();
+  });
+  $filter.addEventListener('change', function () { filter = $filter.value; render(); });
+  window.addEventListener('beforeunload', function (ev) {
+    if (changeCount()) { ev.preventDefault(); ev.returnValue = ''; }
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>

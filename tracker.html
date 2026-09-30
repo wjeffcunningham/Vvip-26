@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VVIP26 Release Tracker</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+  /* Flat "playlist" list, Winamp-shell in spirit -- a black titlebar, a
+     sunken LCD-style readout, then two flat panels (Ready Now / Waiting
+     on something else) with a Cleared strip beneath. Black/white only,
+     no gradients, no rounded corners, no shadows -- matches the rest of
+     vvipmedia.net's "1995 style, no kitsch" system. */
+  :root {
+    --bg: #ffffff;
+    --fg: #000000;
+    --recess: #f3f3f3;
+    --border: #000000;
+    --invert-bg: #000000;
+    --invert-fg: #ffffff;
+
+    --font-display: "Times New Roman", Times, Georgia, serif;
+    --font-ui: Arial, Helvetica, sans-serif;
+    --font-mono: "Courier New", Courier, ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-ui);
+    padding-inline: 16px;
+    padding-block: 20px;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; margin: 0; }
+  p { margin: 0; }
+  a { color: var(--fg); }
+
+  .backlink {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    margin-bottom: 12px;
+  }
+  .backlink:hover { background: var(--invert-bg); color: var(--invert-fg); }
+
+  .winshell { border: 1px solid var(--border); margin-bottom: 14px; }
+  .titlebar {
+    background: var(--invert-bg);
+    color: var(--invert-fg);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .subhead { padding: 12px 14px 10px; border-bottom: 1px solid var(--border); }
+  .subhead .tagline { font-family: var(--font-ui); font-size: 0.82rem; color: var(--fg); margin-top: 5px; }
+  .roster { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 14px 12px; }
+
+  .tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    background: var(--bg);
+    color: var(--fg);
+    white-space: nowrap;
+  }
+  .tag.invert { background: var(--invert-bg); color: var(--invert-fg); }
+
+  .readout {
+    border: 1px solid var(--border);
+    background: var(--recess);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    padding: 9px 12px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 18px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .readout .counts { font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+  .readout .bar-track {
+    flex: 1 1 140px;
+    height: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    min-width: 0;
+  }
+  .readout .bar-fill { height: 100%; background: var(--invert-bg); }
+
+  .win-panel { border: 1px solid var(--border); margin-bottom: 14px; }
+  .win-panel .panel-title {
+    background: var(--invert-bg);
+    color: var(--invert-fg);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    padding: 5px 10px;
+  }
+  .panel-body { min-height: 4px; }
+  .panel-empty { padding: 14px; font-family: var(--font-mono); font-size: 0.78rem; color: var(--fg); }
+
+  .row {
+    display: grid;
+    grid-template-columns: 108px 1fr auto auto;
+    gap: 10px;
+    align-items: start;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .row:nth-child(even) { background: var(--recess); }
+  .row.pending { opacity: 0.5; }
+  .row.is-done .r-title { text-decoration: line-through; }
+
+  .status-btn {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    padding: 4px 6px;
+    background: var(--bg);
+    color: var(--fg);
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
+  }
+  .status-btn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .status-btn[data-status="done"] { background: var(--invert-bg); color: var(--invert-fg); }
+  .status-btn[data-status="in_progress"] { border-style: dashed; }
+
+  .r-body { min-width: 0; }
+  .r-title { font-size: 0.9rem; line-height: 1.3; }
+  .r-notes { font-family: var(--font-ui); font-size: 0.76rem; color: var(--fg); opacity: 0.72; margin-top: 3px; line-height: 1.35; }
+  .r-wait { font-family: var(--font-mono); font-size: 0.72rem; margin-top: 4px; }
+
+  .r-cat {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    white-space: nowrap;
+    align-self: start;
+  }
+  .r-meta { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+
+  .cleared-row {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+  }
+  .cleared-row:nth-child(even) { background: var(--recess); }
+  .cleared-detail { padding: 0 10px 10px; display: none; }
+  .cleared-detail.open { display: block; }
+  .cleared-detail .r-title { font-size: 0.82rem; text-decoration: line-through; padding: 3px 0; }
+
+  .add-row { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .add-toggle {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--fg);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 0;
+    text-transform: uppercase;
+  }
+  .add-form { display: none; gap: 7px; flex-wrap: wrap; margin-top: 7px; }
+  .add-form.open { display: flex; }
+  .add-form input[type="text"] {
+    flex: 1 1 180px;
+    min-width: 0;
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .add-form select, .add-form input[type="date"] {
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    padding: 5px 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .add-form button.submit {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: var(--invert-bg);
+    color: var(--invert-fg);
+    cursor: pointer;
+  }
+
+  footer {
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--fg);
+    opacity: 0.75;
+    text-align: center;
+  }
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    background: var(--invert-bg);
+    color: var(--invert-fg);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s linear;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 480px) {
+    .row { grid-template-columns: 90px 1fr; }
+    .r-cat, .r-meta { grid-column: 2; justify-self: start; }
+  }
+</style>
+</head>
+<body>
+
+<a class="backlink" href="/">&larr; VVIP MEDIA.NET</a>
+
+<div class="winshell">
+  <div class="titlebar"><span>VVIP26 :: RELEASE TRACKER</span><span>V1.0</span></div>
+  <div class="subhead">
+    <h1>VVIP26 Release Tracker</h1>
+    <p class="tagline">2 LPs &middot; sticker book &amp; packs &middot; promo stickers &middot; 2 tee designs &middot; tote</p>
+  </div>
+  <div class="roster" id="roster"></div>
+</div>
+
+<div class="readout" id="readout"><span class="counts">Loading&hellip;</span></div>
+
+<section class="win-panel">
+  <div class="panel-title">READY NOW</div>
+  <div class="panel-body" id="readyBody"><div class="panel-empty">Loading&hellip;</div></div>
+</section>
+
+<section class="win-panel">
+  <div class="panel-title">WAITING ON SOMETHING ELSE</div>
+  <div class="panel-body" id="blockedBody"></div>
+</section>
+
+<section class="win-panel" id="clearedPanel" hidden>
+  <div class="panel-title">CLEARED</div>
+  <div class="panel-body" id="clearedBody"></div>
+</section>
+
+<footer>Tap a status box to cycle TODO &rarr; IN PROGRESS &rarr; DONE. Shared with anyone who has this link.</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  var API = "https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-tasks";
+  var POLL_MS = 20000;
+
+  var CATS = ["LP Production", "Promo Stickers", "Stickerbook & Packs", "Totes", "T-Shirts"];
+  var CAT_SHORT = {
+    "LP Production": "LP",
+    "Promo Stickers": "PROMO",
+    "Stickerbook & Packs": "STICKERS",
+    "Totes": "TOTES",
+    "T-Shirts": "TEES"
+  };
+  var OWNERS = ["Jeff", "Adam", "Morgan", "Sasha", "Everyone", "TBD"];
+  var STATUS_LABEL = { todo: "TODO", in_progress: "IN PROG", done: "DONE" };
+  var STATUS_ORDER = ["todo", "in_progress", "done"];
+
+  var pending = {};
+  var openCleared = {};
+  var lastTasks = [];
+  var pollTimer = null;
+
+  var readyBody = document.getElementById("readyBody");
+  var blockedBody = document.getElementById("blockedBody");
+  var clearedPanel = document.getElementById("clearedPanel");
+  var clearedBody = document.getElementById("clearedBody");
+  var readout = document.getElementById("readout");
+  var rosterEl = document.getElementById("roster");
+  var toastEl = document.getElementById("toast");
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    setTimeout(function () { toastEl.classList.remove("show"); }, 2200);
+  }
+
+  function nextStatus(s) {
+    var i = STATUS_ORDER.indexOf(s);
+    return STATUS_ORDER[(i + 1) % STATUS_ORDER.length];
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : s;
+    return d.innerHTML;
+  }
+
+  function fmtDue(iso) {
+    var d = new Date(iso + "T00:00:00");
+    if (isNaN(d.getTime())) return "";
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }).toUpperCase();
+  }
+
+  function dueUrgency(iso) {
+    var due = new Date(iso + "T00:00:00");
+    var now = new Date();
+    now.setHours(0, 0, 0, 0);
+    var days = Math.round((due - now) / 86400000);
+    if (days < 0) return "overdue";
+    if (days <= 7) return "soon";
+    return "later";
+  }
+
+  function renderRoster() {
+    rosterEl.innerHTML = ["Jeff", "Adam", "Morgan", "Sasha"].map(function (n) {
+      return '<span class="tag">' + n + "</span>";
+    }).join("");
+  }
+
+  function byId(tasks) {
+    var m = {};
+    tasks.forEach(function (t) { m[t.id] = t; });
+    return m;
+  }
+
+  function computeGraph(tasks) {
+    var map = byId(tasks);
+    tasks.forEach(function (t) { t._blocksOthers = []; });
+    tasks.forEach(function (t) {
+      (t.blocked_by || []).forEach(function (bid) {
+        var blocker = map[bid];
+        if (blocker && blocker.owner !== t.owner) blocker._blocksOthers.push(t);
+      });
+    });
+    return map;
+  }
+
+  function isBlocked(t, map) {
+    return (t.blocked_by || []).some(function (bid) {
+      var b = map[bid];
+      return b && b.status !== "done";
+    });
+  }
+
+  function blockerNames(t, map) {
+    return (t.blocked_by || [])
+      .map(function (bid) { return map[bid]; })
+      .filter(function (b) { return b && b.status !== "done"; });
+  }
+
+  function render(tasks) {
+    var map = computeGraph(tasks);
+    var total = tasks.length;
+    var done = tasks.filter(function (t) { return t.status === "done"; }).length;
+    var pct = total ? Math.round((done / total) * 100) : 0;
+
+    readout.innerHTML =
+      '<span class="counts">' + total + " ITEMS &middot; " + done + " DONE &middot; " + (total - done) + " OPEN &middot; " + pct + "%</span>" +
+      '<span class="bar-track"><span class="bar-fill" style="width:' + pct + '%"></span></span>';
+
+    var byCat = {};
+    CATS.forEach(function (c) { byCat[c] = []; });
+    tasks.forEach(function (t) { (byCat[t.category] = byCat[t.category] || []).push(t); });
+
+    var readyRows = [];
+    var blockedRows = [];
+    var clearedCats = [];
+
+    CATS.forEach(function (cat) {
+      var items = (byCat[cat] || []).slice().sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+      if (!items.length) return;
+      var catDone = items.filter(function (t) { return t.status === "done"; });
+      if (catDone.length === items.length) {
+        clearedCats.push({ cat: cat, items: items });
+        return;
+      }
+      items.forEach(function (t) {
+        if (t.status === "done") {
+          readyRows.push({ t: t, blocksOthers: false, sortKey: 3 });
+        } else if (isBlocked(t, map)) {
+          blockedRows.push({ t: t, blockers: blockerNames(t, map) });
+        } else {
+          var blocks = t._blocksOthers.filter(function (o) { return o.status !== "done"; });
+          readyRows.push({ t: t, blocksOthers: blocks.length > 0, blocks: blocks, sortKey: blocks.length > 0 ? 0 : (t.due ? 1 : 2) });
+        }
+      });
+    });
+
+    readyRows.sort(function (a, b) {
+      if (a.sortKey !== b.sortKey) return a.sortKey - b.sortKey;
+      if (a.t.due && b.t.due) return a.t.due < b.t.due ? -1 : a.t.due > b.t.due ? 1 : 0;
+      if (a.t.due) return -1;
+      if (b.t.due) return 1;
+      return (a.t.order || 0) - (b.t.order || 0);
+    });
+
+    readyBody.innerHTML = "";
+    if (!readyRows.length) {
+      readyBody.innerHTML = '<div class="panel-empty">Nothing ready &mdash; everything open is waiting on something else.</div>';
+    } else {
+      readyRows.forEach(function (r) { readyBody.appendChild(renderReadyRow(r)); });
+    }
+    CATS.forEach(function (cat) {
+      var items = (byCat[cat] || []);
+      if (items.length && !clearedCats.some(function (c) { return c.cat === cat; })) {
+        readyBody.appendChild(renderAddRow(cat, items.length));
+      }
+    });
+
+    blockedBody.innerHTML = "";
+    if (!blockedRows.length) {
+      blockedBody.innerHTML = '<div class="panel-empty">Nothing is stuck on a dependency right now.</div>';
+    } else {
+      blockedRows.forEach(function (r) { blockedBody.appendChild(renderBlockedRow(r)); });
+    }
+
+    if (clearedCats.length) {
+      clearedPanel.hidden = false;
+      clearedBody.innerHTML = "";
+      clearedCats.forEach(function (c) { clearedBody.appendChild(renderClearedRow(c)); });
+    } else {
+      clearedPanel.hidden = true;
+    }
+  }
+
+  function renderReadyRow(r) {
+    var t = r.t;
+    var row = document.createElement("div");
+    row.className = "row" + (pending[t.id] ? " pending" : "") + (t.status === "done" ? " is-done" : "");
+
+    var btn = document.createElement("button");
+    btn.className = "status-btn";
+    btn.setAttribute("data-status", t.status);
+    btn.textContent = STATUS_LABEL[t.status] || t.status;
+    btn.disabled = !!pending[t.id];
+    btn.addEventListener("click", function () { toggleStatus(t); });
+    row.appendChild(btn);
+
+    var body = document.createElement("div");
+    body.className = "r-body";
+    var waitHtml = "";
+    if (r.blocksOthers) {
+      var names = r.blocks.map(function (o) { return o.owner; });
+      var uniq = names.filter(function (n, i) { return names.indexOf(n) === i; });
+      waitHtml = '<div class="r-wait">&#9654; BLOCKS: ' + escapeHtml(uniq.join(", ")) + "</div>";
+    }
+    body.innerHTML = '<div class="r-title">' + escapeHtml(t.title) + "</div>" +
+      (t.notes ? '<div class="r-notes">' + escapeHtml(t.notes) + "</div>" : "") + waitHtml;
+    row.appendChild(body);
+
+    var cat = document.createElement("span");
+    cat.className = "r-cat";
+    cat.textContent = CAT_SHORT[t.category] || t.category;
+    row.appendChild(cat);
+
+    var meta = document.createElement("div");
+    meta.className = "r-meta";
+    var ownerTag = '<span class="tag' + (r.blocksOthers ? " invert" : "") + '">' + escapeHtml(t.owner) + "</span>";
+    var dueTag = "";
+    if (t.due) {
+      var u = dueUrgency(t.due);
+      dueTag = '<span class="tag' + (u !== "later" && t.status !== "done" ? " invert" : "") + '">' +
+        (u === "overdue" && t.status !== "done" ? "OVERDUE " : "DUE ") + fmtDue(t.due) + "</span>";
+    }
+    meta.innerHTML = ownerTag + dueTag;
+    row.appendChild(meta);
+
+    return row;
+  }
+
+  function renderBlockedRow(r) {
+    var t = r.t;
+    var row = document.createElement("div");
+    row.className = "row" + (pending[t.id] ? " pending" : "");
+
+    var btn = document.createElement("button");
+    btn.className = "status-btn";
+    btn.setAttribute("data-status", t.status);
+    btn.textContent = STATUS_LABEL[t.status] || t.status;
+    btn.disabled = true;
+    btn.title = "Blocked until its dependency is done";
+    row.appendChild(btn);
+
+    var body = document.createElement("div");
+    body.className = "r-body";
+    var waitOn = r.blockers.map(function (b) { return b.title + " (" + b.owner + ")"; }).join("; ");
+    body.innerHTML = '<div class="r-title">' + escapeHtml(t.title) + "</div>" +
+      (t.notes ? '<div class="r-notes">' + escapeHtml(t.notes) + "</div>" : "") +
+      '<div class="r-wait">&#9702; WAITING ON: ' + escapeHtml(waitOn) + "</div>";
+    row.appendChild(body);
+
+    var cat = document.createElement("span");
+    cat.className = "r-cat";
+    cat.textContent = CAT_SHORT[t.category] || t.category;
+    row.appendChild(cat);
+
+    var meta = document.createElement("div");
+    meta.className = "r-meta";
+    meta.innerHTML = '<span class="tag">' + escapeHtml(t.owner) + "</span>";
+    row.appendChild(meta);
+
+    return row;
+  }
+
+  function renderClearedRow(c) {
+    var wrap = document.createDocumentFragment();
+    var row = document.createElement("div");
+    row.className = "cleared-row";
+    row.innerHTML = "<span>" + escapeHtml(c.cat) + " &mdash; ALL CLEAR (" + c.items.length + "/" + c.items.length + ")</span><span>" + (openCleared[c.cat] ? "&#9650;" : "&#9660;") + "</span>";
+    var detail = document.createElement("div");
+    detail.className = "cleared-detail" + (openCleared[c.cat] ? " open" : "");
+    detail.innerHTML = c.items.map(function (t) { return '<div class="r-title">' + escapeHtml(t.title) + " &mdash; " + escapeHtml(t.owner) + "</div>"; }).join("");
+    row.addEventListener("click", function () {
+      openCleared[c.cat] = !openCleared[c.cat];
+      render(lastTasks);
+    });
+    wrap.appendChild(row);
+    wrap.appendChild(detail);
+    return wrap;
+  }
+
+  function renderAddRow(cat, count) {
+    var wrap = document.createElement("div");
+    wrap.className = "add-row";
+
+    var toggle = document.createElement("button");
+    toggle.className = "add-toggle";
+    toggle.textContent = "+ add to " + (CAT_SHORT[cat] || cat);
+    wrap.appendChild(toggle);
+
+    var form = document.createElement("div");
+    form.className = "add-form";
+
+    var titleInput = document.createElement("input");
+    titleInput.type = "text";
+    titleInput.placeholder = "New action item…";
+
+    var ownerSelect = document.createElement("select");
+    OWNERS.forEach(function (o) {
+      var opt = document.createElement("option");
+      opt.value = o; opt.textContent = o;
+      ownerSelect.appendChild(opt);
+    });
+
+    var dueInput = document.createElement("input");
+    dueInput.type = "date";
+
+    var submit = document.createElement("button");
+    submit.className = "submit";
+    submit.textContent = "Add";
+    submit.type = "button";
+
+    form.appendChild(titleInput);
+    form.appendChild(ownerSelect);
+    form.appendChild(dueInput);
+    form.appendChild(submit);
+    wrap.appendChild(form);
+
+    toggle.addEventListener("click", function () {
+      form.classList.toggle("open");
+      if (form.classList.contains("open")) titleInput.focus();
+    });
+
+    submit.addEventListener("click", function () {
+      var title = titleInput.value.trim();
+      if (!title) { titleInput.focus(); return; }
+      addTask(cat, title, ownerSelect.value, dueInput.value || null);
+      titleInput.value = "";
+      dueInput.value = "";
+      form.classList.remove("open");
+    });
+
+    return wrap;
+  }
+
+  async function loadTasks(quiet) {
+    try {
+      var res = await fetch(API, { method: "GET" });
+      if (!res.ok) throw new Error("http " + res.status);
+      var body = await res.json();
+      lastTasks = body.tasks || [];
+      render(lastTasks);
+    } catch (e) {
+      if (!quiet) {
+        readyBody.innerHTML = '<div class="panel-empty">Couldn’t reach the tracker service. Reload to try again.</div>';
+        readout.innerHTML = '<span class="counts">&mdash;</span>';
+      }
+    }
+  }
+
+  async function toggleStatus(t) {
+    pending[t.id] = true;
+    render(lastTasks);
+    try {
+      var res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update_status", id: t.id, status: nextStatus(t.status) })
+      });
+      if (!res.ok) throw new Error("http " + res.status);
+      await loadTasks(true);
+    } catch (e) {
+      showToast("Couldn't save that change.");
+    } finally {
+      delete pending[t.id];
+      render(lastTasks);
+    }
+  }
+
+  async function addTask(category, title, owner, due) {
+    try {
+      var res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "add", category: category, title: title, owner: owner, due: due })
+      });
+      if (!res.ok) throw new Error("http " + res.status);
+      await loadTasks(true);
+    } catch (e) {
+      showToast("Couldn't add that item.");
+    }
+  }
+
+  function init() {
+    renderRoster();
+    loadTasks(false);
+    pollTimer = setInterval(function () { loadTasks(true); }, POLL_MS);
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") loadTasks(true);
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
