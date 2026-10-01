@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Sticker Book - VVIP Media</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   /* Trim size 5.25 x 8 in. No bleed: nothing prints to the edge. */
   @page { size: 5.25in 8in; margin: 0; }
@@ -68,10 +69,10 @@
   <h1>Sticker Book</h1>
   <p>Built from the shared order, sections and captions on the Stickers page, with cross streets from
   <code>locations.json</code> and the cover logo from <code>vvip.png</code> in this folder. To make the print file:
-  Print, then Save as PDF, Margins: Default, and turn off Headers and footers.</p>
+  Download print PDF; that file is what goes to the printer.</p>
   <div class="row">
     <label><input type="checkbox" id="photos"> Show photos</label>
-    <button type="button" id="print">Print</button>
+    <button type="button" id="pdf">Download print PDF</button>
   </div>
   <details id="catbox">
     <summary>Section order</summary>
@@ -399,7 +400,90 @@
     try { localStorage.removeItem(CAT_KEY); } catch (e) {}
     render();
   });
-  document.getElementById('print').addEventListener('click', function () { window.print(); });
+  // ---- print PDF, drawn straight from the laid-out pages (no browser print dialog involved)
+  function loadImage(src) {
+    return new Promise(function (res, rej) {
+      var im = new Image();
+      im.onload = function () { res(im); };
+      im.onerror = function () { rej(new Error('logo did not load')); };
+      im.src = src;
+    });
+  }
+  function inch(n, prop) { return parseFloat(n.style[prop]) || 0; }
+  function drawCaption(doc, cap) {
+    var x = inch(cap, 'left') + 0.03, y = inch(cap, 'top'), w = inch(cap, 'width') - 0.06;
+    var bottom = y + CAP_H, cut = false;
+    Array.prototype.forEach.call(cap.children, function (line) {
+      var isCaption = line.className === 'c';
+      var size = isCaption ? 11 : 10, lead = (isCaption ? 13 : 12) / 72;
+      doc.setFont('times', isCaption ? 'normal' : 'italic');
+      doc.setFontSize(size);
+      doc.splitTextToSize(line.textContent, w).forEach(function (t) {
+        if (y + lead > bottom + 0.001) { cut = true; return; }
+        doc.text(t, x, y + lead * 0.78);
+        y += lead;
+      });
+    });
+    return cut;
+  }
+  async function makePdf() {
+    if (!window.jspdf) throw new Error('the PDF library did not load; check your connection and reload');
+    var doc = new window.jspdf.jsPDF({ unit: 'in', format: [PAGE_W, PAGE_H], orientation: 'portrait' });
+    doc.setProperties({ title: 'VVIP Sticker Book' });
+    doc.setDrawColor(0); doc.setTextColor(0);
+    var logo = null;
+    if (logoUrl) { try { logo = await loadImage(logoUrl); } catch (e) { logo = null; } }
+    var cut = 0;
+    var pages = $sheets.querySelectorAll('.page');
+    Array.prototype.forEach.call(pages, function (pg, k) {
+      if (k > 0) doc.addPage([PAGE_W, PAGE_H], 'portrait');
+      if (pg.classList.contains('cover')) {
+        if (logo) {
+          var r = Math.min(4.25 / logo.naturalWidth, 3.75 / logo.naturalHeight);
+          var lw = logo.naturalWidth * r, lh = logo.naturalHeight * r;
+          var c = document.createElement('canvas');
+          c.width = logo.naturalWidth; c.height = logo.naturalHeight;
+          var ctx = c.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(logo, 0, 0);
+          doc.addImage(c.toDataURL('image/png'), 'PNG', (PAGE_W - lw) / 2, 1.5, lw, lh);
+        } else {
+          doc.setFont('times', 'normal'); doc.setFontSize(96);
+          doc.text('VVIP', PAGE_W / 2, 2.6, { align: 'center' });
+        }
+        return;
+      }
+      Array.prototype.forEach.call(pg.querySelectorAll('.box, .frame'), function (b) {
+        var x = inch(b, 'left'), y = inch(b, 'top'), w = inch(b, 'width'), h = inch(b, 'height');
+        doc.setLineWidth(B); doc.setLineDashPattern([], 0);
+        doc.rect(x + B / 2, y + B / 2, w + B, h + B, 'S');   // stroke centred on the border, so the inside stays sticker-sized
+        if (b.classList.contains('frame')) {
+          doc.setLineWidth(0.75 / 72); doc.setLineDashPattern([0.75 / 72, 2 / 72], 0);
+          doc.line(x + B + w / 2, y + B, x + B + w / 2, y + B + h);
+          doc.line(x + B, y + B + h / 2, x + B + w, y + B + h / 2);
+          doc.setLineDashPattern([], 0);
+        }
+      });
+      Array.prototype.forEach.call(pg.querySelectorAll('.cap'), function (c) { if (drawCaption(doc, c)) cut++; });
+    });
+    return { doc: doc, pages: pages.length, cut: cut };
+  }
+  document.getElementById('pdf').addEventListener('click', async function () {
+    var btn = this;
+    btn.disabled = true;
+    var keep = $status.textContent;
+    $status.textContent = 'Making the PDF...';
+    try {
+      var out = await makePdf();
+      out.doc.save('VVIP Sticker Book.pdf');
+      $status.textContent = 'Saved "VVIP Sticker Book.pdf": ' + out.pages + ' pages at 5.25 x 8 in.' +
+        (out.cut ? ' ' + out.cut + ' captions were too long and got cut short.' : '');
+    } catch (e) {
+      $status.textContent = 'Could not make the PDF: ' + e.message + '. ' + keep;
+    } finally {
+      btn.disabled = false;
+    }
+  });
+  window.__makePdf = makePdf;
 
   // ---- load
   Promise.all([
