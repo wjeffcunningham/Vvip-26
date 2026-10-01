@@ -44,8 +44,6 @@
   .box, .frame { position: absolute; box-sizing: content-box; border: 3pt solid #000; overflow: hidden; }
   .ph { display: block; width: 100%; height: 100%; object-fit: cover; }
   .frame .ph { position: absolute; width: 50%; height: 50%; }
-  .frame .vline { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; margin-left: -1.5pt; border-left: 3pt solid #000; }
-  .frame .hline { position: absolute; left: 0; right: 0; top: 50%; height: 0; margin-top: -1.5pt; border-top: 3pt solid #000; }
   .cap { position: absolute; overflow: hidden; padding: 0 0.03in; overflow-wrap: anywhere; }
   .cap .c { font-size: 9pt; line-height: 10.5pt; }
   .cap .m { font-size: 7.5pt; line-height: 9pt; font-style: italic; }
@@ -319,8 +317,6 @@
         frame.appendChild(img);
       }
     });
-    frame.appendChild(el('div', 'vline'));
-    frame.appendChild(el('div', 'hline'));
     page.appendChild(frame);
     var cy = y + H + 2 * B + CAP_GAP;
     if (b.role === 'last') return;
