@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sticker Book - VVIP Media</title>
+<style>
+  /* Trim size 5.25 x 8 in. No bleed: nothing prints to the edge. */
+  @page { size: 5.25in 8in; margin: 0; }
+  * { box-sizing: border-box; border-radius: 0; }
+  html, body { margin: 0; padding: 0; background: #fff; color: #000; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; }
+
+  /* ---- screen-only controls */
+  .controls { padding: 16px; border-bottom: 1px solid #000; }
+  .controls h1 { font-family: "Times New Roman", Times, serif; font-weight: normal; font-size: 34px; margin: 0 0 6px; }
+  .controls p { margin: 0 0 10px; max-width: 62em; line-height: 1.4; }
+  .row { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 10px; }
+  .row label { display: flex; gap: 6px; align-items: center; }
+  button, input { font: inherit; color: #000; background: #fff; border: 1px solid #000; padding: 4px 8px; }
+  input[type="checkbox"] { padding: 0; }
+  button { cursor: pointer; }
+  button:hover:not(:disabled) { background: #000; color: #fff; }
+  button:disabled { color: #888; border-color: #888; cursor: default; }
+  details { border: 1px solid #000; padding: 6px 10px; margin-bottom: 10px; max-width: 28em; }
+  summary { cursor: pointer; }
+  #cats { margin: 8px 0 8px; padding-left: 1.8em; }
+  #cats li { margin: 3px 0; }
+  #cats .line { display: flex; gap: 6px; align-items: center; }
+  #cats .name { flex: 1; }
+  #cats button { padding: 0 8px; }
+  #status { font-weight: bold; }
+  #warnings { margin: 0; padding-left: 1.2em; }
+  #warnings li { margin: 2px 0; }
+  .sheets { padding: 24px 16px 60px; display: flex; flex-wrap: wrap; gap: 28px 16px; }
+  .sheet { display: flex; flex-direction: column; gap: 4px; }
+  .sheet .lbl { font-size: 12px; }
+  .sheet .page { outline: 1px solid #000; }
+
+  /* ---- the book. Borders sit outside the sticker area, so each box's inside is exactly the sticker size. */
+  .page { position: relative; width: 5.25in; height: 8in; overflow: hidden; background: #fff;
+          font-family: "Times New Roman", Times, serif; color: #000; }
+  .box, .frame { position: absolute; box-sizing: content-box; border: 2pt solid #000; overflow: hidden; }
+  .ph { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .frame .ph { position: absolute; width: 50%; height: 50%; }
+  .frame .vline { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; margin-left: -1pt; border-left: 2pt solid #000; }
+  .frame .hline { position: absolute; left: 0; right: 0; top: 50%; height: 0; margin-top: -1pt; border-top: 2pt solid #000; }
+  .cap { position: absolute; overflow: hidden; padding: 0 0.03in; overflow-wrap: anywhere; }
+  .cap .c { font-size: 9pt; line-height: 10.5pt; }
+  .cap .m { font-size: 7.5pt; line-height: 9pt; font-style: italic; }
+  .cover-logo { position: absolute; left: 0; right: 0; top: 2.1in; display: flex; justify-content: center; }
+  .cover-logo img { display: block; max-width: 3.25in; max-height: 2.5in; }
+  .cover-logo .word { font-size: 60pt; letter-spacing: 0.04em; }
+
+  @media print {
+    .controls, .sheet .lbl { display: none !important; }
+    .sheets { display: block; padding: 0; }
+    .sheet { display: block; }
+    .sheet .page { outline: 0; page-break-after: always; break-after: page; }
+    .sheet:last-child .page { page-break-after: auto; break-after: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="controls">
+  <h1>Sticker Book</h1>
+  <p>Built from the shared order, sections and captions on the Stickers page. Locations come from your private
+  <code>manifest_blocks.csv</code>, which stays on this computer. To make the print file: Print, then Save as PDF,
+  Margins: Default, and turn off Headers and footers.</p>
+  <div class="row">
+    <label>Locations <input type="file" id="csv" accept=".csv,text/csv"></label>
+    <label>Cover logo <input type="file" id="logo" accept="image/*"></label>
+    <label><input type="checkbox" id="photos"> Show photos</label>
+    <button type="button" id="print">Print</button>
+  </div>
+  <details id="catbox">
+    <summary>Section order</summary>
+    <ol id="cats"></ol>
+    <button type="button" id="catreset">Reset to Stickers page order</button>
+  </details>
+  <div class="row"><span id="status" role="status" aria-live="polite">Loading...</span></div>
+  <ul id="warnings"></ul>
+</div>
+<div class="sheets" id="sheets"></div>
+
+<script>
+(function () {
+  'use strict';
+  var API = 'https://fyyfiimnltaktrsczjdq.supabase.co/functions/v1/update-stickers';
+  var SEED = 'stickers.json';
+  var CAT_KEY = 'stickerbook_section_order';
+
+  // ---- page geometry, inches
+  var PAGE_W = 5.25, PAGE_H = 8;
+  var M_TOP = 0.4, M_BOT = 0.42, M_IN = 0.33, M_OUT = 0.25;
+  var CW = PAGE_W - M_IN - M_OUT;          // 4.67
+  var CH = PAGE_H - M_TOP - M_BOT;         // 7.18
+  var B = 2 / 72;                          // 2pt border, drawn outside the sticker area
+  var CAP_GAP = 0.05, CAP_H = 0.42, ROW_GAP_MIN = 0.1;
+  var SIZES = { square: { w: 2.25, h: 2.25 }, portrait: { w: 2.25, h: 3 }, landscape: { w: 3, h: 2.25 } };
+  var TILE_ORDER = ['tl', 'tr', 'bl', 'br'];
+
+  var seed = null, byId = {}, state = { order: [], items: {} }, shared = false;
+  var places = {}, haveCsv = false, logoUrl = '', showPhotos = false;
+  var catOrder = [];        // section keys in the chosen order
+  try { catOrder = JSON.parse(localStorage.getItem(CAT_KEY) || '[]') || []; } catch (e) { catOrder = []; }
+
+  var $sheets = document.getElementById('sheets');
+  var $status = document.getElementById('status');
+  var $warn = document.getElementById('warnings');
+  var $cats = document.getElementById('cats');
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text) n.textContent = text;
+    return n;
+  }
+  function pos(n, x, y, w, h) {
+    n.style.left = x + 'in'; n.style.top = y + 'in';
+    if (w != null) n.style.width = w + 'in';
+    if (h != null) n.style.height = h + 'in';
+    return n;
+  }
+  function cap1(s) { s = (s || '').trim(); return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+  // ---- data
+  function field(id, f) {
+    var s = state.items && state.items[id];
+    if (s && typeof s[f] === 'string') return s[f];
+    return (byId[id] && byId[id][f]) || '';
+  }
+  function catKey(id) { return field(id, 'category').trim().toLowerCase() || 'uncategorized'; }
+  function order() {
+    var seen = {}, out = [];
+    (state.order || []).forEach(function (id) { if (byId[id] && !seen[id]) { seen[id] = 1; out.push(id); } });
+    seed.items.forEach(function (it) { if (!seen[it.id]) { seen[it.id] = 1; out.push(it.id); } });
+    return out;
+  }
+  function sizeOf(it) {
+    var r = (it.w && it.h) ? it.w / it.h : 0.75;
+    if (Math.abs(r - 1) <= 0.12) return SIZES.square;
+    return r < 1 ? SIZES.portrait : SIZES.landscape;
+  }
+  function metaLine(id) {
+    return [cap1(field(id, 'category')), places[id] || ''].filter(function (s) { return s; }).join(', ');
+  }
+  function photo(id) {
+    var img = el('img', 'ph');
+    img.src = seed.images_base + byId[id].file;
+    img.alt = '';
+    return img;
+  }
+
+  // ---- sections: Stickers page order by default, then any order chosen here
+  function sections(flow) {
+    var info = {}, seen = [];
+    flow.forEach(function (id) {
+      var k = catKey(id);
+      if (!info[k]) { info[k] = { key: k, label: cap1(field(id, 'category')) || 'Uncategorized', count: 0 }; seen.push(k); }
+      info[k].count++;
+    });
+    var out = catOrder.filter(function (k) { return info[k]; });
+    seen.forEach(function (k) { if (out.indexOf(k) < 0) out.push(k); });
+    return out.map(function (k) { return info[k]; });
+  }
+  function plan() {
+    var ids = order(), setOrder = [], seenSet = {};
+    ids.forEach(function (id) {
+      var s = byId[id].set;
+      if (s && !seenSet[s]) { seenSet[s] = 1; setOrder.push(s); }
+    });
+    var flow = ids.filter(function (id) { return !byId[id].set; });
+    var secs = sections(flow), rank = {};
+    secs.forEach(function (s, i) { rank[s.key] = i; });
+    flow = flow.map(function (id, i) { return { id: id, i: i }; })
+      .sort(function (a, b) { return (rank[catKey(a.id)] - rank[catKey(b.id)]) || (a.i - b.i); })
+      .map(function (x) { return x.id; });
+    return { setOrder: setOrder, flow: flow, sections: secs };
+  }
+
+  // ---- CSV (RFC 4180: quoted fields, doubled quotes, commas and newlines inside quotes)
+  function parseCsv(text) {
+    var rows = [], row = [], cell = '', q = false, i, c;
+    text = text.replace(/^\uFEFF/, '');
+    for (i = 0; i < text.length; i++) {
+      c = text[i];
+      if (q) {
+        if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; }
+        else cell += c;
+      } else if (c === '"') q = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); cell = ''; rows.push(row); row = [];
+      } else cell += c;
+    }
+    if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+    if (!rows.length) return [];
+    var head = rows[0];
+    return rows.slice(1).filter(function (r) { return r.length > 1; }).map(function (r) {
+      var o = {}; head.forEach(function (h, k) { o[h] = r[k] || ''; }); return o;
+    });
+  }
+  function loadPlaces(text) {
+    var rows = parseCsv(text);
+    if (!rows.length || !('id' in rows[0])) throw new Error('this file has no id column');
+    places = {};
+    rows.forEach(function (r) {
+      var p = r.intersection_short || r.street || '';
+      if (r.id && p) places[r.id] = p;
+    });
+    haveCsv = true;
+  }
+
+  // ---- layout
+  function setBlock(name) {
+    var tiles = seed.items.filter(function (t) { return t.set === name; }), byPos = {};
+    tiles.forEach(function (t) { byPos[t.id.split('-').pop()] = t.id; });
+    var ts = sizeOf(tiles[0]);
+    return { type: 'set', set: name, tiles: byPos, tw: ts.w, th: ts.h };
+  }
+  function rowH(h) { return h + 2 * B + CAP_GAP + CAP_H; }
+  function buildBlocks(flow) {
+    var blocks = [], i, id, s, nx, ns;
+    for (i = 0; i < flow.length; i++) {
+      id = flow[i]; s = sizeOf(byId[id]); nx = flow[i + 1];
+      if (s.w <= 2.25 && nx) {
+        ns = sizeOf(byId[nx]);
+        if (ns.w <= 2.25) {
+          blocks.push({ type: 'row', slots: [{ id: id, w: s.w, h: s.h }, { id: nx, w: ns.w, h: ns.h }], h: rowH(Math.max(s.h, ns.h)) });
+          i++;
+          continue;
+        }
+      }
+      blocks.push({ type: 'row', slots: [{ id: id, w: s.w, h: s.h }], h: rowH(s.h) });
+    }
+    return blocks;
+  }
+  function paginate(blocks) {
+    var pages = [], cur = [], used = 0;
+    blocks.forEach(function (b) {
+      var need = (cur.length ? ROW_GAP_MIN : 0) + b.h;
+      if (used + need > CH + 1e-6) { pages.push(cur); cur = []; used = 0; need = b.h; }
+      cur.push(b); used += need;
+    });
+    if (cur.length) pages.push(cur);
+    return pages;
+  }
+  // First 4-square on the first inside page, last 4-square on the last inside page,
+  // any others straight after the first. Blank pages (to reach a multiple of 4) go just before the last one.
+  function interiorPages(p) {
+    var sets = p.setOrder, pages = [];
+    if (sets.length) pages.push([setBlock(sets[0])]);
+    sets.slice(1, -1).forEach(function (s) { pages.push([setBlock(s)]); });
+    paginate(buildBlocks(p.flow)).forEach(function (pg) { pages.push(pg); });
+    var last = sets.length > 1 ? [setBlock(sets[sets.length - 1])] : null;
+    var n = Math.ceil((pages.length + (last ? 1 : 0)) / 4) * 4;
+    while (pages.length < n - (last ? 1 : 0)) pages.push(null);
+    if (last) pages.push(last);
+    return pages;
+  }
+
+  // ---- drawing
+  function caption(capId, metaId, x, y, w) {
+    var cap = pos(el('div', 'cap'), x, y, w, CAP_H);
+    cap.setAttribute('data-id', metaId);
+    var c = field(capId, 'caption');
+    if (c) cap.appendChild(el('div', 'c', c));
+    var m = metaLine(metaId);
+    if (m) cap.appendChild(el('div', 'm', m));
+    return cap;
+  }
+  function drawRows(page, rows, left) {
+    var total = rows.reduce(function (a, r) { return a + r.h; }, 0);
+    var gap = (CH - total) / (rows.length + 1);
+    var y = M_TOP + gap;
+    rows.forEach(function (r) {
+      var widths = r.slots.reduce(function (a, s) { return a + s.w + 2 * B; }, 0);
+      // a pair sits flush to the margins with the spare width between them; a single one is centred
+      var gx = r.slots.length > 1 ? (CW - widths) / (r.slots.length - 1) : 0;
+      var x = r.slots.length > 1 ? left : left + (CW - widths) / 2;
+      r.slots.forEach(function (s) {
+        var box = pos(el('div', 'box'), x, y, s.w, s.h);
+        box.setAttribute('data-id', s.id);
+        if (showPhotos) box.appendChild(photo(s.id));
+        page.appendChild(box);
+        page.appendChild(caption(s.id, s.id, x, y + s.h + 2 * B + CAP_GAP, s.w + 2 * B));
+        x += s.w + 2 * B + gx;
+      });
+      y += r.h + gap;
+    });
+  }
+  function drawSet(page, b, left) {
+    var W = b.tw * 2, H = b.th * 2;
+    var x = left + (CW - W - 2 * B) / 2, y = M_TOP + (CH - rowH(H)) / 2;
+    var frame = pos(el('div', 'frame'), x, y, W, H);
+    frame.setAttribute('data-set', b.set);
+    var ids = [];
+    TILE_ORDER.forEach(function (p, k) {
+      var id = b.tiles[p];
+      if (!id) return;
+      ids.push(id);
+      var t = el('span', 'tile');
+      t.setAttribute('data-id', id);
+      frame.appendChild(t);
+      if (showPhotos) {
+        var img = photo(id);
+        img.style.left = (k % 2) * 50 + '%'; img.style.top = Math.floor(k / 2) * 50 + '%';
+        frame.appendChild(img);
+      }
+    });
+    frame.appendChild(el('div', 'vline'));
+    frame.appendChild(el('div', 'hline'));
+    page.appendChild(frame);
+    var capId = ids.filter(function (id) { return field(id, 'caption'); })[0] || ids[0];
+    page.appendChild(caption(capId, ids[0], x, y + H + 2 * B + CAP_GAP, W + 2 * B));
+  }
+  function coverPage() {
+    var p = el('section', 'page cover');
+    var holder = el('div', 'cover-logo');
+    if (logoUrl) { var img = el('img'); img.src = logoUrl; img.alt = 'VVIP'; holder.appendChild(img); }
+    else holder.appendChild(el('div', 'word', 'VVIP'));
+    p.appendChild(holder);
+    return p;
+  }
+
+  function renderSections(secs) {
+    $cats.textContent = '';
+    secs.forEach(function (s, i) {
+      var li = el('li'), line = el('div', 'line');
+      line.appendChild(el('span', 'name', s.label + ' (' + s.count + ')'));
+      var up = el('button', '', 'Up'), down = el('button', '', 'Down');
+      up.type = down.type = 'button';
+      up.disabled = i === 0; down.disabled = i === secs.length - 1;
+      up.setAttribute('aria-label', 'Move ' + s.label + ' up');
+      down.setAttribute('aria-label', 'Move ' + s.label + ' down');
+      up.addEventListener('click', function () { moveSection(secs, i, -1); });
+      down.addEventListener('click', function () { moveSection(secs, i, 1); });
+      line.appendChild(up); line.appendChild(down);
+      li.appendChild(line);
+      $cats.appendChild(li);
+    });
+  }
+  function moveSection(secs, i, dir) {
+    var keys = secs.map(function (s) { return s.key; });
+    var k = keys.splice(i, 1)[0];
+    keys.splice(i + dir, 0, k);
+    catOrder = keys;
+    try { localStorage.setItem(CAT_KEY, JSON.stringify(catOrder)); } catch (e) {}
+    render();
+    var btn = $cats.children[i + dir] && $cats.children[i + dir].querySelectorAll('button')[dir < 0 ? 0 : 1];
+    if (btn && !btn.disabled) btn.focus();
+  }
+
+  function render() {
+    var p = plan();
+    renderSections(p.sections);
+    var interior = interiorPages(p);
+    var total = interior.length + 4;     // cover sheet is 4 pages; insides are already a multiple of 4
+    var pages = [coverPage(), el('section', 'page')];
+    interior.forEach(function (blocks, k) {
+      var pageNo = k + 3;                // first inside page is a right-hand page
+      var left = (pageNo % 2 === 1) ? M_IN : M_OUT;
+      var pg = el('section', 'page');
+      if (blocks) { if (blocks[0].type === 'set') drawSet(pg, blocks[0], left); else drawRows(pg, blocks, left); }
+      pages.push(pg);
+    });
+    pages.push(el('section', 'page'), el('section', 'page'));
+
+    $sheets.textContent = '';
+    pages.forEach(function (pg, k) {
+      var wrap = el('div', 'sheet');
+      var name = k === 0 ? 'Front cover' : k === 1 ? 'Inside front cover' : k === total - 2 ? 'Inside back cover'
+        : k === total - 1 ? 'Back cover' : 'Page ' + (k + 1) + (interior[k - 2] ? '' : ' (blank)');
+      wrap.appendChild(el('div', 'lbl', name));
+      wrap.appendChild(pg);
+      $sheets.appendChild(wrap);
+    });
+
+    var slots = $sheets.querySelectorAll('.box, .tile').length;
+    var used = interior.filter(Boolean).length;
+    $status.textContent = slots + ' sticker spaces on ' + used + ' pages. ' + total +
+      ' pages in all, including covers and blanks (staple binding needs a multiple of 4).';
+    warnings(p.flow);
+  }
+
+  function warnings(flow) {
+    var w = [];
+    if (!shared) w.push('Could not reach the shared order and captions, so this uses the original order from stickers.json with no captions.');
+    if (!haveCsv) w.push('No locations yet. Choose manifest_blocks.csv to add them.');
+    else {
+      var missing = flow.filter(function (id) { return !places[id]; }).length;
+      if (missing) w.push(missing + ' stickers have no location in the CSV (no GPS in the photo), so none is printed.');
+    }
+    if (!logoUrl) w.push('No logo chosen. The cover shows the word VVIP in type until you choose the logo file.');
+    if (showPhotos) w.push('Photos are showing and will print. Turn off Show photos before making the print file.');
+    var long = [];
+    Array.prototype.forEach.call($sheets.querySelectorAll('.cap'), function (c) {
+      if (c.scrollHeight > c.clientHeight + 1) long.push(c.getAttribute('data-id'));
+    });
+    if (long.length) w.push('Caption too long to fit, it will be cut off: ' + long.join(', ') + '. Shorten it on the Stickers page.');
+    $warn.textContent = '';
+    w.forEach(function (t) { $warn.appendChild(el('li', '', t)); });
+  }
+
+  // ---- inputs
+  document.getElementById('csv').addEventListener('change', function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    f.text().then(function (t) { loadPlaces(t); render(); })
+      .catch(function (e) { $status.textContent = 'Could not read that CSV: ' + e.message; });
+  });
+  document.getElementById('logo').addEventListener('change', function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function () { logoUrl = r.result; render(); };
+    r.readAsDataURL(f);
+  });
+  document.getElementById('photos').addEventListener('change', function (ev) { showPhotos = ev.target.checked; render(); });
+  document.getElementById('catreset').addEventListener('click', function () {
+    catOrder = [];
+    try { localStorage.removeItem(CAT_KEY); } catch (e) {}
+    render();
+  });
+  document.getElementById('print').addEventListener('click', function () { window.print(); });
+
+  // ---- load
+  Promise.all([
+    fetch(SEED, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('stickers.json ' + r.status); return r.json(); }),
+    fetch(API).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+  ]).then(function (res) {
+    seed = res[0];
+    seed.items.forEach(function (it) { byId[it.id] = it; });
+    if (res[1]) { state = { order: res[1].order || [], items: res[1].items || {} }; shared = true; }
+    render();
+  }).catch(function (e) {
+    $status.textContent = 'Could not load the stickers (' + e.message + ').';
+  });
+
+  window.__book = { parseCsv: parseCsv };
+})();
+</script>
+</body>
+</html>
