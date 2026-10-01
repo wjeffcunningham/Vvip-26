@@ -44,12 +44,15 @@
   .box, .frame { position: absolute; box-sizing: content-box; border: 3pt solid #000; overflow: hidden; }
   .ph { display: block; width: 100%; height: 100%; object-fit: cover; }
   .frame .ph { position: absolute; width: 50%; height: 50%; }
+  /* faint guide for where each tile goes; the stickers cover it */
+  .frame .guide-v { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; border-left: 0.75pt dotted #000; }
+  .frame .guide-h { position: absolute; left: 0; right: 0; top: 50%; height: 0; border-top: 0.75pt dotted #000; }
   .cap { position: absolute; overflow: hidden; padding: 0 0.03in; overflow-wrap: anywhere; }
   .cap .c { font-size: 9pt; line-height: 10.5pt; }
   .cap .m { font-size: 7.5pt; line-height: 9pt; font-style: italic; }
-  .cover-logo { position: absolute; left: 0; right: 0; top: 2.1in; display: flex; justify-content: center; }
-  .cover-logo img { display: block; max-width: 3.25in; max-height: 2.5in; }
-  .cover-logo .word { font-size: 60pt; letter-spacing: 0.04em; }
+  .cover-logo { position: absolute; left: 0; right: 0; top: 1.5in; display: flex; justify-content: center; }
+  .cover-logo img { display: block; max-width: 4.25in; max-height: 3.75in; }
+  .cover-logo .word { font-size: 96pt; letter-spacing: 0.04em; }
 
   @media print {
     .controls, .sheet .lbl { display: none !important; }
@@ -148,8 +151,15 @@
     if (Math.abs(r - 1) <= 0.12) return SIZES.square;
     return r < 1 ? SIZES.portrait : SIZES.landscape;
   }
+  // Only the telephone poles carry a date, and only the date the photo was taken (never the date shared).
+  var DATED_SECTIONS = { poles: 1 };
+  function takenDate(id) {
+    var m = /^Taken (.+)$/.exec(byId[id].date_label || '');
+    return m ? m[1] : '';
+  }
   function metaLine(id) {
-    return [cap1(field(id, 'category')), places[id] || ''].filter(function (s) { return s; }).join(', ');
+    var date = DATED_SECTIONS[catKey(id)] ? takenDate(id) : '';
+    return [cap1(field(id, 'category')), places[id] || '', date].filter(function (s) { return s; }).join(', ');
   }
   function photo(id) {
     var img = el('img', 'ph');
@@ -303,6 +313,8 @@
     var x = left + (CW - W - 2 * B) / 2, y = M_TOP + (CH - rowH(H)) / 2;
     var frame = pos(el('div', 'frame'), x, y, W, H);
     frame.setAttribute('data-set', b.set);
+    frame.appendChild(el('div', 'guide-v'));
+    frame.appendChild(el('div', 'guide-h'));
     var ids = [];
     TILE_ORDER.forEach(function (p, k) {
       var id = b.tiles[p];

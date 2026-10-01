@@ -164,6 +164,10 @@
   }
   .r-meta { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 
+  .row.done-row .r-title { text-decoration: line-through; }
+  .status-btn.return-btn { background: var(--bg); color: var(--fg); }
+  .status-btn.return-btn:hover { background: var(--invert-bg); color: var(--invert-fg); }
+
   .cleared-row {
     padding: 7px 10px;
     border-bottom: 1px solid var(--border);
@@ -281,12 +285,12 @@
   <div class="panel-body" id="blockedBody"></div>
 </section>
 
-<section class="win-panel" id="clearedPanel" hidden>
-  <div class="panel-title">CLEARED</div>
-  <div class="panel-body" id="clearedBody"></div>
+<section class="win-panel" id="donePanel" hidden>
+  <div class="panel-title">DONE</div>
+  <div class="panel-body" id="doneBody"></div>
 </section>
 
-<footer>Tap a status box to cycle TODO &rarr; IN PROGRESS &rarr; DONE. Shared with anyone who has this link.</footer>
+<footer>Tap a status box to move it TODO &rarr; IN PROGRESS &rarr; DONE. Done items drop to the DONE list; tap RETURN to put one back in progress. Shared with anyone who has this link.</footer>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -314,8 +318,8 @@
 
   var readyBody = document.getElementById("readyBody");
   var blockedBody = document.getElementById("blockedBody");
-  var clearedPanel = document.getElementById("clearedPanel");
-  var clearedBody = document.getElementById("clearedBody");
+  var donePanel = document.getElementById("donePanel");
+  var doneBody = document.getElementById("doneBody");
   var readout = document.getElementById("readout");
   var rosterEl = document.getElementById("roster");
   var toastEl = document.getElementById("toast");
@@ -326,9 +330,9 @@
     setTimeout(function () { toastEl.classList.remove("show"); }, 2200);
   }
 
+  // Forward only: todo -> in progress -> done. Done items come back through RETURN on the DONE list.
   function nextStatus(s) {
-    var i = STATUS_ORDER.indexOf(s);
-    return STATUS_ORDER[(i + 1) % STATUS_ORDER.length];
+    return s === "todo" ? "in_progress" : "done";
   }
 
   function escapeHtml(s) {
@@ -406,19 +410,14 @@
 
     var readyRows = [];
     var blockedRows = [];
-    var clearedCats = [];
+    var doneRows = [];
 
     CATS.forEach(function (cat) {
       var items = (byCat[cat] || []).slice().sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
       if (!items.length) return;
-      var catDone = items.filter(function (t) { return t.status === "done"; });
-      if (catDone.length === items.length) {
-        clearedCats.push({ cat: cat, items: items });
-        return;
-      }
       items.forEach(function (t) {
         if (t.status === "done") {
-          readyRows.push({ t: t, blocksOthers: false, sortKey: 3 });
+          doneRows.push(t);
         } else if (isBlocked(t, map)) {
           blockedRows.push({ t: t, blockers: blockerNames(t, map) });
         } else {
@@ -444,9 +443,7 @@
     }
     CATS.forEach(function (cat) {
       var items = (byCat[cat] || []);
-      if (items.length && !clearedCats.some(function (c) { return c.cat === cat; })) {
-        readyBody.appendChild(renderAddRow(cat, items.length));
-      }
+      if (items.length) readyBody.appendChild(renderAddRow(cat, items.length));
     });
 
     blockedBody.innerHTML = "";
@@ -456,12 +453,12 @@
       blockedRows.forEach(function (r) { blockedBody.appendChild(renderBlockedRow(r)); });
     }
 
-    if (clearedCats.length) {
-      clearedPanel.hidden = false;
-      clearedBody.innerHTML = "";
-      clearedCats.forEach(function (c) { clearedBody.appendChild(renderClearedRow(c)); });
+    if (doneRows.length) {
+      donePanel.hidden = false;
+      doneBody.innerHTML = "";
+      doneRows.forEach(function (t) { doneBody.appendChild(renderDoneRow(t)); });
     } else {
-      clearedPanel.hidden = true;
+      donePanel.hidden = true;
     }
   }
 
@@ -529,6 +526,36 @@
     body.innerHTML = '<div class="r-title">' + escapeHtml(t.title) + "</div>" +
       (t.notes ? '<div class="r-notes">' + escapeHtml(t.notes) + "</div>" : "") +
       '<div class="r-wait">&#9702; WAITING ON: ' + escapeHtml(waitOn) + "</div>";
+    row.appendChild(body);
+
+    var cat = document.createElement("span");
+    cat.className = "r-cat";
+    cat.textContent = CAT_SHORT[t.category] || t.category;
+    row.appendChild(cat);
+
+    var meta = document.createElement("div");
+    meta.className = "r-meta";
+    meta.innerHTML = '<span class="tag">' + escapeHtml(t.owner) + "</span>";
+    row.appendChild(meta);
+
+    return row;
+  }
+
+  function renderDoneRow(t) {
+    var row = document.createElement("div");
+    row.className = "row done-row" + (pending[t.id] ? " pending" : "");
+
+    var btn = document.createElement("button");
+    btn.className = "status-btn return-btn";
+    btn.textContent = "RETURN";
+    btn.title = "Put this back in progress";
+    btn.disabled = !!pending[t.id];
+    btn.addEventListener("click", function () { setStatus(t, "in_progress"); });
+    row.appendChild(btn);
+
+    var body = document.createElement("div");
+    body.className = "r-body";
+    body.innerHTML = '<div class="r-title">' + escapeHtml(t.title) + "</div>";
     row.appendChild(body);
 
     var cat = document.createElement("span");
@@ -630,14 +657,16 @@
     }
   }
 
-  async function toggleStatus(t) {
+  function toggleStatus(t) { return setStatus(t, nextStatus(t.status)); }
+
+  async function setStatus(t, status) {
     pending[t.id] = true;
     render(lastTasks);
     try {
       var res = await fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "update_status", id: t.id, status: nextStatus(t.status) })
+        body: JSON.stringify({ action: "update_status", id: t.id, status: status })
       });
       if (!res.ok) throw new Error("http " + res.status);
       await loadTasks(true);

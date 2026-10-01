@@ -676,6 +676,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
             <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">WAV downloads</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
             <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">Lo-fi YouTube video</td><td style="text-align:center">✓</td><td style="text-align:center;color:var(--gold-bg)">✓</td></tr>
             <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">HQ video streams</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
+            <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">Download Exclusive VVIP Footage — make your own VVIP video!</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
             <tr style="border-bottom:1px solid var(--border-light)"><td style="padding:6px 8px">Gems (bonus media)</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
             <tr><td style="padding:6px 8px">Merch &amp; partner perks</td><td style="text-align:center;color:var(--muted)">—</td><td style="text-align:center;color:var(--gold-bg)">[+]</td></tr>
           </tbody>
@@ -694,6 +695,7 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
           <ul class="upgrade-perks">
             <li>WAV downloads of every track</li>
             <li>HQ video</li>
+            <li>Download Exclusive VVIP Footage — make your own VVIP video!</li>
             <li>Exclusive 'zine opportunities</li>
             <li>Hidden secrets and Easter eggs</li>
             <li>Lifetime merch repairs</li>
@@ -726,6 +728,10 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
           <div class="benefit-row">
             <div class="benefit-row-label">HQ Video</div>
             <div class="benefit-row-desc">Full-resolution video streams. <a id="vvip-archives-link" href="#" target="_blank">VVIP Archives →</a></div>
+          </div>
+          <div class="benefit-row">
+            <div class="benefit-row-label">VVIP Footage</div>
+            <div class="benefit-row-desc">Download Exclusive VVIP Footage — make your own VVIP video! <a id="vvip-footage-link" href="#" target="_blank">VVIP Footage →</a></div>
           </div>
           <div class="benefit-row">
             <div class="benefit-row-label">Shoppe</div>
@@ -796,6 +802,10 @@ html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:non
         <button class="admin-tile" onclick="window.location='/tracker.html'">
           <span class="admin-tile-icon">[x]</span>
           <span class="admin-tile-label">Release Tracker</span>
+        </button>
+        <button class="admin-tile" onclick="window.location='/stickers/book.html'">
+          <span class="admin-tile-icon">[#]</span>
+          <span class="admin-tile-label">Sticker Book</span>
         </button>
       </div>
 
@@ -1331,6 +1341,8 @@ function renderMember(){
   // VVIP Archives link
   const archivesLink = document.getElementById('vvip-archives-link');
   if(archivesLink) archivesLink.href = 'https://media.vvipmedia.net/VIDEOS/';
+  const footageLink = document.getElementById('vvip-footage-link');
+  if(footageLink) footageLink.href = 'https://media.vvipmedia.net/FOOTAGE/';
 
   // Admin panel
   if(profile.is_admin){
