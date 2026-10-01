@@ -41,11 +41,11 @@
   /* ---- the book. Borders sit outside the sticker area, so each box's inside is exactly the sticker size. */
   .page { position: relative; width: 5.25in; height: 8in; overflow: hidden; background: #fff;
           font-family: "Times New Roman", Times, serif; color: #000; }
-  .box, .frame { position: absolute; box-sizing: content-box; border: 2pt solid #000; overflow: hidden; }
+  .box, .frame { position: absolute; box-sizing: content-box; border: 3pt solid #000; overflow: hidden; }
   .ph { display: block; width: 100%; height: 100%; object-fit: cover; }
   .frame .ph { position: absolute; width: 50%; height: 50%; }
-  .frame .vline { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; margin-left: -1pt; border-left: 2pt solid #000; }
-  .frame .hline { position: absolute; left: 0; right: 0; top: 50%; height: 0; margin-top: -1pt; border-top: 2pt solid #000; }
+  .frame .vline { position: absolute; top: 0; bottom: 0; left: 50%; width: 0; margin-left: -1.5pt; border-left: 3pt solid #000; }
+  .frame .hline { position: absolute; left: 0; right: 0; top: 50%; height: 0; margin-top: -1.5pt; border-top: 3pt solid #000; }
   .cap { position: absolute; overflow: hidden; padding: 0 0.03in; overflow-wrap: anywhere; }
   .cap .c { font-size: 9pt; line-height: 10.5pt; }
   .cap .m { font-size: 7.5pt; line-height: 9pt; font-style: italic; }
@@ -93,11 +93,11 @@
 
   // ---- page geometry, inches
   var PAGE_W = 5.25, PAGE_H = 8;
-  var M_TOP = 0.4, M_BOT = 0.42, M_IN = 0.33, M_OUT = 0.25;
-  var CW = PAGE_W - M_IN - M_OUT;          // 4.67
+  var M_TOP = 0.4, M_BOT = 0.42, M_IN = 0.3, M_OUT = 0.2;
+  var CW = PAGE_W - M_IN - M_OUT;          // 4.75
   var CH = PAGE_H - M_TOP - M_BOT;         // 7.18
-  var B = 2 / 72;                          // 2pt border, drawn outside the sticker area
-  var CAP_GAP = 0.05, CAP_H = 0.42, ROW_GAP_MIN = 0.1;
+  var B = 3 / 72;                          // 3pt border, drawn outside the sticker area
+  var CAP_GAP = 0.05, CAP_H = 0.42, ROW_GAP_MIN = 0.05;
   var SIZES = { square: { w: 2.25, h: 2.25 }, portrait: { w: 2.25, h: 3 }, landscape: { w: 3, h: 2.25 } };
   var TILE_ORDER = ['tl', 'tr', 'bl', 'br'];
 
@@ -123,7 +123,14 @@
     if (h != null) n.style.height = h + 'in';
     return n;
   }
-  function cap1(s) { s = (s || '').trim(); return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+  var SECTION_NAMES = { ai: 'AI', sashasworld: "Sasha's world" };   // spelled out where capitalizing isn't enough
+  var FIRST_SET_CAPTION = 'Art by SF Cook';                           // first 4-square: only this; last 4-square: nothing
+  function cap1(s) {
+    s = (s || '').trim();
+    var k = s.toLowerCase();
+    if (SECTION_NAMES[k]) return SECTION_NAMES[k];
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+  }
 
   // ---- data
   function field(id, f) {
@@ -252,10 +259,11 @@
   // any others straight after the first. Blank pages (to reach a multiple of 4) go just before the last one.
   function interiorPages(p) {
     var sets = p.setOrder, pages = [];
-    if (sets.length) pages.push([setBlock(sets[0])]);
+    if (sets.length) { var f = setBlock(sets[0]); f.role = 'first'; pages.push([f]); }
     sets.slice(1, -1).forEach(function (s) { pages.push([setBlock(s)]); });
     paginate(buildBlocks(p.flow)).forEach(function (pg) { pages.push(pg); });
-    var last = sets.length > 1 ? [setBlock(sets[sets.length - 1])] : null;
+    var last = null;
+    if (sets.length > 1) { last = [setBlock(sets[sets.length - 1])]; last[0].role = 'last'; }
     var n = Math.ceil((pages.length + (last ? 1 : 0)) / 4) * 4;
     while (pages.length < n - (last ? 1 : 0)) pages.push(null);
     if (last) pages.push(last);
@@ -314,8 +322,17 @@
     frame.appendChild(el('div', 'vline'));
     frame.appendChild(el('div', 'hline'));
     page.appendChild(frame);
+    var cy = y + H + 2 * B + CAP_GAP;
+    if (b.role === 'last') return;
+    if (b.role === 'first') {
+      var cap = pos(el('div', 'cap'), x, cy, W + 2 * B, CAP_H);
+      cap.setAttribute('data-id', ids[0]);
+      cap.appendChild(el('div', 'c', FIRST_SET_CAPTION));
+      page.appendChild(cap);
+      return;
+    }
     var capId = ids.filter(function (id) { return field(id, 'caption'); })[0] || ids[0];
-    page.appendChild(caption(capId, ids[0], x, y + H + 2 * B + CAP_GAP, W + 2 * B));
+    page.appendChild(caption(capId, ids[0], x, cy, W + 2 * B));
   }
   function coverPage() {
     var p = el('section', 'page cover');
