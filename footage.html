@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>VVIP+ Footage &amp; Video - VVIP Media</title>
+<script>try{if(localStorage.getItem('vvip25:dark')==='1')document.documentElement.setAttribute('data-theme','dark');}catch(e){}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+  --bg: #f4f4f2;
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #a8a8a8;
+  --border-light: #d0d0d0;
+  --card: #e8e8e6;
+  --hover: #dce4f0;
+  --link: #00308f;
+  --link-vis: #4a1a7a;
+  --link-hov: #9a0000;
+  --btn-bg: #d8d8d6;
+  --btn-hi: #f0f0ee;
+  --btn-sh: #7a7a7a;
+  --btn-dk: #3a3a3a;
+  --scrub-bg: #bcbcba;
+  --now-bg: #e0e0de;
+  --tab-inactive: #cacac8;
+  --star-on: #8b0000;
+  --tag-bg: #1e2a3a;
+  --tag-fg: #f0f0ee;
+  --sec-ga: #1e2a3a;
+  --sec-gb: #2e3e52;
+  --gold-bg: #c8a84b;
+  --gold-hi: #f0d480;
+  --gold-sh: #7a6020;
+  --gold-fg: #2a1800;
+  --gold-glow: rgba(200,168,75,0);
+}
+[data-theme="dark"] {
+  --bg: #111014;
+  --fg: #e8e4d8;
+  --muted: #888880;
+  --border: #2a2830;
+  --border-light: #1e1c24;
+  --card: #17151c;
+  --hover: #1a1830;
+  --link: #6699ff;
+  --link-vis: #cc88ff;
+  --link-hov: #ff6644;
+  --btn-bg: #28263a;
+  --btn-hi: #484660;
+  --btn-sh: #0c0b14;
+  --btn-dk: #060610;
+  --scrub-bg: #28263a;
+  --now-bg: #15131a;
+  --tab-inactive: #1c1a28;
+  --star-on: #ddaa44;
+  --tag-bg: #0c0a22;
+  --tag-fg: #99aaee;
+  --sec-ga: #0c0a22;
+  --sec-gb: #14123a;
+  --gold-bg: #7a6020;
+  --gold-hi: #c8a84b;
+  --gold-sh: #3a2a08;
+  --gold-fg: #f0d080;
+  --gold-glow: rgba(200,168,75,0.12);
+}
+
+*{box-sizing:border-box;border-radius:0}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:"Times New Roman",Times,serif;font-size:15px;line-height:1.4;min-height:100vh}
+a{color:var(--link)}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov)}
+#page{max-width:700px;margin:0 auto;padding:0 12px 80px}
+header{border-bottom:2px solid var(--fg);padding:14px 0 8px;margin-bottom:16px}
+header h1{font-size:clamp(28px,7vw,44px);font-weight:bold;margin:0 0 4px;line-height:1.05}
+header nav{font-family:Arial,Helvetica,sans-serif;font-size:12px}
+.m-section{border:1px solid var(--border);margin-bottom:16px;background:var(--card)}
+.m-section-head{background:var(--sec-ga);color:var(--tag-fg);font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.07em;text-transform:uppercase;padding:5px 12px}
+.m-section-body{padding:14px 16px}
+.lede{margin:0 0 12px}
+.note{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:var(--muted);margin:0 0 12px}
+#status{font-family:Arial,Helvetica,sans-serif;font-size:13px;margin:0 0 16px}
+#status.err{font-weight:bold}
+details{border:1px solid var(--border-light);background:var(--bg);margin-bottom:8px}
+summary{cursor:pointer;padding:7px 10px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;display:flex;gap:10px;justify-content:space-between;list-style-position:inside}
+summary .count{font-weight:normal;color:var(--muted);white-space:nowrap}
+.files{list-style:none;margin:0;padding:0 10px 8px}
+.files li{display:flex;gap:10px;align-items:center;padding:5px 0;border-top:1px solid var(--border-light);font-family:Arial,Helvetica,sans-serif;font-size:12px}
+.files .fname{flex:1;min-width:0;overflow-wrap:anywhere}
+.files .fsize{color:var(--muted);white-space:nowrap}
+.m-btn{font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;padding:4px 12px;cursor:pointer;border:1px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);background:var(--btn-bg);color:var(--fg);display:inline-block;text-decoration:none;white-space:nowrap}
+.m-btn:visited{color:var(--fg)}
+.m-btn:hover{background:var(--hover);color:var(--fg)}
+.m-btn.gold{background:var(--gold-bg);color:var(--gold-fg);border-color:var(--gold-hi) var(--gold-sh) var(--gold-sh) var(--gold-hi)}
+.empty{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="page">
+  <header>
+    <h1>VVIP+ Footage &amp; Video</h1>
+    <nav><a href="/members.html">Back to Members</a></nav>
+  </header>
+
+  <p id="status" role="status" aria-live="polite">Checking your membership...</p>
+
+  <div class="m-section" id="footage" hidden>
+    <div class="m-section-head">Exclusive VVIP Footage</div>
+    <div class="m-section-body">
+      <p class="lede">Download Exclusive VVIP Footage &mdash; make your own VVIP video!</p>
+      <p class="note">Download links work for an hour. Reload this page for fresh ones.</p>
+      <div class="list"></div>
+    </div>
+  </div>
+
+  <div class="m-section" id="videos" hidden>
+    <div class="m-section-head">VVIP Archives &mdash; HQ Video</div>
+    <div class="m-section-body">
+      <p class="note">Full-resolution video. Download links work for an hour.</p>
+      <div class="list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var SUPA_URL = 'https://fyyfiimnltaktrsczjdq.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
+  var API = SUPA_URL + '/functions/v1/member-media';
+  var $status = document.getElementById('status');
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function setStatus(msg, isErr, linkText, href) {
+    $status.textContent = msg;
+    $status.className = isErr ? 'err' : '';
+    if (linkText) { $status.appendChild(document.createTextNode(' ')); var a = el('a', '', linkText); a.href = href; $status.appendChild(a); }
+  }
+  function fmtSize(b) {
+    if (b >= 1073741824) return (b / 1073741824).toFixed(1) + ' GB';
+    if (b >= 1048576) return Math.round(b / 1048576) + ' MB';
+    if (b >= 1024) return Math.round(b / 1024) + ' KB';
+    return b + ' B';
+  }
+
+  function renderSection(id, data) {
+    var sec = document.getElementById(id), list = sec.querySelector('.list');
+    list.textContent = '';
+    sec.hidden = false;
+    var folders = (data && data.folders) || [];
+    if (!folders.length) { list.appendChild(el('p', 'empty', 'Nothing here yet.')); return; }
+    folders.forEach(function (f, i) {
+      var total = f.files.reduce(function (a, x) { return a + (x.size || 0); }, 0);
+      var d = el('details');
+      if (i === 0) d.open = true;
+      var s = el('summary');
+      s.appendChild(el('span', '', f.name || 'Other'));
+      s.appendChild(el('span', 'count', f.files.length + (f.files.length === 1 ? ' file, ' : ' files, ') + fmtSize(total)));
+      d.appendChild(s);
+      var ul = el('ul', 'files');
+      f.files.forEach(function (x) {
+        var li = el('li');
+        li.appendChild(el('span', 'fname', x.name));
+        li.appendChild(el('span', 'fsize', fmtSize(x.size || 0)));
+        var a = el('a', 'm-btn', 'Download');
+        a.href = x.url;
+        a.rel = 'noopener';
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+      d.appendChild(ul);
+      list.appendChild(d);
+    });
+  }
+
+  function load(token, section) {
+    return fetch(API + '?section=' + section, { headers: { 'Authorization': 'Bearer ' + token } })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, body: j }; }); });
+  }
+
+  async function init() {
+    var supa;
+    try {
+      supa = supabase.createClient(SUPA_URL, SUPA_KEY, {
+        auth: {
+          flowType: 'pkce', detectSessionInUrl: false, persistSession: true,
+          storageKey: 'sb-fyyfiimnltaktrsczjdq-auth-token',
+          storage: {
+            getItem: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+            setItem: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+            removeItem: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
+          }
+        }
+      });
+    } catch (e) { setStatus('Could not start sign-in. Reload to try again.', true); return; }
+
+    var res = await supa.auth.getSession();
+    var session = res && res.data && res.data.session;
+    if (!session) { setStatus('Sign in to see VVIP+ footage and video.', true, 'Go to Members', '/members.html'); return; }
+
+    setStatus('Loading...', false);
+    try {
+      var out = await Promise.all([load(session.access_token, 'footage'), load(session.access_token, 'videos')]);
+      var first = out[0];
+      if (first.status === 401) { setStatus('Your sign-in has expired.', true, 'Sign in again', '/members.html'); return; }
+      if (first.status === 403) { setStatus('This page is for VVIP+ members.', true, 'Upgrade to VVIP+', '/members.html'); return; }
+      if (first.status !== 200) throw new Error(first.body.error || ('error ' + first.status));
+      renderSection('footage', first.body);
+      if (out[1].status === 200) renderSection('videos', out[1].body);
+      setStatus('', false);
+      $status.hidden = true;
+      if (location.hash) { var t = document.querySelector(location.hash); if (t) t.scrollIntoView(); }
+    } catch (e) {
+      setStatus('Could not load the file list (' + e.message + '). Reload to try again.', true);
+    }
+  }
+  init();
+})();
+</script>
+</body>
+</html>

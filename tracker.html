@@ -164,6 +164,37 @@
   }
   .r-meta { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
 
+  .edit-btn {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    padding: 2px 7px;
+    cursor: pointer;
+  }
+  .edit-btn:hover { background: var(--invert-bg); color: var(--invert-fg); }
+  .r-meta .edit-btn + .edit-btn { margin-top: 0; }
+  .edit-form { grid-column: 1 / -1; display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .edit-form input[type="text"] {
+    flex: 1 1 180px; min-width: 0; font-family: var(--font-ui); font-size: 0.82rem;
+    padding: 5px 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+  }
+  .edit-form select, .edit-form input[type="date"] {
+    font-family: var(--font-mono); font-size: 0.74rem; padding: 5px 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg);
+  }
+  .edit-form textarea {
+    flex: 1 1 100%; min-width: 0; font-family: var(--font-ui); font-size: 0.8rem; line-height: 1.35;
+    padding: 5px 8px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); resize: vertical;
+  }
+  .edit-form button {
+    font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; padding: 5px 12px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer;
+  }
+  .edit-form button.save { background: var(--invert-bg); color: var(--invert-fg); }
+
   .row.done-row .r-title { text-decoration: line-through; }
   .status-btn.return-btn { background: var(--bg); color: var(--fg); }
   .status-btn.return-btn:hover { background: var(--invert-bg); color: var(--invert-fg); }
@@ -268,6 +299,7 @@
   <div class="roster" id="roster"></div>
   <div class="roster links">
     <a class="tag link" href="/stickers/" target="_blank" rel="noopener">STICKERS &rarr;</a>
+    <a class="tag link" href="/stickers/book.html" target="_blank" rel="noopener">STICKER BOOK &rarr;</a>
     <a class="tag link" href="https://drive.google.com/drive/folders/1D_vO5bWUxnQHPyUknMw0soFU6DOiWrMQ?usp=share_link" target="_blank" rel="noopener">CASSETTE FOLDER &rarr;</a>
     <a class="tag link" href="https://docs.google.com/document/d/1uFef0nGK2MN1ni4bcVv6nAwuYeUN32PE1r2neQ6PvVo/edit?tab=t.0" target="_blank" rel="noopener">TRACKLIST DOC &rarr;</a>
   </div>
@@ -458,7 +490,126 @@
       doneBody.innerHTML = "";
       doneRows.forEach(function (t) { doneBody.appendChild(renderDoneRow(t)); });
     } else {
+      doneBody.innerHTML = "";
       donePanel.hidden = true;
+    }
+  }
+
+  // ---- edit: title, owner, due date. Open editors and what's typed in them survive re-renders.
+  var editing = {};
+  var drafts = {};
+
+  function addEditor(row, t) {
+    var meta = row.querySelector(".r-meta");
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "edit-btn";
+    btn.textContent = editing[t.id] ? "CLOSE" : "EDIT";
+    btn.disabled = !!pending[t.id];
+    btn.addEventListener("click", function () {
+      if (editing[t.id]) { delete editing[t.id]; delete drafts[t.id]; } else editing[t.id] = true;
+      render(lastTasks);
+    });
+    meta.appendChild(btn);
+    if (!editing[t.id]) return;
+
+    var d = drafts[t.id] || (drafts[t.id] = { title: t.title || "", owner: t.owner || "", due: t.due || "", notes: t.notes || "" });
+    var form = document.createElement("div");
+    form.className = "edit-form";
+
+    var title = document.createElement("input");
+    title.type = "text";
+    title.value = d.title;
+    title.setAttribute("aria-label", "Task");
+    title.addEventListener("input", function () { d.title = title.value; });
+
+    var owner = document.createElement("select");
+    owner.setAttribute("aria-label", "Owner");
+    var names = OWNERS.slice();
+    if (d.owner && names.indexOf(d.owner) < 0) names.unshift(d.owner);
+    names.forEach(function (o) {
+      var opt = document.createElement("option");
+      opt.value = o; opt.textContent = o;
+      owner.appendChild(opt);
+    });
+    owner.value = d.owner;
+    owner.addEventListener("change", function () { d.owner = owner.value; });
+
+    var due = document.createElement("input");
+    due.type = "date";
+    due.value = d.due;
+    due.setAttribute("aria-label", "Due date");
+    due.addEventListener("input", function () { d.due = due.value; });
+
+    var notes = document.createElement("textarea");
+    notes.rows = 2;
+    notes.value = d.notes;
+    notes.placeholder = "Description (optional)";
+    notes.setAttribute("aria-label", "Description");
+    notes.addEventListener("input", function () { d.notes = notes.value; });
+
+    var save = document.createElement("button");
+    save.type = "button";
+    save.className = "save";
+    save.textContent = "Save";
+    save.disabled = !!pending[t.id];
+    save.addEventListener("click", function () {
+      var newTitle = d.title.trim();
+      if (!newTitle) { title.focus(); return; }
+      saveEdit(t, { title: newTitle, owner: d.owner, due: d.due || null, notes: d.notes.trim() });
+    });
+
+    var cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.textContent = "Cancel";
+    cancel.addEventListener("click", function () { delete editing[t.id]; delete drafts[t.id]; render(lastTasks); });
+
+    form.appendChild(title);
+    form.appendChild(owner);
+    form.appendChild(due);
+    form.appendChild(notes);
+    form.appendChild(save);
+    form.appendChild(cancel);
+    row.appendChild(form);
+  }
+
+  async function saveEdit(t, fields) {
+    pending[t.id] = true;
+    render(lastTasks);
+    try {
+      var res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "edit", id: t.id, title: fields.title, owner: fields.owner, due: fields.due, notes: fields.notes })
+      });
+      if (!res.ok) throw new Error("http " + res.status);
+      delete editing[t.id];
+      delete drafts[t.id];
+      await loadTasks(true);
+    } catch (e) {
+      showToast("Couldn't save that edit.");
+    } finally {
+      delete pending[t.id];
+      render(lastTasks);
+    }
+  }
+
+  async function deleteTask(t) {
+    pending[t.id] = true;
+    render(lastTasks);
+    try {
+      var res = await fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", id: t.id })
+      });
+      if (!res.ok) throw new Error("http " + res.status);
+      await loadTasks(true);
+    } catch (e) {
+      showToast("Couldn't delete that item.");
+    } finally {
+      delete pending[t.id];
+      render(lastTasks);
     }
   }
 
@@ -504,6 +655,7 @@
     meta.innerHTML = ownerTag + dueTag;
     row.appendChild(meta);
 
+    addEditor(row, t);
     return row;
   }
 
@@ -538,6 +690,7 @@
     meta.innerHTML = '<span class="tag">' + escapeHtml(t.owner) + "</span>";
     row.appendChild(meta);
 
+    addEditor(row, t);
     return row;
   }
 
@@ -568,6 +721,16 @@
     meta.innerHTML = '<span class="tag">' + escapeHtml(t.owner) + "</span>";
     row.appendChild(meta);
 
+    var del = document.createElement("button");
+    del.type = "button";
+    del.className = "edit-btn";
+    del.textContent = "DELETE";
+    del.disabled = !!pending[t.id];
+    del.addEventListener("click", function () {
+      if (window.confirm('Delete "' + t.title + '" for good? This can\'t be undone.')) deleteTask(t);
+    });
+    meta.appendChild(del);
+    addEditor(row, t);
     return row;
   }
 
