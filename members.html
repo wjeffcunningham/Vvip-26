@@ -2055,7 +2055,7 @@ async function saveNewShoppeItem(){
     available:document.getElementById('si-available').value==='true',
     tags
   };
-  if(shoppeEditIndex!=null){ shoppeAdminItems[shoppeEditIndex]=item; }
+  if(shoppeEditIndex!=null){ shoppeAdminItems[shoppeEditIndex]={...shoppeAdminItems[shoppeEditIndex],...item}; } // keep fields the form doesn't edit (id, checkout, variants, stripe_url…)
   else { shoppeAdminItems.push(item); }
   msgEl.textContent='Saving…'; msgEl.className='m-msg show info';
   const ok=await saveShoppeAdmin();

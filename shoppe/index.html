@@ -267,6 +267,23 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
 }
 
 
+/* ── CART ── */
+#shoppe-notice{display:none;padding:8px 10px;border:1px solid var(--border);border-top:none;font-family:Arial,sans-serif;font-size:12px;background:var(--playing);color:var(--fg)}
+#shoppe-cart{display:none;border:1px solid var(--border);border-top:none;background:var(--card);font-family:Arial,Helvetica,sans-serif;font-size:12px}
+#shoppe-cart.show{display:block}
+.cart-head{display:flex;align-items:center;gap:8px;padding:6px 8px;cursor:pointer;font-weight:bold;color:var(--fg)}
+.cart-head:hover{background:var(--hover)}
+.cart-total{margin-left:auto}
+.cart-body{display:none;border-top:1px solid var(--border-light);padding:8px}
+#shoppe-cart.open .cart-body{display:block}
+.cart-line{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid var(--border-light)}
+.cart-line-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cart-rm{font-family:Arial,sans-serif;font-size:11px;background:none;border:none;color:var(--muted);cursor:pointer;padding:0 2px}
+.cart-rm:hover{color:var(--link-hov);text-decoration:underline}
+.cart-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.cart-note{font-size:11px;color:var(--muted);margin-top:6px}
+.cart-note.err{color:#9a0000}
+.shop-btn:disabled{opacity:.6;cursor:default}
 
 @media(max-width:480px){
   .shoppe-item{grid-template-columns:70px 1fr auto}
@@ -359,6 +376,26 @@ a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover
   <span id="shoppe-count"></span>
 </div>
 
+<!-- ORDER NOTICE + CART -->
+<div id="shoppe-notice"></div>
+<div id="shoppe-cart">
+  <div class="cart-head" onclick="toggleCart()"><span id="cart-label">Cart</span><span class="cart-total" id="cart-total"></span></div>
+  <div class="cart-body">
+    <div id="cart-lines"></div>
+    <div class="cart-foot">
+      <span class="shoppe-qty-label">Ship to</span>
+      <select class="shoppe-sort" id="cart-region">
+        <option value="CA">Canada</option>
+        <option value="US">USA</option>
+        <option value="INTL">International</option>
+        <option value="PICKUP">Local pickup (Vancouver)</option>
+      </select>
+      <button class="shop-btn" id="cart-checkout" onclick="checkoutCart()">Checkout &rarr;</button>
+    </div>
+    <div class="cart-note" id="cart-msg">Shipping is added at checkout. Secure payment via Stripe.</div>
+  </div>
+</div>
+
 <!-- ITEM LIST -->
 <div class="shoppe-items" id="shoppe-items"></div>
 <div id="shoppe-empty">No items in this category.</div>
@@ -384,6 +421,7 @@ const SUPA_URL='https://fyyfiimnltaktrsczjdq.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
 const SITE_URL='https://vvipmedia.net';
 const BASE_IMG='https://vvipmedia.net/shoppe/';
+const EDGE_CHECKOUT=SUPA_URL+'/functions/v1/create-checkout';
 
 let supa=null;
 try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true}}); }catch(e){}
@@ -531,6 +569,9 @@ async function loadShoppe(){
         order_url: it.order_url||null,
         premium: !!it.premium,
         note: it.note||null,
+        checkout: !!it.checkout,
+        variants: Array.isArray(it.variants)&&it.variants.length?it.variants:null,
+        variant_label: it.variant_label||'Size',
       }));
       // Append VVIP+ exclusive items
       shoppeItems.push(
@@ -582,10 +623,14 @@ function renderShoppe(){
     // Order button logic
     let orderBtn='';
     if(it.available){
+      if(it.checkout){
+        if(itemSoldOut(it)) orderBtn+='<span style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;color:var(--muted)">Sold out</span>';
+        else orderBtn+=`<button class="shop-btn" id="add-${it.id}" onclick="event.stopPropagation();addToCart('${it.id}')">Add to Cart</button>`;
+      }
       if(it.stripe_url) orderBtn+=`<a class="shop-btn" href="${it.stripe_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Buy Now →</a>`;
-      if(it.bandcamp_url) orderBtn+=`<a class="shop-btn${it.stripe_url?' secondary':''}" href="${it.bandcamp_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${it.stripe_url?'Bandcamp':'Buy / Listen →'}</a>`;
+      if(it.bandcamp_url) orderBtn+=`<a class="shop-btn${it.stripe_url||it.checkout?' secondary':''}" href="${it.bandcamp_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${it.stripe_url||it.checkout?'Bandcamp':'Buy / Listen →'}</a>`;
       if(it.order_url) orderBtn+=`<a class="shop-btn secondary" href="${it.order_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Inquire →</a>`;
-      if(!it.stripe_url&&!it.bandcamp_url&&!it.order_url) orderBtn+=`<a class="shop-btn secondary" href="mailto:vvipmedia@proton.me?subject=Order: ${encodeURIComponent(it.title)}" onclick="event.stopPropagation()">Inquire →</a>`;
+      if(!it.checkout&&!it.stripe_url&&!it.bandcamp_url&&!it.order_url) orderBtn+=`<a class="shop-btn secondary" href="mailto:vvipmedia@proton.me?subject=Order: ${encodeURIComponent(it.title)}" onclick="event.stopPropagation()">Inquire →</a>`;
     } else {
       orderBtn='<span style="font-family:Arial,sans-serif;font-size:11px;color:var(--muted)">Currently unavailable</span>';
     }
@@ -596,7 +641,8 @@ function renderShoppe(){
       <div class="shoppe-detail-body">${it.desc||''}</div>
       ${it.note?`<div class="shoppe-detail-note">${it.note}</div>`:''}
       <div class="shoppe-order-row">
-        ${it.available?`<span class="shoppe-qty-label">Qty</span><input type="number" class="shoppe-qty" min="1" max="99" value="1" id="qty-${it.id}" onclick="event.stopPropagation()">`:''}
+        ${it.available&&it.checkout&&it.variants&&!itemSoldOut(it)?`<span class="shoppe-qty-label">${it.variant_label}</span><select class="shoppe-sort" id="var-${it.id}" onclick="event.stopPropagation()">${it.variants.map(v=>{const n=stockLeft(skuOf(it.id,v));const out=n!==null&&n<=0;return `<option value="${v}"${out?' disabled':''}>${v}${out?' (sold out)':''}</option>`;}).join('')}</select>`:''}
+        ${it.available&&!(it.checkout&&itemSoldOut(it))?`<span class="shoppe-qty-label">Qty</span><input type="number" class="shoppe-qty" min="1" max="99" value="1" id="qty-${it.id}" onclick="event.stopPropagation()">`:''}
         ${orderBtn}
       </div>
     </div>`;
@@ -620,16 +666,113 @@ function renderShoppe(){
 
 function setShoppeCat(cat){shoppeCat=cat;shoppeExpanded=null;renderShoppe();}
 function toggleShoppeItem(e,id,avail){
-  if(e.target.closest('a,input'))return;
+  if(e.target.closest('a,input,select,button'))return;
   if(!avail)return;
   shoppeExpanded=shoppeExpanded===id?null:id;
   renderShoppe();
 }
 
+// ── Stock (Supabase shop_stock; no row = untracked) ──
+let shopStock={};
+async function loadStock(){
+  if(!supa)return;
+  try{
+    const{data,error}=await supa.from('shop_stock').select('sku,qty');
+    if(error)return;
+    shopStock={};(data||[]).forEach(r=>{shopStock[r.sku]=r.qty;});
+  }catch{}
+}
+function skuOf(id,variant){return variant?id+':'+variant:id;}
+function stockLeft(sku){return Object.prototype.hasOwnProperty.call(shopStock,sku)?shopStock[sku]:null;}
+function itemSoldOut(it){
+  const skus=it.variants?it.variants.map(v=>skuOf(it.id,v)):[it.id];
+  return skus.every(k=>{const n=stockLeft(k);return n!==null&&n<=0;});
+}
+
+// ── Cart (stored in this browser only) ──
+let cart=[];
+try{cart=JSON.parse(localStorage.getItem('vvip_cart')||'[]');if(!Array.isArray(cart))cart=[];}catch{cart=[];}
+function saveCart(){try{localStorage.setItem('vvip_cart',JSON.stringify(cart));}catch{}}
+function cartLines(){
+  return cart.map((c,i)=>({c,i,it:shoppeItems.find(x=>x.id===c.id&&x.checkout&&x.available)})).filter(l=>l.it);
+}
+function addToCart(id){
+  const it=shoppeItems.find(x=>x.id===id);if(!it)return;
+  const vEl=document.getElementById('var-'+id);
+  const variant=it.variants?(vEl?vEl.value:null):null;
+  if(it.variants&&!variant)return;
+  const qEl=document.getElementById('qty-'+id);
+  let qty=Math.max(1,Math.min(10,parseInt(qEl&&qEl.value,10)||1));
+  const sku=skuOf(id,variant);
+  const existing=cart.find(c=>c.id===id&&(c.variant||null)===variant);
+  const inCart=existing?existing.qty:0;
+  const left=stockLeft(sku);
+  if(left!==null&&inCart+qty>left){
+    qty=left-inCart;
+    if(qty<=0){setCartMsg('No more '+it.title+(variant?' ('+variant+')':'')+' available.',true);openCart();return;}
+  }
+  if(existing)existing.qty=Math.min(10,existing.qty+qty);else cart.push({id,variant,qty});
+  saveCart();renderCart();
+  const b=document.getElementById('add-'+id);
+  if(b){b.textContent='Added';setTimeout(()=>{if(b)b.textContent='Add to Cart';},1200);}
+}
+function removeFromCart(i){cart.splice(i,1);saveCart();renderCart();}
+function toggleCart(){document.getElementById('shoppe-cart').classList.toggle('open');}
+function openCart(){document.getElementById('shoppe-cart').classList.add('open');}
+function setCartMsg(t,err){const m=document.getElementById('cart-msg');if(m){m.textContent=t;m.className='cart-note'+(err?' err':'');}}
+function renderCart(){
+  const box=document.getElementById('shoppe-cart');if(!box)return;
+  const lines=cartLines();
+  if(!lines.length){box.classList.remove('show','open');return;}
+  box.classList.add('show');
+  const count=lines.reduce((n,l)=>n+l.c.qty,0);
+  const total=lines.reduce((n,l)=>n+l.c.qty*l.it.price,0);
+  document.getElementById('cart-label').textContent='Cart ('+count+')';
+  document.getElementById('cart-total').textContent='$'+total.toFixed(0)+' CAD + shipping';
+  document.getElementById('cart-lines').innerHTML=lines.map(l=>`<div class="cart-line">
+      <span class="cart-line-name">${l.it.title}${l.c.variant?' ('+l.c.variant+')':''}</span>
+      <span>${l.c.qty} &times; $${l.it.price.toFixed(0)}</span>
+      <button class="cart-rm" onclick="removeFromCart(${l.i})">remove</button>
+    </div>`).join('');
+}
+async function checkoutCart(){
+  const lines=cartLines();if(!lines.length)return;
+  const btn=document.getElementById('cart-checkout');
+  btn.disabled=true;setCartMsg('Opening secure checkout…');
+  try{
+    const r=await fetch(EDGE_CHECKOUT,{method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
+      body:JSON.stringify({items:lines.map(l=>({id:l.c.id,variant:l.c.variant||null,qty:l.c.qty})),region:document.getElementById('cart-region').value})});
+    const d=await r.json().catch(()=>({}));
+    if(r.ok&&d.url){window.location=d.url;return;}
+    setCartMsg(d.error||'Checkout failed. Try again.',true);
+    await loadStock();renderShoppe();
+  }catch{setCartMsg('Network error. Try again.',true);}
+  btn.disabled=false;
+}
+function handleOrderReturn(){
+  const q=new URLSearchParams(location.search).get('order');
+  if(!q)return;
+  const n=document.getElementById('shoppe-notice');
+  if(q==='success'){
+    cart=[];saveCart();
+    n.textContent='Thank you. Your order is in. A receipt is on its way to your email.';
+    n.style.display='block';
+  } else if(q==='cancel'){
+    n.textContent='Checkout cancelled. Your cart is still here.';
+    n.style.display='block';
+  }
+  history.replaceState(null,'',location.pathname);
+}
+
 // ── Init ──
 (async()=>{
   if(localStorage.getItem('vvip25:anim')==='0') document.documentElement.classList.add('no-anim');
+  handleOrderReturn();
   await loadShoppe();
+  await loadStock();
+  renderShoppe();
+  renderCart();
   initAuth();
 })();
 

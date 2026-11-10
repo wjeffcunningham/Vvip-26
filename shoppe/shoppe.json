@@ -1,6 +1,10 @@
 [
   {
     "title": "VVIP+ T",
+    "id": "tee-vvip-plus",
+    "checkout": true,
+    "variants": ["S", "M", "L", "XL", "XXL"],
+    "variant_label": "Size",
     "image": "./vvipblack.jpg",
     "description": "Heavyweight cotton tee with front logo.",
     "price": 100,
@@ -12,6 +16,10 @@
   },
   {
     "title": "VVIP Basic White on Black",
+    "id": "tee-basic",
+    "checkout": true,
+    "variants": ["S", "M", "L", "XL", "XXL"],
+    "variant_label": "Size",
     "image": "./tee-white.jpg",
     "description": "Heavyweight cotton tee with pocket logo. Basic t's for basic 'bs.",
     "price": 40,
@@ -23,6 +31,8 @@
   },
   {
     "title": "The VVIP Tote {1.0 Ed.}",
+    "id": "tote-1",
+    "checkout": true,
     "image": "./tote.jpg",
     "description": "Art by SF Cook. High contrast = easier for babies to discern.",
     "price": 20,
@@ -34,6 +44,8 @@
   },
   {
     "title": "Sticker Pack (15)",
+    "id": "sticker-pack",
+    "checkout": true,
     "image": "./stickers.jpg",
     "description": "VVIP stickers. Collect them all.",
     "price": 20,
@@ -45,6 +57,8 @@
   },
   {
     "title": "VVIP Sticker Book (Edition of 15)",
+    "id": "sticker-book",
+    "checkout": true,
     "image": "./stickerbook.jpg",
     "description": "Collector's albums. Hand-numbered editions of 10. Art by SF Cook.",
     "price": 20,
