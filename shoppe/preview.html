@@ -1,0 +1,872 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VVIP Shoppe // VVIPmedia.NET</title>
+<link rel="icon" href="/favicon.ico?v=3">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+  --bg: #f4f4f2;          /* warm white — not clinical */
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #a8a8a8;
+  --border-light: #d0d0d0;
+  --card: #e8e8e6;        /* slightly warm light grey */
+  --hover: #dce4f0;       /* muted slate-blue hover */
+  --playing: #f2f0e0;
+  --playing-title: #7a0000;
+  --link: #00308f;        /* RAF blue — gov but not dull */
+  --link-vis: #4a1a7a;
+  --link-hov: #9a0000;
+  --btn-bg: #d8d8d6;      /* medium grey buttons */
+  --btn-hi: #f0f0ee;
+  --btn-sh: #7a7a7a;
+  --btn-dk: #3a3a3a;
+  --scrub-bg: #bcbcba;
+  --now-bg: #e0e0de;      /* player bar — slightly darker than page */
+  --tab-inactive: #cacac8;
+  --star-on: #8b0000;
+  --tag-bg: #1e2a3a;      /* dark navy for section headers */
+  --tag-fg: #f0f0ee;
+  --sec-ga: #1e2a3a;
+  --sec-gb: #2e3e52;
+  --logo-g1: #000044;
+  --logo-g2: #00308f;
+  --logo-g3: #000044;
+  --logo-glo: #2255dd;
+  --gold-bg: #c8a84b;
+  --gold-hi: #f0d480;
+  --gold-sh: #7a6020;
+  --gold-fg: #2a1800;
+}
+[data-theme="dark"] {
+  --bg: #111014;
+  --fg: #e8e4d8;
+  --muted: #888880;
+  --border: #2a2830;
+  --border-light: #1e1c24;
+  --card: #17151c;
+  --hover: #1a1830;
+  --playing: #1a1800;
+  --playing-title: #ddaa44;
+  --link: #6699ff;
+  --link-vis: #cc88ff;
+  --link-hov: #ff6644;
+  --btn-bg: #28263a;
+  --btn-hi: #484660;
+  --btn-sh: #0c0b14;
+  --btn-dk: #060610;
+  --scrub-bg: #28263a;
+  --now-bg: #15131a;
+  --tab-inactive: #1c1a28;
+  --star-on: #ddaa44;
+  --tag-bg: #0c0a22;
+  --tag-fg: #99aaee;
+  --sec-ga: #0c0a22;
+  --sec-gb: #14123a;
+  --logo-g1: #2244aa;
+  --logo-g2: #4477dd;
+  --logo-g3: #2244aa;
+  --logo-glo: #88aaff;
+  --gold-bg: #7a6020;
+  --gold-hi: #c8a84b;
+  --gold-sh: #3a2a08;
+  --gold-fg: #f0d080;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;-webkit-text-size-adjust:100%}
+html.no-anim *,html.no-anim *::before,html.no-anim *::after{animation:none !important;transition:none !important}
+html.no-anim #site-name{-webkit-text-fill-color:var(--fg);background:none}
+html.no-anim #nav-vvip-btn{-webkit-text-fill-color:var(--gold-bg);background:none}
+body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.4;transition:background .3s,color .3s}
+a{color:var(--link);text-decoration:none}a:visited{color:var(--link-vis)}a:hover{color:var(--link-hov);text-decoration:underline}
+/* ── HEADER ── */
+#site-header{border-bottom:2px solid var(--fg);padding:14px 0 8px;position:relative}
+#site-name{
+  font-size:clamp(36px,10vw,64px);font-weight:bold;margin:0 0 4px;
+  font-family:"Times New Roman",Times,serif;
+  display:block;line-height:1.05;white-space:normal;word-break:keep-all;
+  max-width:calc(100% - 44px);
+  background:linear-gradient(90deg,#000066 0%,#0033cc 40%,#3366ff 55%,#0033cc 70%,#000066 100%);
+  background-size:260% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:logoPulse 5s ease-in-out infinite;
+}
+@keyframes logoPulse{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+#site-nav{font-family:Arial,Helvetica,sans-serif;font-size:12px;display:flex;flex-wrap:nowrap;align-items:center;padding-right:40px;min-width:0;overflow:hidden}
+#site-nav a,#site-nav button{color:var(--fg);text-decoration:none;margin-right:8px;font-size:11px;font-family:Arial,Helvetica,sans-serif;background:none;border:none;padding:0;cursor:pointer;line-height:1.9;white-space:nowrap;flex-shrink:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#site-nav a:hover,#site-nav button:hover{color:var(--link-hov);text-decoration:underline}
+
+/* Auth nav elements */
+#nav-join-free{}
+#nav-vvip-btn{
+  font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;
+  text-decoration:none !important;letter-spacing:.04em;
+  flex-shrink:0 !important;white-space:nowrap !important;margin-left:4px;
+  color:var(--gold-bg);-webkit-text-fill-color:var(--gold-bg);
+}
+[data-theme="dark"] #nav-vvip-btn{
+  background:linear-gradient(90deg,var(--gold-sh) 0%,var(--gold-hi) 35%,#fff8e0 50%,var(--gold-hi) 65%,var(--gold-sh) 100%);
+  background-size:400% 100%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:vvipShimmer 4s ease-in-out infinite;
+}
+@keyframes vvipShimmer{0%{background-position:100% 50%}50%{background-position:0% 50%}100%{background-position:100% 50%}}
+
+#gear-btn{position:absolute;right:0;top:14px;font-size:28px;background:none;border:none;cursor:pointer;padding:0 2px;line-height:1;transition:transform .4s ease;user-select:none}
+#gear-btn:hover{transform:rotate(60deg)}
+#gear-menu{
+  display:none;position:absolute;right:0;top:58px;
+  background:var(--bg);border:2px solid;border-color:var(--btn-hi) var(--btn-sh) var(--btn-sh) var(--btn-hi);
+  padding:8px 14px;z-index:200;font-family:Arial,Helvetica,sans-serif;font-size:12px;min-width:200px;
+  box-shadow:3px 3px 0 var(--btn-dk);
+}
+#gear-menu.open{display:block}
+.gear-item{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-light);gap:14px;color:var(--fg)}
+.gear-item:last-child{border-bottom:none}
+.gear-item label{cursor:pointer}
+.gear-toggle{-webkit-appearance:none;appearance:none;width:36px;height:16px;background:var(--btn-bg);border:1px solid;border-color:var(--btn-sh) var(--btn-hi) var(--btn-hi) var(--btn-sh);border-radius:0;position:relative;cursor:pointer;flex-shrink:0;transition:background .12s}
+.gear-toggle:checked{background:#1a3a8a;border-color:#0a1a5a #3a5acc #3a5acc #0a1a5a}
+[data-theme="dark"] .gear-toggle:checked{background:#1a2e7a}
+.gear-toggle::after{content:'';position:absolute;width:10px;height:10px;background:var(--btn-sh);border:1px solid;border-color:var(--btn-dk) var(--btn-hi) var(--btn-hi) var(--btn-dk);top:2px;left:2px;transition:left .1s}
+.gear-toggle:checked::after{left:22px;background:var(--btn-hi)}
+
+/* Nav shrink on narrow screens */
+@media(max-width:480px){.nav-shrink{display:none}}
+@media(max-width:600px){#site-nav a,#site-nav button{margin-right:6px;font-size:10px}}
+
+#page{max-width:1080px;margin:0 auto;padding:0 16px 96px}
+#site-header{max-width:1080px}
+
+/* ── SHOP BAR ── */
+.shop-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:16px 0 14px;border-bottom:1px solid var(--border-light)}
+.shop-cats{display:flex;gap:18px;flex-wrap:wrap}
+.shop-cat{background:none;border:none;border-bottom:1px solid transparent;padding:0 0 2px;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;touch-action:manipulation}
+.shop-cat:hover{color:var(--fg)}
+.shop-cat.active{color:var(--fg);border-bottom-color:var(--fg)}
+.shop-bar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.shop-sort{font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.04em;background:var(--bg);color:var(--fg);border:1px solid var(--border);padding:4px 20px 4px 6px;border-radius:0;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='12' viewBox='0 0 10 12'%3E%3Cpath d='M5 2L1 6h8zM5 10L1 6h8z' fill='%23777'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;cursor:pointer}
+#cart-btn{font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase;background:var(--bg);color:var(--fg);border:1px solid var(--fg);padding:6px 12px;cursor:pointer;border-radius:0}
+#cart-btn:hover{background:var(--fg);color:var(--bg)}
+#shop-notice{display:none;margin-top:16px;padding:12px 14px;border:1px solid var(--fg);font-family:Arial,sans-serif;font-size:13px}
+
+/* ── GRID ── */
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:48px 32px;padding:32px 0}
+@media(max-width:720px){.shop-grid{grid-template-columns:1fr;gap:36px;padding-top:24px}}
+.tile{display:block;cursor:pointer;color:var(--fg)}
+.tile-frame{position:relative;aspect-ratio:1/1;background:var(--card);border:1px solid var(--border-light);overflow:hidden}
+.tile-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+.tile:hover .tile-frame img{transform:scale(1.025)}
+.tile-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;text-align:center;font-family:"Times New Roman",Times,serif;font-size:30px;line-height:1.15;color:var(--muted)}
+.tile-flag{position:absolute;top:12px;left:12px;background:var(--bg);color:var(--fg);border:1px solid var(--fg);font-family:Arial,sans-serif;font-size:10px;font-weight:bold;letter-spacing:.08em;text-transform:uppercase;padding:3px 7px}
+.tile.off .tile-frame img{filter:grayscale(1);opacity:.5}
+.tile-meta{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-top:12px}
+.tile-title{font-family:"Times New Roman",Times,serif;font-size:20px;line-height:1.2}
+.tile-price{font-family:Arial,Helvetica,sans-serif;font-size:13px;white-space:nowrap}
+.tile-sub{font-family:Arial,Helvetica,sans-serif;font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vvip-badge{display:inline-block;font-family:Arial,sans-serif;font-size:9px;font-weight:bold;background:var(--gold-bg);color:var(--gold-fg);padding:1px 5px;letter-spacing:.04em;margin-left:6px;vertical-align:middle}
+#shop-empty{display:none;padding:60px 0;text-align:center;font-family:Arial,sans-serif;font-size:13px;color:var(--muted)}
+
+/* ── PRODUCT VIEW ── */
+#pv{position:fixed;inset:0;z-index:600;background:var(--bg);overflow-y:auto;display:none}
+#pv.open{display:block}
+.pv-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border-light)}
+.pv-top button{font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:none;border:none;color:var(--fg);cursor:pointer;padding:4px 0}
+.pv-top button:hover{text-decoration:underline}
+.pv-body{max-width:1080px;margin:0 auto;padding:28px 16px 110px;display:grid;grid-template-columns:1.25fr 1fr;gap:48px;align-items:start}
+@media(max-width:780px){.pv-body{grid-template-columns:1fr;gap:22px;padding-top:16px}}
+.pv-main{position:relative;aspect-ratio:1/1;background:var(--card);border:1px solid var(--border-light);overflow:hidden}
+.pv-main img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.pv-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pv-thumbs img{width:68px;height:68px;object-fit:cover;border:1px solid var(--border-light);cursor:pointer;opacity:.65}
+.pv-thumbs img.on{border-color:var(--fg);opacity:1}
+.pv-info{position:sticky;top:72px}
+@media(max-width:780px){.pv-info{position:static}}
+.pv-title{font-family:"Times New Roman",Times,serif;font-weight:normal;font-size:36px;line-height:1.08;margin:0 0 10px}
+.pv-price{font-family:Arial,Helvetica,sans-serif;font-size:16px;margin-bottom:22px}
+.pv-desc{font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;margin-bottom:26px}
+.pv-label{font-family:Arial,sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sizes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:22px}
+.size{min-width:48px;padding:10px 10px;font-family:Arial,Helvetica,sans-serif;font-size:13px;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:0;cursor:pointer}
+.size:hover{border-color:var(--fg)}
+.size.on{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.size:disabled{color:var(--muted);text-decoration:line-through;opacity:.55;cursor:default;border-color:var(--border-light)}
+.qty{display:inline-flex;border:1px solid var(--border);margin-bottom:22px}
+.qty button{width:40px;height:40px;background:var(--bg);color:var(--fg);border:none;font-size:16px;cursor:pointer}
+.qty button:hover{background:var(--hover)}
+.qty span{width:44px;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;font-size:14px;border-left:1px solid var(--border-light);border-right:1px solid var(--border-light)}
+.btn{display:block;width:100%;padding:15px;margin-bottom:10px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;letter-spacing:.1em;text-transform:uppercase;text-align:center;border:1px solid var(--fg);border-radius:0;cursor:pointer;text-decoration:none !important}
+.btn-primary{background:var(--fg);color:var(--bg) !important}
+.btn-primary:hover{background:var(--bg);color:var(--fg) !important}
+.btn-secondary{background:var(--bg);color:var(--fg) !important}
+.btn-secondary:hover{background:var(--fg);color:var(--bg) !important}
+.btn:disabled,.btn:disabled:hover{background:var(--card);color:var(--muted) !important;border-color:var(--border);cursor:default}
+.pv-msg{font-family:Arial,sans-serif;font-size:12px;color:var(--muted);min-height:16px;margin-top:4px}
+.pv-msg.err{color:#9a0000}
+.pv-note{font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin-top:18px;line-height:1.5;border-top:1px solid var(--border-light);padding-top:14px}
+
+/* ── CART DRAWER ── */
+#cart-scrim{position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.35);display:none}
+#cart-scrim.open{display:block}
+#cart-drawer{position:fixed;top:0;right:0;bottom:0;z-index:700;width:min(420px,100%);background:var(--bg);border-left:1px solid var(--fg);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s ease;visibility:hidden}
+#cart-drawer.open{transform:none;visibility:visible}
+.cd-head{display:flex;align-items:center;justify-content:space-between;padding:16px;border-bottom:1px solid var(--border-light)}
+.cd-head h2{font-family:"Times New Roman",Times,serif;font-weight:normal;font-size:26px;margin:0}
+.cd-head button{font-family:Arial,sans-serif;font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:none;border:none;color:var(--fg);cursor:pointer}
+.cd-lines{flex:1;overflow-y:auto;padding:0 16px}
+.cd-empty{padding:40px 0;text-align:center;font-family:Arial,sans-serif;font-size:13px;color:var(--muted)}
+.cd-line{display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-light)}
+.cd-line img,.cd-line .cd-ph{width:72px;height:72px;object-fit:cover;border:1px solid var(--border-light);background:var(--card)}
+.cd-name{font-family:"Times New Roman",Times,serif;font-size:16px;line-height:1.2}
+.cd-sub{font-family:Arial,sans-serif;font-size:12px;color:var(--muted);margin-top:3px}
+.cd-rm{font-family:Arial,sans-serif;font-size:11px;background:none;border:none;color:var(--muted);cursor:pointer;text-decoration:underline;padding:0;margin-top:6px}
+.cd-amt{font-family:Arial,sans-serif;font-size:13px;white-space:nowrap}
+.cd-foot{padding:16px;border-top:1px solid var(--border-light)}
+.cd-row{display:flex;justify-content:space-between;align-items:center;font-family:Arial,sans-serif;font-size:13px;margin-bottom:12px}
+.cd-row select{min-width:190px}
+.cd-total{font-weight:bold;font-size:15px}
+
+/* ── MINI PLAYER BAR ── */
+#mini-player{
+  position:fixed;bottom:0;left:0;right:0;z-index:500;
+  background:var(--now-bg);border-top:2px solid var(--fg);
+  display:none;align-items:center;gap:0;
+  font-family:Arial,Helvetica,sans-serif;
+  box-shadow:0 -2px 8px rgba(0,0,0,.18);
+}
+#mini-player.active{display:flex}
+#mini-thumb{width:52px;height:52px;object-fit:cover;border-right:1px solid var(--border-light);flex-shrink:0;display:block}
+#mini-info{flex:1;min-width:0;padding:6px 10px}
+#mini-title{font-size:12px;font-weight:bold;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mini-time{font-size:10px;color:var(--muted);margin-top:1px;font-family:"Courier New",monospace}
+#mini-controls{display:flex;align-items:stretch;flex-shrink:0}
+#mini-play-btn{
+  width:52px;height:52px;background:var(--gold-bg);color:var(--gold-fg);
+  border:none;border-left:1px solid var(--border-light);
+  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+#mini-play-btn:hover{background:var(--gold-hi)}
+#mini-back-btn{
+  height:52px;padding:0 12px;background:var(--btn-bg);color:var(--fg);
+  border:none;border-left:1px solid var(--border-light);
+  font-family:Arial,sans-serif;font-size:10px;font-weight:bold;
+  cursor:pointer;white-space:nowrap;letter-spacing:.04em;
+}
+#mini-back-btn:hover{background:var(--hover)}
+</style>
+</head>
+<body>
+<div id="page">
+
+<!-- HEADER -->
+<div id="site-header">
+  <div id="site-name">VVIP Media.NET</div>
+  <div id="site-nav">
+    <a href="/">Home</a>
+    <a href="/shoppe/">Shoppe</a>
+    <a href="https://www.youtube.com/@VVVVIIPP26" target="_blank" rel="noopener" class="nav-shrink">YouTube</a>
+    <a href="https://www.instagram.com/vvipmediadotnet/" target="_blank" rel="noopener" class="nav-shrink">Instagram</a>
+    <a id="nav-join-free" href="/members.html">Join Free</a>
+    <a id="nav-vvip-btn" href="/members.html" style="display:none">VVIP+</a>
+    <a id="nav-username-btn" href="/members.html" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:var(--fg)"></a>
+    <span id="nav-admin-btn" style="display:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;color:#99aaee;margin-left:4px;cursor:pointer" onclick="window.location='/members.html'">Admin</span>
+  </div>
+  <button id="gear-btn" title="Settings" onclick="toggleGear()">&#9881;&#65039;</button>
+  <div id="gear-menu">
+    <div class="gear-item" id="gear-join-free">
+      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--link);text-decoration:none">Join Free</a>
+    </div>
+    <div class="gear-item" id="gear-username-row" style="display:none">
+      <a href="/members.html" id="gear-username-link" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--fg);text-decoration:none"></a>
+    </div>
+    <div class="gear-item" id="gear-vvip-upsell" style="display:none">
+      <a href="/members.html" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:var(--gold-bg);text-decoration:none">✦ Upgrade to VVIP+</a>
+    </div>
+    <div class="gear-item" id="gear-signout" style="display:none">
+      <button onclick="signOut()" style="font-family:Arial,sans-serif;font-size:12px;background:none;border:none;padding:0;cursor:pointer;color:var(--muted)">Sign out</button>
+    </div>
+    <div class="gear-item">
+      <label for="tog-dark">Dark mode</label>
+      <input type="checkbox" id="tog-dark" class="gear-toggle" onchange="toggleDark(this.checked)">
+    </div>
+    <div class="gear-item">
+      <label for="tog-anim">Text animations</label>
+      <input type="checkbox" id="tog-anim" class="gear-toggle" checked onchange="document.documentElement.classList.toggle('no-anim',!this.checked);localStorage.setItem('vvip25:anim',this.checked?'1':'0')">
+    </div>
+  </div>
+</div>
+
+<!-- SHOP BAR -->
+<div class="shop-bar">
+  <div class="shop-cats" id="shop-cats" style="visibility:hidden"></div>
+  <div class="shop-bar-right">
+    <select class="shop-sort" id="shop-sort" onchange="renderShoppe()" aria-label="Sort">
+      <option value="default">Featured</option>
+      <option value="avail">Available first</option>
+      <option value="price_asc">Price, low to high</option>
+      <option value="price_desc">Price, high to low</option>
+    </select>
+    <button id="cart-btn" onclick="openCart()">Cart (0)</button>
+  </div>
+</div>
+<div id="shop-notice"></div>
+
+<!-- GRID -->
+<div class="shop-grid" id="shop-grid"></div>
+<div id="shop-empty">Nothing here yet.</div>
+
+<!-- PRODUCT VIEW -->
+<div id="pv" role="dialog" aria-modal="true">
+  <div class="pv-top">
+    <button onclick="closeProduct()">&larr; Shoppe</button>
+    <button onclick="openCart()" id="pv-cart-btn">Cart (0)</button>
+  </div>
+  <div class="pv-body" id="pv-body"></div>
+</div>
+
+<!-- CART DRAWER -->
+<div id="cart-scrim" onclick="closeCart()"></div>
+<aside id="cart-drawer" aria-label="Cart">
+  <div class="cd-head"><h2>Cart</h2><button onclick="closeCart()">Close</button></div>
+  <div class="cd-lines" id="cd-lines"></div>
+  <div class="cd-foot" id="cd-foot">
+    <div class="cd-row"><span>Ship to</span>
+      <select class="shop-sort" id="cart-region">
+        <option value="CA">Canada</option>
+        <option value="US">USA</option>
+        <option value="INTL">International</option>
+        <option value="PICKUP">Local pickup (Vancouver)</option>
+      </select>
+    </div>
+    <div class="cd-row"><span>Subtotal</span><span class="cd-total" id="cd-total">$0</span></div>
+    <button class="btn btn-primary" id="cart-checkout" onclick="checkoutCart()">Checkout</button>
+    <div class="pv-msg" id="cart-msg">Shipping is added at checkout. Secure payment via Stripe.</div>
+  </div>
+</aside>
+
+
+<!-- MINI PLAYER — persists from main player via localStorage -->
+<div id="mini-player">
+  <img id="mini-thumb" src="" alt="">
+  <div id="mini-info">
+    <div id="mini-title">Nothing playing</div>
+    <div id="mini-time">–:–– / –:––</div>
+  </div>
+  <div id="mini-controls">
+    <button id="mini-play-btn" title="Play/Pause on main player">&#9654;</button>
+    <button id="mini-back-btn" onclick="window.location='/'">Player</button>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<script>
+const SUPA_URL='https://fyyfiimnltaktrsczjdq.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5eWZpaW1ubHRha3Ryc2N6amRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODU2MTUsImV4cCI6MjA5NDQ2MTYxNX0.LNDvNnh3bxHx2IfbzbVTTJ0OV_obUb6kq_VBujkeOa4';
+const SITE_URL='https://vvipmedia.net';
+const BASE_IMG='https://vvipmedia.net/shoppe/';
+const EDGE_CHECKOUT=SUPA_URL+'/functions/v1/create-checkout';
+
+let supa=null;
+try{ supa=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{flowType:'implicit',detectSessionInUrl:true,persistSession:true}}); }catch(e){}
+
+let vvipUser=null, isPremium=false, isAdmin=false, vvipUsername='';
+let shoppeItems=[], shoppeCat='all', shoppeExpanded=null;
+
+// ── Dark mode (synced with main site) ──
+(()=>{
+  if(localStorage.getItem('vvip25:dark')==='1')
+    document.documentElement.setAttribute('data-theme','dark');
+  const el=document.getElementById('tog-dark');
+  if(el) el.checked=localStorage.getItem('vvip25:dark')==='1';
+})();
+function toggleDark(on){
+  document.documentElement.setAttribute('data-theme',on?'dark':'light');
+  localStorage.setItem('vvip25:dark',on?'1':'');
+}
+
+// ── Gear menu ──
+function toggleGear(){document.getElementById('gear-menu').classList.toggle('open')}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#gear-btn')&&!e.target.closest('#gear-menu'))
+    document.getElementById('gear-menu').classList.remove('open');
+});
+
+// ── Auth ──
+async function initAuth(){
+  if(!supa){ renderAuthNav(); return; }
+  const hasHash=window.location.hash.includes('access_token')||window.location.hash.includes('error=');
+  if(hasHash) setTimeout(()=>history.replaceState(null,'',window.location.pathname),100);
+  let sessionResolved=false;
+  supa.auth.onAuthStateChange(async(event,s)=>{
+    if(event==='SIGNED_OUT'){sessionResolved=false;vvipUser=null;isPremium=false;isAdmin=false;vvipUsername='';renderAuthNav();renderShoppe();return;}
+    if(event==='SIGNED_IN'&&s&&!sessionResolved){sessionResolved=true;await onSession(s);return;}
+    if(s&&!sessionResolved){sessionResolved=true;await onSession(s);}
+    else if(!s&&!sessionResolved){renderAuthNav();}
+  });
+  if(hasHash){
+    setTimeout(async()=>{
+      if(!sessionResolved){
+        try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}else if(!sessionResolved)renderAuthNav();}catch{renderAuthNav();}
+      }
+    },800);
+  } else {
+    try{const{data:{session}}=await supa.auth.getSession();if(session&&!sessionResolved){sessionResolved=true;await onSession(session);}else if(!sessionResolved)renderAuthNav();}
+    catch{renderAuthNav();}
+  }
+}
+async function onSession(s){
+  vvipUser=s.user;
+  try{
+    const{data}=await supa.from('profiles').select('username,is_premium,is_admin').eq('id',vvipUser.id).single();
+    isPremium=data?.is_premium||false;
+    isAdmin=data?.is_admin||false;
+    vvipUsername=data?.username||'';
+  }catch{}
+  renderAuthNav();
+  renderShoppe();
+}
+async function signOut(){
+  if(!supa)return;
+  await supa.auth.signOut();
+  vvipUser=null;isPremium=false;isAdmin=false;vvipUsername='';
+  renderAuthNav();renderShoppe();
+}
+function renderAuthNav(){
+  const joinEl=document.getElementById('nav-join-free');
+  const vvipEl=document.getElementById('nav-vvip-btn');
+  const userEl=document.getElementById('nav-username-btn');
+  const adminEl=document.getElementById('nav-admin-btn');
+  [joinEl,vvipEl,userEl,adminEl].forEach(el=>{if(el)el.style.display='none'});
+  const gearJoin=document.getElementById('gear-join-free');
+  const gearUser=document.getElementById('gear-username-row');
+  const gearUpsell=document.getElementById('gear-vvip-upsell');
+  const gearSO=document.getElementById('gear-signout');
+  const gearLink=document.getElementById('gear-username-link');
+  if(!vvipUser){
+    if(joinEl)joinEl.style.display='';
+    if(gearJoin)gearJoin.style.display='';
+    if(gearUser)gearUser.style.display='none';
+    if(gearUpsell)gearUpsell.style.display='none';
+    if(gearSO)gearSO.style.display='none';
+  } else if(isAdmin){
+    if(adminEl){adminEl.style.display='';adminEl.textContent=vvipUsername?'Welcome, @'+vvipUsername:'⬡ Admin';}
+    if(gearJoin)gearJoin.style.display='none';
+    if(gearUser)gearUser.style.display='';
+    if(gearLink)gearLink.textContent='⬡ Admin'+(vvipUsername?' · @'+vvipUsername:'');
+    if(gearUpsell)gearUpsell.style.display='none';
+    if(gearSO)gearSO.style.display='';
+  } else if(isPremium){
+    const welcome=vvipUsername?'Welcome, @'+vvipUsername:'✦ VVIP+';
+    if(userEl){userEl.style.display='';userEl.textContent=welcome;}
+    if(gearJoin)gearJoin.style.display='none';
+    if(gearUser)gearUser.style.display='';
+    if(gearLink)gearLink.textContent='✦ '+(vvipUsername?('@'+vvipUsername):'VVIP+ Member');
+    if(gearUpsell)gearUpsell.style.display='none';
+    if(gearSO)gearSO.style.display='';
+  } else {
+    if(vvipUsername){if(userEl){userEl.style.display='';userEl.textContent='Welcome, @'+vvipUsername;}}
+    else{if(vvipEl)vvipEl.style.display='';}
+    if(gearJoin)gearJoin.style.display='none';
+    if(gearUser)gearUser.style.display='';
+    if(gearLink)gearLink.textContent=vvipUsername?('@'+vvipUsername):'My Account';
+    if(gearUpsell)gearUpsell.style.display='flex';
+    if(gearSO)gearSO.style.display='';
+  }
+}
+
+// ── Shoppe data ──
+const SHOPPE_CATEGORIES=[
+  {id:'all',label:'All'},
+  {id:'apparel',label:'Apparel'},
+  {id:'print',label:'Print'},
+  {id:'audio',label:'Digital'},
+  {id:'lp',label:'LP / Cassette'},
+  {id:'vvip',label:'VVIP+ Exclusive',premium:true},
+];
+
+const SHOPPE_FALLBACK=[
+  {id:'tee-black',title:'VVIP+ T',desc:'Heavyweight cotton tee with front logo. Lifetime guarantee.',price:100,currency:'CAD',available:false,tags:['apparel'],images:['vvipblack.jpg']},
+  {id:'tee-white',title:'VVIP Basic — White on Black',desc:"Heavyweight cotton tee with pocket logo.",price:40,currency:'CAD',available:false,tags:['apparel'],images:['tee-white.jpg']},
+  {id:'tote',title:'The VVIP Tote {1.0 Ed.} A few left.',desc:'Art by SF Cook.',price:100,currency:'CAD',available:false,tags:['print'],images:['tote.jpg']},
+  {id:'stickers',title:'Sticker Pack (5)',desc:'VVIP stickers. Collect all 40.',price:20,currency:'CAD',available:false,tags:['print'],images:['stickers.jpg']},
+  {id:'unlimited',title:'Cassette — VirtualVIP Unlimited',desc:'Gary++. Edition of 100. Includes download code. Inflation, bich.',price:50,currency:'CAD',available:false,tags:['audio'],images:['unlimited.jpg'],bandcamp_url:'https://vvip.bandcamp.com/album/unlimited'},
+];
+
+async function loadShoppe(){
+  try{
+    const r=await fetch('/shoppe/shoppe.json',{cache:'no-store'});
+    if(r.ok){
+      const raw=await r.json();
+      shoppeItems=raw.map((it,i)=>({
+        id: it.id||(it.title.toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,32)+'-'+i),
+        title: it.title,
+        desc: it.description||it.desc||'',
+        price: it.price||0,
+        currency: it.currency||'CAD',
+        available: !!it.available,
+        tags: (it.tags||[]).map(t=>t.replace(/^#/,'')),
+        images: it.images||(it.image?[it.image.replace('./','')]:[]),
+        bandcamp_url: it.bandcamp_url||null,
+        stripe_url: it.stripe_url||null,
+        fb_marketplace: it.fb_marketplace||null,
+        order_url: it.order_url||null,
+        premium: !!it.premium,
+        note: it.note||null,
+        checkout: !!it.checkout,
+        variants: Array.isArray(it.variants)&&it.variants.length?it.variants:null,
+        variant_label: it.variant_label||'Size',
+      }));
+      // Append VVIP+ exclusive items
+      shoppeItems.push(
+        {id:'mp3-archive',title:'All MP3s Download',desc:'All Mp3s, delivered to your digital door',price:10,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=MP3+Archive+Download',premium:true,note:'VVIP+ members only'},
+        {id:'wav-archive',title:'All WAVs Download',desc:'Complete archive // lossless WAV.',price:20,currency:'CAD',available:true,tags:['audio','vvip'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=WAV+Archive+Download',premium:true,note:'VVIP+ members only'},
+        {id:'garment-repair',title:'Garment Repair Service',desc:'Free repair of any VVIP branded garment. You pay shipping only.',price:0,currency:'CAD',available:true,tags:['vvip','apparel'],images:[],order_url:'mailto:virtualvipnetwork@gmail.com?subject=Garment+Repair+Request',premium:true,note:'VVIP+ members only // You pay shipping only'}
+      );
+    } else shoppeItems=SHOPPE_FALLBACK;
+  }catch{shoppeItems=SHOPPE_FALLBACK;}
+  renderShoppe();
+}
+
+function shoppeVisibleItems(){
+  const hasPremium=isPremium||isAdmin;
+  let items=[...shoppeItems].filter(it=>!it.premium||hasPremium);
+  if(shoppeCat!=='all') items=items.filter(it=>(it.tags||[]).includes(shoppeCat));
+  const sort=document.getElementById('shop-sort')?.value||'default';
+  if(sort==='price_asc') items.sort((a,b)=>a.price-b.price);
+  else if(sort==='price_desc') items.sort((a,b)=>b.price-a.price);
+  else if(sort==='avail') items.sort((a,b)=>(b.available?1:0)-(a.available?1:0));
+  return items;
+}
+
+function imgUrl(src){return /^https?:/.test(src)?src:BASE_IMG+String(src).replace(/^\.\//,'');}
+function priceStr(it){
+  if(it.price===0) return 'Free + shipping';
+  return '$'+Number(it.price).toLocaleString('en-CA')+' '+(it.currency||'CAD');
+}
+function statusOf(it){
+  if(!it.available) return 'Coming soon';
+  if(it.checkout&&itemSoldOut(it)) return 'Sold out';
+  return '';
+}
+
+// ── Grid ──
+function renderShoppe(){
+  const hasPremium=isPremium||isAdmin;
+  const catsEl=document.getElementById('shop-cats');
+  if(catsEl){
+    catsEl.innerHTML=SHOPPE_CATEGORIES
+      .filter(c=>!c.premium||hasPremium)
+      .map(c=>`<button class="shop-cat${shoppeCat===c.id?' active':''}" onclick="setShoppeCat('${c.id}')">${c.label}</button>`)
+      .join('');
+    catsEl.style.visibility='';
+  }
+  const items=shoppeVisibleItems();
+  const grid=document.getElementById('shop-grid');
+  const empty=document.getElementById('shop-empty');
+  if(!grid)return;
+  if(!items.length){grid.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  grid.innerHTML=items.map(it=>{
+    const src=it.images&&it.images.length?imgUrl(it.images[0]):'';
+    const status=statusOf(it);
+    return `<div class="tile${it.available?'':' off'}" onclick="openProduct('${it.id}')">
+      <div class="tile-frame">
+        <div class="tile-ph">${it.title}</div>
+        ${src?`<img src="${src}" alt="${it.title}" loading="lazy" onerror="this.remove()">`:''}
+        ${status?`<span class="tile-flag">${status}</span>`:''}
+      </div>
+      <div class="tile-meta">
+        <div class="tile-title">${it.title}${it.premium?'<span class="vvip-badge">VVIP+</span>':''}</div>
+        <div class="tile-price">${priceStr(it)}</div>
+      </div>
+      ${it.desc?`<div class="tile-sub">${it.desc}</div>`:''}
+    </div>`;
+  }).join('');
+  // keep an open product view in sync (stock / auth changes)
+  if(pvId) renderProduct();
+}
+function setShoppeCat(cat){shoppeCat=cat;renderShoppe();}
+
+// ── Product view ──
+let pvId=null, pvImg=0, pvVariant=null, pvQty=1, pvPushed=false;
+function openProduct(id){
+  if(!shoppeItems.find(x=>x.id===id))return;
+  if(location.hash!=='#item/'+id){history.pushState(null,'','#item/'+id);pvPushed=true;}
+  showProduct(id);
+}
+function showProduct(id){
+  const it=shoppeItems.find(x=>x.id===id);
+  if(!it){hideProduct();return;}
+  if(pvId!==id){
+    pvId=id;pvImg=0;pvQty=1;
+    pvVariant=it.variants?(it.variants.find(v=>{const n=stockLeft(skuOf(id,v));return n===null||n>0;})||null):null;
+  }
+  renderProduct();
+  const pv=document.getElementById('pv');
+  if(!pv.classList.contains('open')){pv.classList.add('open');pv.scrollTop=0;document.body.style.overflow='hidden';}
+  document.title=it.title+' // VVIP Shoppe';
+}
+function hideProduct(){
+  pvId=null;
+  document.getElementById('pv').classList.remove('open');
+  document.body.style.overflow='';
+  document.title='VVIP Shoppe // VVIPmedia.NET';
+}
+function closeProduct(){
+  if(pvPushed){pvPushed=false;history.back();}
+  else{history.replaceState(null,'',location.pathname+location.search);hideProduct();}
+}
+window.addEventListener('popstate',()=>{
+  const m=location.hash.match(/^#item\/(.+)$/);
+  if(m) showProduct(decodeURIComponent(m[1])); else {pvPushed=false;hideProduct();}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(document.getElementById('cart-drawer').classList.contains('open')) closeCart();
+  else if(pvId) closeProduct();
+});
+
+function renderProduct(){
+  const it=shoppeItems.find(x=>x.id===pvId);
+  const body=document.getElementById('pv-body');
+  if(!it||!body)return;
+  const imgs=(it.images||[]).map(imgUrl);
+  const main=imgs[pvImg]||imgs[0]||'';
+  const soldOut=it.checkout&&itemSoldOut(it);
+  let actions='';
+  if(!it.available){
+    actions=`<button class="btn btn-primary" disabled>Coming soon</button>`;
+  } else {
+    if(it.checkout){
+      if(it.variants){
+        actions+=`<div class="pv-label">${it.variant_label}</div><div class="sizes">${it.variants.map(v=>{
+          const n=stockLeft(skuOf(it.id,v));const out=n!==null&&n<=0;
+          return `<button class="size${pvVariant===v?' on':''}" ${out?'disabled':''} onclick="pvVariant='${v}';renderProduct()">${v}</button>`;
+        }).join('')}</div>`;
+      }
+      if(!soldOut){
+        actions+=`<div class="pv-label">Quantity</div><div class="qty"><button onclick="pvStep(-1)" aria-label="Less">&minus;</button><span>${pvQty}</span><button onclick="pvStep(1)" aria-label="More">+</button></div>`;
+        actions+=`<button class="btn btn-primary" id="pv-add" onclick="addToCart()">Add to Cart</button>`;
+      } else actions+=`<button class="btn btn-primary" disabled>Sold out</button>`;
+    }
+    if(it.stripe_url) actions+=`<a class="btn ${it.checkout?'btn-secondary':'btn-primary'}" href="${it.stripe_url}" target="_blank" rel="noopener">Buy Now</a>`;
+    if(it.bandcamp_url) actions+=`<a class="btn ${it.checkout||it.stripe_url?'btn-secondary':'btn-primary'}" href="${it.bandcamp_url}" target="_blank" rel="noopener">${it.checkout||it.stripe_url?'Bandcamp':'Listen / Buy'}</a>`;
+    if(it.order_url) actions+=`<a class="btn btn-secondary" href="${it.order_url}" target="_blank" rel="noopener">Inquire</a>`;
+    if(!it.checkout&&!it.stripe_url&&!it.bandcamp_url&&!it.order_url) actions+=`<a class="btn btn-secondary" href="mailto:vvipmedia@proton.me?subject=Order: ${encodeURIComponent(it.title)}">Inquire</a>`;
+  }
+  body.innerHTML=`
+    <div>
+      <div class="pv-main"><div class="tile-ph">${it.title}</div>${main?`<img src="${main}" alt="${it.title}" onerror="this.remove()">`:''}</div>
+      ${imgs.length>1?`<div class="pv-thumbs">${imgs.map((s,i)=>`<img src="${s}" class="${i===pvImg?'on':''}" alt="" onclick="pvImg=${i};renderProduct()">`).join('')}</div>`:''}
+    </div>
+    <div class="pv-info">
+      <h1 class="pv-title">${it.title}${it.premium?'<span class="vvip-badge">VVIP+</span>':''}</h1>
+      <div class="pv-price">${priceStr(it)}</div>
+      ${it.desc?`<div class="pv-desc">${it.desc}</div>`:''}
+      ${actions}
+      <div class="pv-msg" id="pv-msg"></div>
+      ${it.note?`<div class="pv-note">${it.note}</div>`:''}
+    </div>`;
+}
+function pvStep(d){
+  const it=shoppeItems.find(x=>x.id===pvId);if(!it)return;
+  let max=10;
+  const n=stockLeft(skuOf(it.id,it.variants?pvVariant:null));
+  if(n!==null) max=Math.min(max,Math.max(1,n));
+  pvQty=Math.max(1,Math.min(max,pvQty+d));
+  renderProduct();
+}
+function setPvMsg(t,err){const m=document.getElementById('pv-msg');if(m){m.textContent=t;m.className='pv-msg'+(err?' err':'');}}
+
+// ── Stock (Supabase shop_stock; no row = untracked) ──
+let shopStock={};
+async function loadStock(){
+  if(!supa)return;
+  try{
+    const{data,error}=await supa.from('shop_stock').select('sku,qty');
+    if(error)return;
+    shopStock={};(data||[]).forEach(r=>{shopStock[r.sku]=r.qty;});
+  }catch{}
+}
+function skuOf(id,variant){return variant?id+':'+variant:id;}
+function stockLeft(sku){return Object.prototype.hasOwnProperty.call(shopStock,sku)?shopStock[sku]:null;}
+function itemSoldOut(it){
+  const skus=it.variants?it.variants.map(v=>skuOf(it.id,v)):[it.id];
+  return skus.every(k=>{const n=stockLeft(k);return n!==null&&n<=0;});
+}
+
+// ── Cart (stored in this browser only) ──
+let cart=[];
+try{cart=JSON.parse(localStorage.getItem('vvip_cart')||'[]');if(!Array.isArray(cart))cart=[];}catch{cart=[];}
+function saveCart(){try{localStorage.setItem('vvip_cart',JSON.stringify(cart));}catch{}}
+function cartLines(){
+  return cart.map((c,i)=>({c,i,it:shoppeItems.find(x=>x.id===c.id&&x.checkout&&x.available)})).filter(l=>l.it);
+}
+function addToCart(){
+  const it=shoppeItems.find(x=>x.id===pvId);if(!it)return;
+  const variant=it.variants?pvVariant:null;
+  if(it.variants&&!variant){setPvMsg('Pick a '+it.variant_label.toLowerCase()+'.',true);return;}
+  let qty=pvQty;
+  const existing=cart.find(c=>c.id===it.id&&(c.variant||null)===variant);
+  const inCart=existing?existing.qty:0;
+  const left=stockLeft(skuOf(it.id,variant));
+  if(left!==null&&inCart+qty>left){
+    qty=left-inCart;
+    if(qty<=0){setPvMsg('You already have all we have left in your cart.',true);return;}
+  }
+  if(existing)existing.qty=Math.min(10,existing.qty+qty);else cart.push({id:it.id,variant,qty});
+  saveCart();renderCart();
+  setPvMsg(qty+' added to cart.');
+  openCart();
+}
+function removeFromCart(i){cart.splice(i,1);saveCart();renderCart();}
+function openCart(){renderCart();document.getElementById('cart-drawer').classList.add('open');document.getElementById('cart-scrim').classList.add('open');}
+function closeCart(){document.getElementById('cart-drawer').classList.remove('open');document.getElementById('cart-scrim').classList.remove('open');}
+function setCartMsg(t,err){const m=document.getElementById('cart-msg');if(m){m.textContent=t;m.className='pv-msg'+(err?' err':'');}}
+function renderCart(){
+  const lines=cartLines();
+  const count=lines.reduce((n,l)=>n+l.c.qty,0);
+  const total=lines.reduce((n,l)=>n+l.c.qty*l.it.price,0);
+  ['cart-btn','pv-cart-btn'].forEach(id=>{const b=document.getElementById(id);if(b)b.textContent='Cart ('+count+')';});
+  const box=document.getElementById('cd-lines');if(!box)return;
+  document.getElementById('cd-foot').style.display=lines.length?'':'none';
+  if(!lines.length){box.innerHTML='<div class="cd-empty">Your cart is empty.</div>';return;}
+  box.innerHTML=lines.map(l=>{
+    const src=l.it.images&&l.it.images.length?imgUrl(l.it.images[0]):'';
+    return `<div class="cd-line">
+      ${src?`<img src="${src}" alt="" onerror="this.outerHTML='<div class=&quot;cd-ph&quot;></div>'">`:'<div class="cd-ph"></div>'}
+      <div><div class="cd-name">${l.it.title}</div><div class="cd-sub">${l.c.variant?l.it.variant_label+': '+l.c.variant+' · ':''}Qty ${l.c.qty}</div><button class="cd-rm" onclick="removeFromCart(${l.i})">Remove</button></div>
+      <div class="cd-amt">$${(l.c.qty*l.it.price).toLocaleString('en-CA')}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('cd-total').textContent='$'+total.toLocaleString('en-CA')+' CAD';
+}
+async function checkoutCart(){
+  const lines=cartLines();if(!lines.length)return;
+  const btn=document.getElementById('cart-checkout');
+  btn.disabled=true;setCartMsg('Opening secure checkout…');
+  try{
+    const r=await fetch(EDGE_CHECKOUT,{method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY},
+      body:JSON.stringify({items:lines.map(l=>({id:l.c.id,variant:l.c.variant||null,qty:l.c.qty})),region:document.getElementById('cart-region').value})});
+    const d=await r.json().catch(()=>({}));
+    if(r.ok&&d.url){window.location=d.url;return;}
+    setCartMsg(d.error||'Checkout failed. Try again.',true);
+    await loadStock();renderShoppe();renderCart();
+  }catch{setCartMsg('Network error. Try again.',true);}
+  btn.disabled=false;
+}
+function handleOrderReturn(){
+  const q=new URLSearchParams(location.search).get('order');
+  if(!q)return;
+  const n=document.getElementById('shop-notice');
+  if(q==='success'){
+    cart=[];saveCart();
+    n.textContent='Thank you. Your order is in. A receipt is on its way to your email.';
+    n.style.display='block';
+  } else if(q==='cancel'){
+    n.textContent='Checkout cancelled. Your cart is still here.';
+    n.style.display='block';
+  }
+  history.replaceState(null,'',location.pathname+location.hash);
+}
+
+// ── Init ──
+(async()=>{
+  if(localStorage.getItem('vvip25:anim')==='0') document.documentElement.classList.add('no-anim');
+  handleOrderReturn();
+  await loadShoppe();
+  await loadStock();
+  renderShoppe();
+  renderCart();
+  const m=location.hash.match(/^#item\/(.+)$/);
+  if(m) showProduct(decodeURIComponent(m[1]));
+  initAuth();
+})();
+
+
+// ── MINI PLAYER — continuous with main player tab via BroadcastChannel + localStorage ──
+(function(){
+  function fmtD(s){s=Number(s||0);return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0')}
+  const bar=document.getElementById('mini-player');
+  if(!bar)return;
+
+  // BroadcastChannel lets us know if the main player tab is live
+  let mainTabAlive=false;
+  let mainTabTimer=null;
+  let miniAudio=null,miniSrc=null;
+
+  try{
+    const bc=new BroadcastChannel('vvip25_player');
+    bc.onmessage=e=>{
+      if(e.data.type==='heartbeat'||e.data.type==='state'){
+        mainTabAlive=true;
+        clearTimeout(mainTabTimer);
+        mainTabTimer=setTimeout(()=>{mainTabAlive=false;},4000);
+        if(e.data.np) updateBarWith(e.data.np, true);
+      }
+    };
+    // Request a heartbeat from main tab
+    bc.postMessage({type:'ping'});
+  }catch{}
+
+  function getState(){try{return JSON.parse(localStorage.getItem('vvip25_np')||'null');}catch{return null;}}
+
+  function updateBarWith(np, fromMain){
+    if(!np||!np.title){bar.classList.remove('active');return;}
+    bar.classList.add('active');
+    const thumb=document.getElementById('mini-thumb');
+    const title=document.getElementById('mini-title');
+    const time=document.getElementById('mini-time');
+    const btn=document.getElementById('mini-play-btn');
+    if(thumb&&np.thumb&&thumb.src!==np.thumb){thumb.src=np.thumb;thumb.style.display='block';thumb.onerror=()=>thumb.style.display='none';}
+    if(title)title.textContent=np.title||'';
+    if(time)time.textContent=fmtD(np.time)+' / '+fmtD(np.duration);
+    const playing=fromMain?np.playing:(miniAudio?(!miniAudio.paused&&!miniAudio.ended):np.playing);
+    if(btn)btn.innerHTML=playing?'&#9646;&#9646;':'&#9654;';
+  }
+
+  function updateBar(){updateBarWith(getState(), mainTabAlive&&!miniAudio?.src);}
+
+  const playBtn=document.getElementById('mini-play-btn');
+  if(playBtn){
+    playBtn.onclick=()=>{
+      // If main tab is alive, send it a command via BroadcastChannel
+      if(mainTabAlive){
+        try{
+          const bc=new BroadcastChannel('vvip25_player');
+          bc.postMessage({type:'cmd',cmd:'toggle'});
+          bc.close();
+        }catch{}
+        return;
+      }
+      // Otherwise control standalone audio
+      const np=getState();if(!np||!np.src)return;
+      if(!miniAudio){
+        miniAudio=new Audio();miniAudio.crossOrigin='anonymous';
+        miniAudio.addEventListener('timeupdate',()=>{
+          try{const s=getState();if(s){s.time=miniAudio.currentTime;s.playing=!miniAudio.paused;localStorage.setItem('vvip25_np',JSON.stringify(s));}}catch{}
+          updateBar();
+        });
+        miniAudio.addEventListener('ended',updateBar);
+      }
+      if(miniSrc!==np.src){miniAudio.src=np.src;miniSrc=np.src;miniAudio.currentTime=np.time||0;}
+      miniAudio.paused?miniAudio.play().catch(()=>{}):miniAudio.pause();
+      updateBar();
+    };
+  }
+
+  const backBtn=document.getElementById('mini-back-btn');
+  if(backBtn)backBtn.onclick=()=>window.location='/';
+
+  updateBar();
+  setInterval(updateBar,2000);
+})();
+</script>
+</body>
+</html>
